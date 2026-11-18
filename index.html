@@ -379,23 +379,29 @@ let isOwner = (name === 'badr0500125387');
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // التحقق وتسجيل المالك الأساسي للنظام
-  async function initStoreOwner() {
-    const ownerPhone = 'badr0500125387';
-    const { data } = await supabaseClient
-      .from('users')
-      .select('*')
-      .eq('identifier', ownerPhone)
-      .single();
+ async function initStoreOwner() {
+    try {
+        const ownerPhone = 'badr0500125387';
+        const { data } = await supabaseClient
+            .from('users')
+            .select('*')
+            .eq('identifier', ownerPhone)
+            .maybeSingle();
 
-    if (!data) {
-      await supabaseClient.from('users').insert([
-        { username: 'أبو ساره', identifier: ownerPhone, role: 'owner' }
-      ]);
-      console.log('تم تفعيل حساب المالك الأساسي بنجاح!');
-    } else {
-      console.log('أهلاً بك يا أبو ساره، حسابك مسجل ومحمي مسبقاً.');
+        if (!data) {
+            await supabaseClient.from('users').insert([
+                { username: 'أبو ساره', identifier: ownerPhone, role: 'owner' }
+            ]);
+            console.log('تم تفعيل حساب المالك الأساسي بنجاح');
+        } else {
+            console.log('أهلاً بك يا أبو ساره، حسابك مسجل ومحمي مسبقاً');
+        }
+    } catch (err) {
+        console.warn('تنبيه الاتصال:', err.message);
     }
-  }
+}
+// تشغيل الدالة بأمان تام بدون تعليق الشاشة
+initStoreOwner();
 
 </script>
    
