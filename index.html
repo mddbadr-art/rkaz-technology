@@ -378,8 +378,28 @@ let isOwner = (name === 'badr0500125387');
   
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  console.log('المتجر يعمل بوضع الأمان');
+ // تفعيل الاتصال الآمن والمستقر للمتجر
+async function initStoreOwner() {
+    try {
+        const ownerPhone = 'badr0500125387';
+        if (typeof supabaseClient === 'undefined') return;
+        
+        const { data, error } = await supabaseClient
+            .from('users')
+            .select('*')
+            .eq('identifier', ownerPhone)
+            .maybeSingle();
 
+        if (!data && !error) {
+            await supabaseClient.from('users').insert([
+                { username: 'ابو ساره', identifier: ownerPhone, role: 'owner' }
+            ]);
+        }
+    } catch (err) {
+        console.warn('Network notice handled safely');
+    }
+}
+initStoreOwner();
 </script>
    
 </body>
