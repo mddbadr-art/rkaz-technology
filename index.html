@@ -330,12 +330,11 @@
             const name = document.getElementById('login-name').value.trim();
             const identifier = document.getElementById('login-identifier').value.trim();
 
-            const name = document.getElementById('login-name').value.trim();
-const identifier = document.getElementById('login-identifier').value.trim();
+          
 
 let isOwner = (name === 'badr0500125387');
 
-currentUser = { name, identifier, isOwner };
+
 
             currentUser = { name, identifier, isOwner };
             localStorage.setItem('rkaz_current_user', JSON.stringify(currentUser));
