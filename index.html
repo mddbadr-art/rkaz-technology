@@ -372,6 +372,35 @@ let isOwner = (name === 'badr0500125387');
 
         checkAuthUI();
         renderProducts();
-    </script>
+        // إعدادات الاتصال السحابي بقاعدة بيانات المتجر
+  const SUPABASE_URL = 'https://sjwqdydypsnjknzmytik.supabase.co';ِ
+  const SUPABASE_ANON_KEY = 'sb_publishable_b3ZLrpwehIriBUG58i3zTQ_MeY5i9';
+  
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // التحقق وتسجيل المالك الأساسي للنظام
+  async function initStoreOwner() {
+    const ownerPhone = 'badr0500125387';
+    const { data } = await supabaseClient
+      .from('users')
+      .select('*')
+      .eq('identifier', ownerPhone)
+      .single();
+
+    if (!data) {
+      await supabaseClient.from('users').insert([
+        { username: 'أبو ساره', identifier: ownerPhone, role: 'owner' }
+      ]);
+      console.log('تم تفعيل حساب المالك الأساسي بنجاح!');
+    } else {
+      console.log('أهلاً بك يا أبو ساره، حسابك مسجل ومحمي مسبقاً.');
+    }
+  }
+
+  initStoreOwner();
+</script>
+   
 </body>
 </html>
+
+  
