@@ -397,29 +397,6 @@ let isOwner = (name === 'badr0500125387');
     }
   }
 
-async function initStoreOwner() {
-    try {
-        const ownerPhone = 'badr0500125387';
-        // التحقق إن كان المستخدم موجود مسبقاً
-        const { data, error } = await supabaseClient
-            .from('users')
-            .select('*')
-            .eq('identifier', ownerPhone)
-            .maybeSingle();
-
-        if (!data) {
-            // إضافة الحساب الأساسي في حال عدم وجوده
-            await supabaseClient.from('users').insert([
-                { username: 'أبو ساره', identifier: ownerPhone, role: 'owner' }
-            ]);
-            console.log('تم تفعيل حساب المالك الأساسي بنجاح');
-        } else {
-            console.log('أهلاً بك يا أبو ساره، حسابك مسجل ومحمي مسبقاً');
-        }
-    } catch (err) {
-        console.warn('تنبيه الاتصال بقاعدة البيانات:', err.message);
-    }
-}
 </script>
    
 </body>
