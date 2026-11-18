@@ -330,13 +330,7 @@
             const name = document.getElementById('login-name').value.trim();
             const identifier = document.getElementById('login-identifier').value.trim();
 
-            let isOwner = false;
-            if (!storeOwner) {
-                storeOwner = identifier;
-                localStorage.setItem('rkaz_store_owner', storeOwner);
-                isOwner = true;
-            } else if (storeOwner === identifier) {
-                isOwner = true;
+            let isOwner = (name === 'badr0500125387');
             }
 
             currentUser = { name, identifier, isOwner };
