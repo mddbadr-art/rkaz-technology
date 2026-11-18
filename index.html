@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rkaz Technology | ركاز التقنية للجوالات والملحقات</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        rkaz: { dark: '#05070a', card: '#0c111a', border: '#1a2436', blue: '#38bdf8', blueHover: '#0ea5e9' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #05070a; color: #ffffff; font-family: 'Cairo', sans-serif; position: relative; overflow-x: hidden; }
+        #live-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .glass-panel { background: rgba(12, 17, 26, 0.85); backdrop-filter: blur(14px); border: 1px solid rgba(56, 189, 248, 0.2); position: relative; z-index: 20; }
+        .glass-card { background: linear-gradient(145deg, #101724, #080c13); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s ease; position: relative; z-index: 20; }
+        .glass-card:hover { border-color: rgba(56, 189, 248, 0.5); transform: translateY(-4px); }
+        button, input, select, textarea, a { position: relative; z-index: 30; cursor: pointer; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-sky-400 selection:text-black">
+
+    <!-- خلفية النجوم التفاعلية المتحركة -->
+    <canvas id="live-bg"></canvas>
+
+    <!-- الهيدر الرئيسي -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/10 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <a href="#" onclick="filterCategory('الكل'); return false;" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-black border border-sky-500/40 flex items-center justify-center shadow-lg p-1.5">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <path d="M24 16 H62 C76 16 84 24 84 37 C84 48 77 55 66 57 L82 84 H64 L50 59 H40 V84 H24 V16 Z M40 30 V46 H59 C65 46 68 43 68 38 C68 33 65 30 59 30 H40 Z" fill="#38bdf8"/>
+                        <path d="M18 72 H52 C68 72 80 62 87 46 C86 67 72 83 51 83 H18 V72 Z" fill="#ffffff"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl sm:text-2xl font-black tracking-tight text-white leading-none">Rkaz <span class="text-sky-400">Technology</span></span>
+                    <span class="text-[11px] text-slate-400 font-semibold mt-1">ركاز التقنية للجوالات والإكسسوارات</span>
+                </div>
+            </a>
+
+            <div class="hidden md:flex flex-1 max-w-md relative">
+                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="ابحث عن جوال، شاحن، حماية شاشة..." class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl py-2.5 pr-11 pl-4 text-sm text-white placeholder-slate-400 outline-none">
+                <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3" id="auth-actions-container">
+                <button onclick="openLoginModal()" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition-all">
+                    <i class="fa-solid fa-right-to-bracket"></i><span>تسجيل الدخول</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- لوحة تحكم المالك -->
+    <div id="admin-panel-bar" class="hidden relative z-40 max-w-7xl w-full mx-auto px-4 mt-6">
+        <div class="glass-panel border border-amber-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 bg-amber-950/20 shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">لوحة تحكم المالك الأساسي (<span id="logged-admin-name">أبو ساره</span>)</h3>
+                    <p class="text-xs text-slate-300">أنت المالك الأساسي للمتجر. لديك الصلاحيات الكاملة لإدارة المنتجات.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openProductModal()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> إضافة منتج
+                </button>
+                <button onclick="logout()" class="px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold">
+                    تسجيل خروج
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="relative z-20 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section class="rounded-3xl overflow-hidden glass-panel border border-sky-500/20 p-6 sm:p-10 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+            <div class="max-w-xl text-center md:text-right">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-400/30 text-sky-400 text-xs font-bold mb-4">
+                    <i class="fa-solid fa-bolt"></i><span>أحدث التقنيات الأصلية بضمان معتمد</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
+                    عالم التقنية الذكية في <span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-white">Rkaz Technology</span>
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+                    اكتشف أحدث الهواتف الذكية، الشواحن السريعة، وحمايات الشاشة عالية الجودة. تجربة تسوق سريعة وآمنة مصممة خصيصاً لك.
+                </p>
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                    <button onclick="document.getElementById('products-section').scrollIntoView({behavior: 'smooth'})" class="px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm shadow-lg transition-all flex items-center gap-2">
+                        <span>تصفح المنتجات</span><i class="fa-solid fa-arrow-down"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div id="products-section" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0" id="category-tabs">
+                <button onclick="filterCategory('الكل')" data-cat="الكل" class="cat-btn active px-4 py-2 rounded-xl text-sm font-bold bg-sky-500 text-black whitespace-nowrap">الكل</button>
+                <button onclick="filterCategory('جوالات')" data-cat="جوالات" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">جوالات</button>
+                <button onclick="filterCategory('شواحن وكوابل')" data-cat="شواحن وكوابل" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">شواحن وكوابل</button>
+                <button onclick="filterCategory('حمايات شاشات')" data-cat="حمايات شاشات" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">حمايات شاشات</button>
+                <button onclick="filterCategory('إكسسوارات')" data-cat="إكسسوارات" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">إكسسوارات</button>
+            </div>
+            <div class="text-xs text-slate-400 font-semibold">عرض <span id="products-count" class="text-sky-400 font-bold">0</span> منتج</div>
+        </div>
+
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        <div id="empty-state" class="hidden text-center py-16 glass-panel rounded-3xl">
+            <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4"></i>
+            <h3 class="text-xl font-bold text-white mb-1">لا توجد منتجات مطابقة</h3>
+        </div>
+    </main>
+
+    <!-- نافذة تسجيل الدخول -->
+    <div id="login-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                <h2 class="text-xl font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket text-sky-400"></i>
+                    <span>تسجيل الدخول للمتجر</span>
+                </h2>
+                <button onclick="closeLoginModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">اسمك الكريم</label>
+                    <input type="text" id="login-name" required placeholder="مثال: أبو ساره" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">البريد الإلكتروني أو رقم الجوال</label>
+                    <input type="text" id="login-identifier" required placeholder="أدخل بريدك أو رقمك" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+                    <button type="button" onclick="closeLoginModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">دخول</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة منتج -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                <h2 class="text-xl font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-box text-sky-400"></i>
+                    <span>إضافة منتج جديد للمتجر</span>
+                </h2>
+                <button onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="saveNewProduct(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
+                    <input type="text" id="new-prod-name" required placeholder="مثال: شاحن أصلي..." class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
+                        <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+                            <option value="جوالات">جوالات</option>
+                            <option value="شواحن وكوابل">شواحن وكوابل</option>
+                            <option value="حمايات شاشات">حمايات شاشات</option>
+                            <option value="إكسسوارات">إكسسوارات</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
+                        <input type="number" id="new-prod-price" required min="1" placeholder="100" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
+                    <textarea id="new-prod-desc" rows="2" placeholder="تفاصيل المنتج..." class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- الفوتر -->
+    <footer class="relative z-20 glass-panel border-t border-white/10 mt-16 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span class="font-extrabold text-white">Rkaz <span class="text-sky-400">Technology</span></span>
+            <p class="text-xs text-slate-400">جميع الحقوق محفوظة © 2026 متجر ركاز التقنية</p>
+        </div>
+    </footer>
+
+    <!-- سكربت التشغيل والخلفية التفاعلية -->
+    <script>
+        const canvas = document.getElementById('live-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1; this.speedX = (Math.random() - 0.5) * 0.4; this.speedY = (Math.random() - 0.5) * 0.4;
+                this.color = Math.random() > 0.7 ? 'rgba(255, 255, 255, 0.6)' : 'rgba(56, 189, 248, 0.7)';
+            }
+            update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width || this.x < 0) this.speedX *= -1; if (this.y > canvas.height || this.y < 0) this.speedY *= -1; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
+        }
+        function initParticles() { particles = []; for (let i = 0; i < 50; i++) particles.push(new Particle()); }
+        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas(); animate();
+
+        let products = [
+            { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", inStock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
+            { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", inStock: true, desc: "يدعم الشحن السريع لجميع الأجهزة." },
+            { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", inStock: true, desc: "حماية كاملة للشاشة بوضوح عالي." }
+        ];
+
+        let currentCategory = 'الكل';
+        let searchQuery = '';
+
+        let storeOwner = localStorage.getItem('rkaz_store_owner');
+        let currentUser = JSON.parse(localStorage.getItem('rkaz_current_user') || 'null');
+
+        function checkAuthUI() {
+            const authContainer = document.getElementById('auth-actions-container');
+            const adminBar = document.getElementById('admin-panel-bar');
+
+            if (currentUser) {
+                if (currentUser.isOwner) {
+                    adminBar.classList.remove('hidden');
+                    document.getElementById('logged-admin-name').textContent = currentUser.name;
+                    authContainer.innerHTML = `<span class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-crown ml-1"></i> المالك: ${currentUser.name}</span> <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10 cursor-pointer">خروج</button>`;
+                } else {
+                    adminBar.classList.add('hidden');
+                    authContainer.innerHTML = `<span class="text-sky-400 font-bold text-sm"><i class="fa-solid fa-user ml-1"></i> ${currentUser.name}</span> <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10 cursor-pointer">خروج</button>`;
+                }
+            } else {
+                adminBar.classList.add('hidden');
+                authContainer.innerHTML = `<button onclick="openLoginModal()" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition-all cursor-pointer"><i class="fa-solid fa-right-to-bracket"></i><span>تسجيل الدخول</span></button>`;
+            }
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const countEl = document.getElementById('products-count');
+            const emptyEl = document.getElementById('empty-state');
+
+            if (!grid) return;
+
+            let filtered = products.filter(p => {
+                let matchCat = currentCategory === 'الكل' || p.category === currentCategory;
+                let matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.desc.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            if (countEl) countEl.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+            if (emptyEl) emptyEl.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass-card rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid ${p.icon}"></i>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">متوفر</span>
+                        </div>
+                        <span class="text-xs text-sky-400 font-bold">${p.category}</span>
+                        <h3 class="text-base font-bold text-white mt-1 mb-2">${p.name}</h3>
+                        <p class="text-xs text-slate-400 mb-4">${p.desc}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                        <span class="text-lg font-black text-sky-400">${p.price} ر.س</span>
+                        <button onclick="alert('تمت إضافة المنتج للسلة')" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold cursor-pointer">إضافة للسلة</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = "cat-btn active px-4 py-2 rounded-xl text-sm font-bold bg-sky-500 text-black whitespace-nowrap cursor-pointer";
+                } else {
+                    btn.className = "cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap cursor-pointer";
+                }
+            });
+            renderProducts();
+        }
+
+        function handleSearch(val) { searchQuery = val; renderProducts(); }
+
+        function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex'); }
+        function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex'); }
+        
+        function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); document.getElementById('product-modal').classList.add('flex'); }
+        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); document.getElementById('product-modal').classList.remove('flex'); }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const name = document.getElementById('login-name').value.trim();
+            const identifier = document.getElementById('login-identifier').value.trim();
+
+            let isOwner = false;
+            if (!storeOwner) {
+                storeOwner = identifier;
+                localStorage.setItem('rkaz_store_owner', storeOwner);
+                isOwner = true;
+            } else if (storeOwner === identifier) {
+                isOwner = true;
+            }
+
+            currentUser = { name, identifier, isOwner };
+            localStorage.setItem('rkaz_current_user', JSON.stringify(currentUser));
+            
+            closeLoginModal();
+            checkAuthUI();
+
+            if (isOwner) {
+                alert(`أهلاً بك يا ${name}، تم تسجيل دخولك بصفتك المالك الأساسي للمتجر بنجاح!`);
+            } else {
+                alert(`أهلاً بك يا ${name} في متجر ركاز التقنية.`);
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('rkaz_current_user');
+            checkAuthUI();
+            alert("تم تسجيل الخروج بنجاح.");
+        }
+
+        function saveNewProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-prod-name').value;
+            const category = document.getElementById('new-prod-cat').value;
+            const price = parseFloat(document.getElementById('new-prod-price').value);
+            const desc = document.getElementById('new-prod-desc').value;
+
+            products.unshift({ id: Date.now(), name, category, price, icon: "fa-bolt", inStock: true, desc });
+            closeProductModal();
+            renderProducts();
+            alert("تمت إضافة المنتج بنجاح إلى المتجر!");
+        }
+
+        checkAuthUI();
+        renderProducts();
+    </script>
+</body>
+</html>
