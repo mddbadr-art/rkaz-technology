@@ -146,8 +146,8 @@
                     <span id="cart-total" class="text-xl font-black text-sky-400">0 ر.س</span>
                 </div>
                 <button onclick="sendOrderToWhatsApp()" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm">
-  إتمام الطلب الآن
-</button>
+                    إتمام الطلب الآن
+                </button>
             </div>
         </div>
     </div>
@@ -231,55 +231,55 @@
     </div>
 
     <!-- نافذة إضافة منتج جديد -->
-<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-  <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
-    <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
-      <h2 class="text-xl font-black text-white">إضافة منتج جديد</h2>
-      <button type="button" onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                <h2 class="text-xl font-black text-white">إضافة منتج جديد</h2>
+                <button type="button" onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveNewProduct(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
+                    <input type="text" id="new-prod-name" required class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
+                        <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+                            <option value="جوالات">جوالات</option>
+                            <option value="شواحن وكوابل">شواحن وكوابل</option>
+                            <option value="حمايات شاشات">حمايات شاشات</option>
+                            <option value="إكسسوارات">إكسسوارات</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
+                        <input type="number" id="new-prod-price" required min="1" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
+                    <input type="url" id="new-prod-image" placeholder="https://example.com/image.jpg" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
+                    <textarea id="new-prod-desc" rows="2" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <form onsubmit="saveNewProduct(event)" class="space-y-4">
-      <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
-        <input type="text" id="new-prod-name" required class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
-          <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
-            <option value="جوالات">جوالات</option>
-            <option value="شواحن وكوابل">شواحن وكوابل</option>
-            <option value="حمايات شاشات">حمايات شاشات</option>
-            <option value="إكسسوارات">إكسسوارات</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
-          <input type="number" id="new-prod-price" required min="1" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
-        <input type="url" id="new-prod-image" placeholder="https://example.com/image.jpg" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
-        <textarea id="new-prod-desc" rows="2" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-        <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
-        <button type="submit" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
-      </div>
-    </form>
-  </div>
-</div>
 
     <footer class="relative z-20 glass-panel border-t border-white/10 mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -292,6 +292,7 @@
         const SUPABASE_URL = 'https://sjwqdydypsnjknzmytik.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqd3FkeWR5cHNuamtuem15dGlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjcyMDQsImV4cCI6MjA5NDI0MzIwNH0.ktngHEwxvEZK1Imy17yborSI0leslt-Y4-u-Ih9kMQs';
         const OWNER_ID = 'badr0500125387';
+        const WHATSAPP_ORDER_NUMBER = '966500125387';
 
         const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -315,15 +316,21 @@
         window.addEventListener('resize', resizeCanvas); resizeCanvas(); animate();
 
         const defaultProducts = [
-            { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", inStock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
-            { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", inStock: true, desc: "يدعم الشحن السريع لجميع الأجهزة." },
-            { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", inStock: true, desc: "حماية كاملة للشاشة بوضوح عالي." }
+            { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", in_stock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
+            { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", in_stock: true, desc: "يدعم الشحن السريع لجميع الأجهزة." },
+            { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", in_stock: true, desc: "حماية كاملة للشاشة بوضوح عالي." }
         ];
 
         let products = JSON.parse(localStorage.getItem('rkaz_products') || 'null');
         if (!Array.isArray(products)) {
             products = [...defaultProducts];
             localStorage.setItem('rkaz_products', JSON.stringify(products));
+        } else {
+            products = products.map(p => ({
+                ...p,
+                in_stock: p.in_stock !== undefined ? Boolean(p.in_stock) : (p.inStock !== undefined ? Boolean(p.inStock) : true),
+                desc: p.desc || p.description || ''
+            }));
         }
 
         let cart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
@@ -364,36 +371,36 @@
             updateCartBadge();
             alert('تمت إضافة المنتج إلى السلة!');
         }
-const WHATSAPP_ORDER_NUMBER = '966500125387';
 
-function sendOrderToWhatsApp() {
-  const savedCart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
-  const currentCart = (typeof cart !== 'undefined' && Array.isArray(cart) && cart.length > 0)
-    ? cart
-    : savedCart;
+        function sendOrderToWhatsApp() {
+            const savedCart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
+            const currentCart = (typeof cart !== 'undefined' && Array.isArray(cart) && cart.length > 0)
+                ? cart
+                : savedCart;
 
-  if (!currentCart || currentCart.length === 0) {
-    alert('السلة فارغة حالياً، أضف منتجات أولاً.');
-    return;
-  }
+            if (!currentCart || currentCart.length === 0) {
+                alert('السلة فارغة حالياً، أضف منتجات أولاً.');
+                return;
+            }
 
-  let totalAmount = 0;
-  const itemsLines = currentCart.map((item, index) => {
-    const qty = Number(item.qty) || 1;
-    const price = Number(item.price) || 0;
-    const lineTotal = qty * price;
-    totalAmount += lineTotal;
-    return `${index + 1}. ${item.name} — الكمية: ${qty} — السعر: ${lineTotal} ر.س`;
-  });
+            let totalAmount = 0;
+            const itemsLines = currentCart.map((item, index) => {
+                const qty = Number(item.qty) || 1;
+                const price = Number(item.price) || 0;
+                const lineTotal = qty * price;
+                totalAmount += lineTotal;
+                return `${index + 1}. ${item.name} — الكمية: ${qty} — السعر: ${lineTotal} ر.س`;
+            });
 
-  const message =
-    `مرحباً ركاز التقنية، أود إتمام الطلب التالي:\n\n` +
-    `${itemsLines.join('\n')}\n\n` +
-    `الإجمالي: ${totalAmount} ر.س`;
+            const message =
+                `مرحباً ركاز التقنية، أود إتمام الطلب التالي:\n\n` +
+                `${itemsLines.join('\n')}\n\n` +
+                `الإجمالي: ${totalAmount} ر.س`;
 
-  const waUrl = `https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${encodeURIComponent(message)}`;
-  window.open(waUrl, '_blank');
-}
+            const waUrl = `https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
         function changeCartQty(id, delta) {
             const item = cart.find(c => c.id === id);
             if (!item) return;
@@ -481,55 +488,60 @@ function sendOrderToWhatsApp() {
             localStorage.setItem('rkaz_products', JSON.stringify(products));
             renderProducts();
         }
-async function syncProductUpdateToCloud(updatedProd) {
-  try {
-    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-      await supabaseClient
-        .from('products')
-        .update({
-          name: updatedProd.name,
-          price: Number(updatedProd.price),
-          description: updatedProd.description || '',
-          image_url: updatedProd.image_url || '',
-          in_stock: Boolean(updatedProd.in_stock)
-        })
-        .eq('id', updatedProd.id);
-    }
-  } catch (err) {
-    console.error('Supabase update error:', err);
-  }
-}
 
-function editProduct(id) {
-  if (!isStaffOrOwner(currentUser)) return;
-  const prod = products.find(p => p.id === id);
-  if (!prod) return;
+        async function syncProductUpdateToCloud(updatedProd) {
+            try {
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    await supabaseClient
+                        .from('products')
+                        .update({
+                            name: updatedProd.name,
+                            price: Number(updatedProd.price),
+                            description: updatedProd.desc || updatedProd.description || '',
+                            image_url: updatedProd.imageUrl || updatedProd.image_url || '',
+                            in_stock: Boolean(updatedProd.in_stock)
+                        })
+                        .eq('id', updatedProd.id);
+                }
+            } catch (err) {
+                console.error('Supabase update error:', err);
+            }
+        }
 
-  const newPriceInput = prompt('New Price (SAR):', prod.price);
-  if (newPriceInput === null) return;
-  const parsedPrice = Number(newPriceInput);
-  if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
-    alert('Invalid price');
-    return;
-  }
+        function editProduct(id) {
+            if (!isStaffOrOwner(currentUser)) return;
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
 
-  const stockChoice = prompt(
-    'Stock Status:\n1 = In Stock\n0 = Out of Stock',
-    prod.in_stock === false ? '0' : '1'
-  );
-  if (stockChoice === null) return;
+            const newPriceInput = prompt('السعر الجديد (ر.س):', prod.price);
+            if (newPriceInput === null) return;
+            const parsedPrice = Number(newPriceInput);
+            if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+                alert('أدخل سعراً صحيحاً.');
+                return;
+            }
 
-  const newDesc = prompt('Description (optional):', prod.description || '');
+            const stockChoice = prompt(
+                'حالة الكمية:\nاكتب 1 للمتوفر\nاكتب 0 إذا نفذت الكمية',
+                prod.in_stock === false ? '0' : '1'
+            );
+            if (stockChoice === null) return;
 
-  prod.price = parsedPrice;
-  prod.in_stock = stockChoice.trim() !== '0';
-  if (newDesc !== null) prod.description = newDesc;
+            const newDesc = prompt('وصف المنتج (اختياري):', prod.desc || prod.description || '');
 
-  localStorage.setItem('rkaz_products', JSON.stringify(products));
-  syncProductUpdateToCloud(prod);
-  renderProducts();
-  alert('Updated successfully');
-}
+            prod.price = parsedPrice;
+            prod.in_stock = stockChoice.trim() !== '0';
+            if (newDesc !== null) {
+                prod.desc = newDesc;
+                prod.description = newDesc;
+            }
+
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
+            syncProductUpdateToCloud(prod);
+            renderProducts();
+            alert('تم تحديث بيانات المنتج بنجاح!');
+        }
+
         function renderProducts() {
             const grid = document.getElementById('products-grid');
             const countEl = document.getElementById('products-count');
@@ -537,8 +549,9 @@ function editProduct(id) {
             if (!grid) return;
 
             let filtered = products.filter(p => {
+                const descText = (p.desc || p.description || '').toLowerCase();
                 let matchCat = currentCategory === 'الكل' || p.category === currentCategory;
-                let matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.desc.toLowerCase().includes(searchQuery.toLowerCase());
+                let matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || descText.includes(searchQuery.toLowerCase());
                 return matchCat && matchSearch;
             });
 
@@ -551,28 +564,37 @@ function editProduct(id) {
             if (emptyEl) emptyEl.classList.add('hidden');
             const canManage = isStaffOrOwner(currentUser);
 
-            grid.innerHTML = filtered.map(p => `
-                <div class="glass-card rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                          ${p.imageUrl
-  ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display:none" class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
-  : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
-}
-                            ${p.in_stock === false ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">نفذت الكمية</span>' : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">متوفر</span>'}
-                        <span class="text-xs text-sky-400 font-bold">${p.category}</span>
-                        <h3 class="text-base font-bold text-white mt-1 mb-2">${p.name}</h3>
-                        <p class="text-xs text-slate-400 mb-4">${p.desc}</p>
-                    </div>
-                    <div class="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
-                        <span class="text-lg font-black text-sky-400">${p.price} ر.س</span>
-                        <div class="flex items-center gap-1.5">
-                            ${canManage ? '<button onclick="editProduct(' + p.id + ')" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">تعديل</button><button onclick="deleteProduct(' + p.id + ')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>' : ''}
-                            
+            grid.innerHTML = filtered.map(p => {
+                const imgSrc = p.imageUrl || p.image_url || '';
+                const isAvailable = p.in_stock !== false;
+                const descText = p.desc || p.description || '';
+                return `
+                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                ${imgSrc
+                                    ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display:none" class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
+                                    : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
+                                }
+                                ${isAvailable
+                                    ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">متوفر</span>'
+                                    : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">نفذت الكمية</span>'
+                                }
+                            </div>
+                            <span class="text-xs text-sky-400 font-bold">${p.category}</span>
+                            <h3 class="text-base font-bold text-white mt-1 mb-2">${p.name}</h3>
+                            <p class="text-xs text-slate-400 mb-4">${descText}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
+                            <span class="text-lg font-black text-sky-400">${p.price} ر.س</span>
+                            <div class="flex items-center gap-1.5">
+                                ${canManage ? `<button onclick="editProduct(${p.id})" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">تعديل</button><button onclick="deleteProduct(${p.id})" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>` : ''}
+                                <button onclick="addToCart(${p.id})" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">إضافة للسلة</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function filterCategory(cat) {
@@ -810,80 +832,80 @@ function editProduct(id) {
         }
 
         async function saveNewProduct(e) {
-  e.preventDefault();
-  const name = document.getElementById('new-prod-name').value.trim();
-  const category = document.getElementById('new-prod-cat').value;
-  const price = parseFloat(document.getElementById('new-prod-price').value);
-  const desc = document.getElementById('new-prod-desc').value.trim();
-  const imageEl = document.getElementById('new-prod-image');
-  const imageUrl = imageEl ? imageEl.value.trim() : '';
+            e.preventDefault();
+            const name = document.getElementById('new-prod-name').value.trim();
+            const category = document.getElementById('new-prod-cat').value;
+            const price = parseFloat(document.getElementById('new-prod-price').value);
+            const desc = document.getElementById('new-prod-desc').value.trim();
+            const imageEl = document.getElementById('new-prod-image');
+            const imageUrl = imageEl ? imageEl.value.trim() : '';
 
-  const newProduct = {
-    id: Date.now(),
-    name,
-    category,
-    price,
-    icon: "fa-bolt",
-    inStock: true,
-    desc,
-    imageUrl
-  };
+            const newProduct = {
+                id: Date.now(),
+                name,
+                category,
+                price,
+                icon: "fa-bolt",
+                in_stock: true,
+                desc,
+                imageUrl
+            };
 
-  if (supabaseClient) {
-    const { error } = await supabaseClient
-      .from('products')
-      .insert([{
-        id: newProduct.id,
-        name: newProduct.name,
-        category: newProduct.category,
-        price: newProduct.price,
-        icon: newProduct.icon,
-        in_stock: newProduct.inStock,
-        description: newProduct.desc,
-        image_url: newProduct.imageUrl
-      }]);
+            if (supabaseClient) {
+                const { error } = await supabaseClient
+                    .from('products')
+                    .insert([{
+                        id: newProduct.id,
+                        name: newProduct.name,
+                        category: newProduct.category,
+                        price: newProduct.price,
+                        icon: newProduct.icon,
+                        in_stock: newProduct.in_stock,
+                        description: newProduct.desc,
+                        image_url: newProduct.imageUrl
+                    }]);
 
-    if (error) {
-      console.error('Supabase insert error:', error);
-      alert('تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.');
-    }
-  }
+                if (error) {
+                    console.error('Supabase insert error:', error);
+                    alert('تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.');
+                }
+            }
 
-  products.unshift(newProduct);
-  localStorage.setItem('rkaz_products', JSON.stringify(products));
-  if (imageEl) imageEl.value = '';
-  closeProductModal();
-  renderProducts();
-  alert('تمت إضافة المنتج بنجاح إلى المتجر!');
-}
+            products.unshift(newProduct);
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
+            if (imageEl) imageEl.value = '';
+            closeProductModal();
+            renderProducts();
+            alert('تمت إضافة المنتج بنجاح إلى المتجر!');
+        }
 
-async function loadProductsFromCloud() {
-  if (!supabaseClient) return;
+        async function loadProductsFromCloud() {
+            if (!supabaseClient) return;
 
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-  if (!error && Array.isArray(data) && data.length > 0) {
-    const cloudProducts = data.map(item => ({
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      price: Number(item.price),
-      icon: item.icon || 'fa-bolt',
-      inStock: item.in_stock !== false,
-      desc: item.description || '',
-      imageUrl: item.image_url || ''
-    }));
+            if (!error && Array.isArray(data) && data.length > 0) {
+                const cloudProducts = data.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    category: item.category,
+                    price: Number(item.price),
+                    icon: item.icon || 'fa-bolt',
+                    in_stock: item.in_stock !== false,
+                    desc: item.description || '',
+                    imageUrl: item.image_url || ''
+                }));
 
-    const existingIds = new Set(cloudProducts.map(p => p.id));
-    const localOnly = products.filter(p => !existingIds.has(p.id));
-    products = [...cloudProducts, ...localOnly];
-    localStorage.setItem('rkaz_products', JSON.stringify(products));
-    renderProducts();
-  }
-}
+                const existingIds = new Set(cloudProducts.map(p => p.id));
+                const localOnly = products.filter(p => !existingIds.has(p.id));
+                products = [...cloudProducts, ...localOnly];
+                localStorage.setItem('rkaz_products', JSON.stringify(products));
+                renderProducts();
+            }
+        }
 
         async function initSession() {
             updateCartBadge();
