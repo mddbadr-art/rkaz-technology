@@ -145,9 +145,9 @@
                     <span class="text-sm text-slate-300 font-bold">الإجمالي:</span>
                     <span id="cart-total" class="text-xl font-black text-sky-400">0 ر.س</span>
                 </div>
-                <button onclick="checkoutCart()" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm">
-                    إتمام الطلب الآن
-                </button>
+                <button onclick="sendOrderToWhatsApp()" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm">
+  إتمام الطلب الآن
+</button>
             </div>
         </div>
     </div>
@@ -364,7 +364,36 @@
             updateCartBadge();
             alert('تمت إضافة المنتج إلى السلة!');
         }
+const WHATSAPP_ORDER_NUMBER = '966500125387';
 
+function sendOrderToWhatsApp() {
+  const savedCart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
+  const currentCart = (typeof cart !== 'undefined' && Array.isArray(cart) && cart.length > 0)
+    ? cart
+    : savedCart;
+
+  if (!currentCart || currentCart.length === 0) {
+    alert('السلة فارغة حالياً، أضف منتجات أولاً.');
+    return;
+  }
+
+  let totalAmount = 0;
+  const itemsLines = currentCart.map((item, index) => {
+    const qty = Number(item.qty) || 1;
+    const price = Number(item.price) || 0;
+    const lineTotal = qty * price;
+    totalAmount += lineTotal;
+    return `${index + 1}. ${item.name} — الكمية: ${qty} — السعر: ${lineTotal} ر.س`;
+  });
+
+  const message =
+    `مرحباً ركاز التقنية، أود إتمام الطلب التالي:\n\n` +
+    `${itemsLines.join('\n')}\n\n` +
+    `الإجمالي: ${totalAmount} ر.س`;
+
+  const waUrl = `https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${encodeURIComponent(message)}`;
+  window.open(waUrl, '_blank');
+}
         function changeCartQty(id, delta) {
             const item = cart.find(c => c.id === id);
             if (!item) return;
