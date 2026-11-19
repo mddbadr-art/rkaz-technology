@@ -268,11 +268,17 @@
         resizeCanvas();
         animate();
 
-        let products = [
-            { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", inStock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
-            { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", inStock: true, desc: "يدعم الشحن السريع لجميع الأجهزة." },
-            { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", inStock: true, desc: "حماية كاملة للشاشة بوضوح عالي." }
-        ];
+        const defaultProducts = [
+    { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", inStock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
+    { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", inStock: true, desc: "يدعم الشحن السريع لجميع الأجهزة." },
+    { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", inStock: true, desc: "حماية كاملة للشاشة بوضوح عالي." }
+];
+
+let products = JSON.parse(localStorage.getItem('rkaz_products') || 'null');
+if (!Array.isArray(products)) {
+    products = [...defaultProducts];
+    localStorage.setItem('rkaz_products', JSON.stringify(products));
+}
 
         let currentCategory = 'الكل';
         let searchQuery = '';
@@ -411,6 +417,7 @@
             const desc = document.getElementById('new-prod-desc').value;
 
             products.unshift({ id: Date.now(), name, category, price, icon: "fa-bolt", inStock: true, desc });
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
             closeProductModal();
             renderProducts();
             alert('تمت إضافة المنتج بنجاح إلى المتجر!');
