@@ -733,16 +733,47 @@
             }
         }
 
-        function saveNewProduct(e) {
+        async function saveNewProduct(e) {
   e.preventDefault();
-  const name = document.getElementById('new-prod-name').value;
+  const name = document.getElementById('new-prod-name').value.trim();
   const category = document.getElementById('new-prod-cat').value;
   const price = parseFloat(document.getElementById('new-prod-price').value);
-  const desc = document.getElementById('new-prod-desc').value;
+  const desc = document.getElementById('new-prod-desc').value.trim();
   const imageEl = document.getElementById('new-prod-image');
   const imageUrl = imageEl ? imageEl.value.trim() : '';
 
-  products.unshift({ id: Date.now(), name, category, price, icon: "fa-bolt", inStock: true, desc, imageUrl });
+  const newProduct = {
+    id: Date.now(),
+    name,
+    category,
+    price,
+    icon: "fa-bolt",
+    inStock: true,
+    desc,
+    imageUrl
+  };
+
+  if (supabaseClient) {
+    const { error } = await supabaseClient
+      .from('products')
+      .insert([{
+        id: newProduct.id,
+        name: newProduct.name,
+        category: newProduct.category,
+        price: newProduct.price,
+        icon: newProduct.icon,
+        in_stock: newProduct.inStock,
+        description: newProduct.desc,
+        image_url: newProduct.imageUrl
+      }]);
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      alert('تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.');
+    }
+  }
+
+  products.unshift(newProduct);
   localStorage.setItem('rkaz_products', JSON.stringify(products));
   if (imageEl) imageEl.value = '';
   closeProductModal();
@@ -750,10 +781,39 @@
   alert('تمت إضافة المنتج بنجاح إلى المتجر!');
 }
 
+async function loadProductsFromCloud() {
+  if (!supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (!error && Array.isArray(data) && data.length > 0) {
+    const cloudProducts = data.map(item => ({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      price: Number(item.price),
+      icon: item.icon || 'fa-bolt',
+      inStock: item.in_stock !== false,
+      desc: item.description || '',
+      imageUrl: item.image_url || ''
+    }));
+
+    const existingIds = new Set(cloudProducts.map(p => p.id));
+    const localOnly = products.filter(p => !existingIds.has(p.id));
+    products = [...cloudProducts, ...localOnly];
+    localStorage.setItem('rkaz_products', JSON.stringify(products));
+    renderProducts();
+  }
+}
+
         async function initSession() {
             updateCartBadge();
             checkAuthUI();
             renderProducts();
+            await loadProductsFromCloud();
             if (!supabaseClient) return;
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
