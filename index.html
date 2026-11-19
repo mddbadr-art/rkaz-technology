@@ -230,40 +230,56 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة منتج -->
-    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
-            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
-                <h2 class="text-xl font-black text-white">إضافة منتج جديد</h2>
-                <button onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <form onsubmit="saveNewProduct(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
-                    <input type="text" id="new-prod-name" required class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
-                        <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
-                            <option value="جوالات">جوالات</option>
-                            </div>
+    <!-- نافذة إضافة منتج جديد -->
+<div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+  <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+    <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+      <h2 class="text-xl font-black text-white">إضافة منتج جديد</h2>
+      <button type="button" onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
-    <!-- حط كود رابط الصورة هنا مباشرة قبل وصف المنتج -->
-    <div>
-      <label class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
-      <input type="url" id="new-prod-image" placeholder="https://example.com/image.jpg" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
-    </div>
+    <form onsubmit="saveNewProduct(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
+        <input type="text" id="new-prod-name" required class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+      </div>
 
-    <div>
-      <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
-      <textarea id="new-prod-desc" rows="2" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
-    </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
+          <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+            <option value="جوالات">جوالات</option>
+            <option value="شواحن وكوابل">شواحن وكوابل</option>
+            <option value="حمايات شاشات">حمايات شاشات</option>
+            <option value="إكسسوارات">إكسسوارات</option>
+          </select>
         </div>
-    </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
+          <input type="number" id="new-prod-price" required min="1" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
+        <input type="url" id="new-prod-image" placeholder="https://example.com/image.jpg" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
+        <textarea id="new-prod-desc" rows="2" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+        <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+        <button type="submit" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
+      </div>
+    </form>
+  </div>
+</div>
 
     <footer class="relative z-20 glass-panel border-t border-white/10 mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
