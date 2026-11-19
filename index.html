@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rkaz Technology | ركاز التقنية للجوالات والملحقات</title>
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Cairo -->
@@ -218,19 +218,55 @@
         const canvas = document.getElementById('live-bg');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
         class Particle {
             constructor() {
-                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1; this.speedX = (Math.random() - 0.5) * 0.4; this.speedY = (Math.random() - 0.5) * 0.4;
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
                 this.color = Math.random() > 0.7 ? 'rgba(255, 255, 255, 0.6)' : 'rgba(56, 189, 248, 0.7)';
             }
-            update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width || this.x < 0) this.speedX *= -1; if (this.y > canvas.height || this.y < 0) this.speedY *= -1; }
-            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
         }
-        function initParticles() { particles = []; for (let i = 0; i < 50; i++) particles.push(new Particle()); }
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-        window.addEventListener('resize', resizeCanvas); resizeCanvas(); animate();
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animate();
 
         let products = [
             { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", inStock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
@@ -240,8 +276,6 @@
 
         let currentCategory = 'الكل';
         let searchQuery = '';
-
-        let storeOwner = localStorage.getItem('rkaz_store_owner');
         let currentUser = JSON.parse(localStorage.getItem('rkaz_current_user') || 'null');
 
         function checkAuthUI() {
@@ -252,14 +286,14 @@
                 if (currentUser.isOwner) {
                     adminBar.classList.remove('hidden');
                     document.getElementById('logged-admin-name').textContent = currentUser.name;
-                    authContainer.innerHTML = `<span class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-crown ml-1"></i> المالك: ${currentUser.name}</span> <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10 cursor-pointer">خروج</button>`;
+                    authContainer.innerHTML = '<span class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-crown ml-1"></i> المالك: ' + currentUser.name + '</span> <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10 cursor-pointer">خروج</button>';
                 } else {
                     adminBar.classList.add('hidden');
-                    authContainer.innerHTML = `<span class="text-sky-400 font-bold text-sm"><i class="fa-solid fa-user ml-1"></i> ${currentUser.name}</span> <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10 cursor-pointer">خروج</button>`;
+                    authContainer.innerHTML = '<span class="text-sky-400 font-bold text-sm"><i class="fa-solid fa-user ml-1"></i> ' + currentUser.name + '</span> <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10 cursor-pointer">خروج</button>';
                 }
             } else {
                 adminBar.classList.add('hidden');
-                authContainer.innerHTML = `<button onclick="openLoginModal()" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition-all cursor-pointer"><i class="fa-solid fa-right-to-bracket"></i><span>تسجيل الدخول</span></button>`;
+                authContainer.innerHTML = '<button onclick="openLoginModal()" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold shadow-lg transition-all cursor-pointer"><i class="fa-solid fa-right-to-bracket"></i><span>تسجيل الدخول</span></button>';
             }
         }
 
@@ -318,36 +352,56 @@
             renderProducts();
         }
 
-        function handleSearch(val) { searchQuery = val; renderProducts(); }
+        function handleSearch(val) {
+            searchQuery = val;
+            renderProducts();
+        }
 
-        function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex'); }
-        function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex'); }
-        
-        function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); document.getElementById('product-modal').classList.add('flex'); }
-        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); document.getElementById('product-modal').classList.remove('flex'); }
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.getElementById('login-modal').classList.add('flex');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('flex');
+        }
+
+        function openProductModal() {
+            document.getElementById('product-modal').classList.remove('hidden');
+            document.getElementById('product-modal').classList.add('flex');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            document.getElementById('product-modal').classList.remove('flex');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('rkaz_current_user');
+            checkAuthUI();
+        }
 
         function handleLogin(e) {
             e.preventDefault();
             const name = document.getElementById('login-name').value.trim();
             const identifier = document.getElementById('login-identifier').value.trim();
 
-          
-
-let isOwner = (name === 'badr0500125387');
-
-
+            let isOwner = (identifier === 'badr0500125387' || name === 'badr0500125387');
 
             currentUser = { name, identifier, isOwner };
             localStorage.setItem('rkaz_current_user', JSON.stringify(currentUser));
-            
+
             closeLoginModal();
             checkAuthUI();
 
             if (isOwner) {
-    alert('أهلاً بك يا ' + name + '، تم تسجيل دخولك بصفتك المالك الأساسي للمتجر بنجاح!');
-} else {
-    alert('أهلاً بك يا ' + name + ' في متجر ركاز التقنية.');
-}
+                alert('أهلاً بك يا ' + name + '، تم تسجيل دخولك بصفتك المالك الأساسي للمتجر بنجاح!');
+            } else {
+                alert('أهلاً بك يا ' + name + ' في متجر ركاز التقنية.');
+            }
+        }
 
         function saveNewProduct(e) {
             e.preventDefault();
@@ -364,37 +418,37 @@ let isOwner = (name === 'badr0500125387');
 
         checkAuthUI();
         renderProducts();
+
         // إعدادات الاتصال السحابي بقاعدة بيانات المتجر
-  const SUPABASE_URL = 'https://sjwqdydypsnjknzmytik.supabase.co';ِ
-  const SUPABASE_ANON_KEY = 'sb_publishable_b3ZLrpwehIriBUG58i3zTQ_MeY5i9';
-  
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://sjwqdydypsnjknzmytik.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_b3ZLrpwehIriBUG58i3zTQ_MeY5i9';
 
- // تفعيل الاتصال الآمن والمستقر للمتجر
-async function initStoreOwner() {
-    try {
-        const ownerPhone = 'badr0500125387';
-        if (typeof supabaseClient === 'undefined') return;
-        
-        const { data, error } = await supabaseClient
-            .from('users')
-            .select('*')
-            .eq('identifier', ownerPhone)
-            .maybeSingle();
+        const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
 
-        if (!data && !error) {
-            await supabaseClient.from('users').insert([
-                { username: 'ابو ساره', identifier: ownerPhone, role: 'owner' }
-            ]);
+        // تفعيل الاتصال الآمن والمستقر للمتجر
+        async function initStoreOwner() {
+            try {
+                if (!supabaseClient) return;
+                const ownerPhone = 'badr0500125387';
+
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('identifier', ownerPhone)
+                    .maybeSingle();
+
+                if (!data && !error) {
+                    await supabaseClient.from('users').insert([
+                        { username: 'ابو ساره', identifier: ownerPhone, role: 'owner' }
+                    ]);
+                }
+            } catch (err) {
+                console.warn('Network notice handled safely');
+            }
         }
-    } catch (err) {
-        console.warn('Network notice handled safely');
-    }
-}
-initStoreOwner();
-</script>
-   
+        initStoreOwner();
+    </script>
 </body>
 </html>
-
-  
