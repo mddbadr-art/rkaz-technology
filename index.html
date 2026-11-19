@@ -344,17 +344,10 @@ let isOwner = (name === 'badr0500125387');
             checkAuthUI();
 
             if (isOwner) {
-    alert(`أهلاً بك يا ${name}، تم تسجيل دخولك بصفتك المالك الأساسي للمتجر بنجاح!`);
+    alert('أهلاً بك يا ' + name + '، تم تسجيل دخولك بصفتك المالك الأساسي للمتجر بنجاح!');
 } else {
-    alert(`أهلاً بك يا ${name} في متجر ركاز التقنية.`);
+    alert('أهلاً بك يا ' + name + ' في متجر ركاز التقنية.');
 }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('rkaz_current_user');
-            checkAuthUI();
-            alert("تم تسجيل الخروج بنجاح.");
-        }
 
         function saveNewProduct(e) {
             e.preventDefault();
