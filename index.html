@@ -481,7 +481,55 @@ function sendOrderToWhatsApp() {
             localStorage.setItem('rkaz_products', JSON.stringify(products));
             renderProducts();
         }
+async function syncProductUpdateToCloud(updatedProd) {
+  try {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+      await supabaseClient
+        .from('products')
+        .update({
+          name: updatedProd.name,
+          price: Number(updatedProd.price),
+          description: updatedProd.description || '',
+          image_url: updatedProd.image_url || '',
+          in_stock: Boolean(updatedProd.in_stock)
+        })
+        .eq('id', updatedProd.id);
+    }
+  } catch (err) {
+    console.error('Supabase update error:', err);
+  }
+}
 
+function editProduct(id) {
+  if (!isStaffOrOwner(currentUser)) return;
+  const prod = products.find(p => p.id === id);
+  if (!prod) return;
+
+  const newPriceInput = prompt('New Price (SAR):', prod.price);
+  if (newPriceInput === null) return;
+  const parsedPrice = Number(newPriceInput);
+  if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+    alert('Invalid price');
+    return;
+  }
+
+  const stockChoice = prompt(
+    'Stock Status:\n1 = In Stock\n0 = Out of Stock',
+    prod.in_stock === false ? '0' : '1'
+  );
+  if (stockChoice === null) return;
+
+  const newDesc = prompt('Description (optional):', prod.description || '');
+
+  prod.price = parsedPrice;
+  prod.in_stock = stockChoice.trim() !== '0';
+  if (newDesc !== null) prod.description = newDesc;
+
+  localStorage.setItem('rkaz_products', JSON.stringify(products));
+  syncProductUpdateToCloud(prod);
+  renderProducts();
+  alert('Updated successfully');
+}
         function renderProducts() {
             const grid = document.getElementById('products-grid');
             const countEl = document.getElementById('products-count');
@@ -511,8 +559,7 @@ function sendOrderToWhatsApp() {
   ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display:none" class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
   : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
 }
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">متوفر</span>
-                        </div>
+                            ${p.in_stock === false ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">نفذت الكمية</span>' : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">متوفر</span>'}
                         <span class="text-xs text-sky-400 font-bold">${p.category}</span>
                         <h3 class="text-base font-bold text-white mt-1 mb-2">${p.name}</h3>
                         <p class="text-xs text-slate-400 mb-4">${p.desc}</p>
@@ -520,8 +567,8 @@ function sendOrderToWhatsApp() {
                     <div class="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
                         <span class="text-lg font-black text-sky-400">${p.price} ر.س</span>
                         <div class="flex items-center gap-1.5">
-                            ${canManage ? '<button onclick="deleteProduct(' + p.id + ')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>' : ''}
-                            <button onclick="addToCart(${p.id})" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">إضافة للسلة</button>
+                            ${canManage ? '<button onclick="editProduct(' + p.id + ')" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">تعديل</button><button onclick="deleteProduct(' + p.id + ')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>' : ''}
+                            
                         </div>
                     </div>
                 </div>
