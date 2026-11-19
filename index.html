@@ -362,15 +362,19 @@
         }
 
         function addToCart(id) {
-            const prod = products.find(p => p.id === id);
-            if (!prod) return;
-            const existing = cart.find(c => c.id === id);
-            if (existing) existing.qty += 1;
-            else cart.push({ id: prod.id, name: prod.name, price: prod.price, qty: 1 });
-            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
-            updateCartBadge();
-            alert('تمت إضافة المنتج إلى السلة!');
-        }
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+    if (prod.in_stock === false) {
+        alert('عذراً، نفذت الكمية لهذا المنتج حالياً.');
+        return;
+    }
+    const existing = cart.find(c => c.id === id);
+    if (existing) existing.qty += 1;
+    else cart.push({ id: prod.id, name: prod.name, price: prod.price, qty: 1 });
+    localStorage.setItem('rkaz_cart', JSON.stringify(cart));
+    updateCartBadge();
+    alert('تمت إضافة المنتج إلى السلة!');
+}
 
         function sendOrderToWhatsApp() {
             const savedCart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
