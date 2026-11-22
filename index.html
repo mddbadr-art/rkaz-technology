@@ -456,50 +456,90 @@ function openOwnerRedOffersManager() {
         return;
     }
 
-    const toggleInput = prompt(
-        'حالة شريط العروض الأحمر:\nاكتب 1 لتشغيل الشريط أو 0 لإخفائه:',
-        redOffersConfig.enabled ? '1' : '0'
-    );
-    if (toggleInput === null) return;
-    redOffersConfig.enabled = toggleInput.trim() === '1';
+    const existingModal = document.getElementById('red-offers-modal');
+    if (existingModal) existingModal.remove();
 
-    const titleInput = prompt(
-        'اكتب نص الشريط الأحمر (مثال: العروضضض):',
-        redOffersConfig.title || 'العروضضض'
-    );
-    if (titleInput !== null && titleInput.trim() !== '') {
-        redOffersConfig.title = titleInput.trim();
-    }
+    const currentConfig = (typeof redOffersConfig === 'object' && redOffersConfig)
+        ? redOffersConfig
+        : { enabled: true, title: 'العروضضض', discounts: {} };
 
-    if (redOffersConfig.enabled && Array.isArray(products) && products.length > 0) {
-        const listText = products.map((p, i) => `${i + 1}. ${p.name} (${p.price} ر.س)`).join('\n');
-        const pickInput = prompt(
-            'اختر رقم المنتج لإضافة/تعديل خصم عليه (أو اتركه فارغاً للتخطي):\n' + listText,
-            ''
-        );
-        if (pickInput && pickInput.trim() !== '') {
-            const idx = Number(pickInput.trim()) - 1;
-            if (idx >= 0 && idx < products.length) {
-                const chosen = products[idx];
-                const discInput = prompt(
-                    `كم نسبة الخصم على "${chosen.name}"؟ (مثال 50 لـ 50% أو 0 لإزالة الخصم):`,
-                    String(getOfferDiscountPct(chosen.id) || 50)
-                );
-                if (discInput !== null) {
-                    const pct = Number(discInput.trim());
-                    redOffersConfig.items = (redOffersConfig.items || []).filter(it => String(it.productId) !== String(chosen.id));
-                    if (!Number.isNaN(pct) && pct > 0 && pct < 100) {
-                        redOffersConfig.items.push({ productId: chosen.id, discount: pct });
-                    }
-                }
+    const discounts = currentConfig.discounts || {};
+    const productList = Array.isArray(products) ? products : [];
+
+    const rowsHtml = productList.map(p => {
+        const val = discounts[p.id] ?? '';
+        return `
+            <div class="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2">
+                <div class="text-right">
+                    <div class="text-xs font-bold text-white">${p.name}</div>
+                    <div class="text-[11px] text-slate-400">السعر: ${p.price} ر.س</div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <input type="number" min="0" max="95" data-offer-prod-id="${p.id}" value="${val}" placeholder="0" class="w-20 px-2 py-1 rounded-lg bg-slate-800 border border-slate-600 text-white text-xs text-center" />
+                    <span class="text-xs text-red-400 font-bold">%</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const modalHtml = `
+        <div id="red-offers-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" dir="rtl">
+            <div class="w-full max-w-lg rounded-2xl bg-slate-950 border border-red-500/40 p-5 text-white shadow-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="font-extrabold text-base text-red-400">إدارة العروض الحمراء</h3>
+                    <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="text-slate-400 hover:text-white text-sm">✕</button>
+                </div>
+
+                <label class="flex items-center justify-between bg-slate-900 px-3 py-2.5 rounded-xl border border-slate-800 cursor-pointer">
+                    <span class="text-xs font-bold">تفعيل شريط العروض الأحمر</span>
+                    <input id="red-offer-enabled" type="checkbox" ${currentConfig.enabled !== false ? 'checked' : ''} class="w-4 h-4 accent-red-600" />
+                </label>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">نص الشريط المتحرك</label>
+                    <input id="red-offer-title" type="text" value="${currentConfig.title || ''}" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white" />
+                </div>
+
+                <div>
+                    <div class="text-xs font-bold text-slate-300 mb-2">نسب الخصم على المنتجات</div>
+                    <div class="max-h-60 overflow-y-auto space-y-2 pr-1">
+                        ${rowsHtml || '<div class="text-xs text-slate-400 text-center py-4">لا توجد منتجات</div>'}
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                    <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold">إلغاء</button>
+                    <button type="button" id="save-red-offers-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-extrabold text-white">حفظ التعديلات</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    document.getElementById('save-red-offers-btn').addEventListener('click', () => {
+        const enabled = document.getElementById('red-offer-enabled').checked;
+        const title = document.getElementById('red-offer-title').value.trim();
+        const newDiscounts = {};
+
+        document.querySelectorAll('[data-offer-prod-id]').forEach(input => {
+            const prodId = input.getAttribute('data-offer-prod-id');
+            const num = parseFloat(input.value);
+            if (!isNaN(num) && num > 0) {
+                newDiscounts[prodId] = Math.min(95, num);
             }
-        }
-    }
+        });
 
-    localStorage.setItem('rkaz_red_offers', JSON.stringify(redOffersConfig));
-    renderRedOfferBanner();
-    if (typeof renderProducts === 'function') renderProducts();
-    alert('تم حفظ إعدادات العروض الحمراء بنجاح.');
+        currentConfig.enabled = enabled;
+        if (title !== '') currentConfig.title = title;
+        currentConfig.discounts = newDiscounts;
+
+        localStorage.setItem('rkaz_red_offers', JSON.stringify(currentConfig));
+        if (typeof renderRedOfferBanner === 'function') renderRedOfferBanner();
+        if (typeof renderProducts === 'function') renderProducts();
+        document.getElementById('red-offers-modal').remove();
+        alert('تم حفظ إعدادات العروض الحمراء بنجاح.');
+    });
 }
         function addToCart(id) {
     const prod = products.find(p => p.id === id);
