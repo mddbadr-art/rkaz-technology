@@ -360,11 +360,18 @@
             const badge = document.getElementById('cart-badge');
             if (badge) badge.textContent = totalQty;
         }
+        function isProductInStock(prod) {
+    if (!prod) return false;
+    if (prod.in_stock === false || prod.inStock === false) return false;
+    if (prod.out_of_stock === true || prod.outOfStock === true) return false;
+    if (typeof prod.stock === 'number' && prod.stock <= 0) return false;
+    return true;
+}
 
         function addToCart(id) {
     const prod = products.find(p => p.id === id);
     if (!prod) return;
-    if (prod.in_stock === false) {
+    if (!isProductInStock(prod)) {
         alert('عذراً، نفذت الكمية لهذا المنتج حالياً.');
         return;
     }
