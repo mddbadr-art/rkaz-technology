@@ -459,19 +459,43 @@ function openOwnerRedOffersManager() {
     const existingModal = document.getElementById('red-offers-modal');
     if (existingModal) existingModal.remove();
 
-    const currentConfig = (typeof redOffersConfig === 'object' && redOffersConfig)
+    const baseCfg = (typeof redOffersConfig === 'object' && redOffersConfig)
         ? redOffersConfig
-        : { enabled: true, title: 'العروضضض', discounts: {} };
+        : { enabled: true, title: 'العروضضض', items: [], discounts: {} };
 
-    const discounts = currentConfig.discounts || {};
+    const discountMap = {};
+    if (Array.isArray(baseCfg.items)) {
+        baseCfg.items.forEach(it => {
+            if (it && it.productId !== undefined && Number(it.discount) > 0) {
+                discountMap[String(it.productId)] = Number(it.discount);
+            }
+        });
+    }
+    if (baseCfg.discounts && typeof baseCfg.discounts === 'object') {
+        Object.entries(baseCfg.discounts).forEach(([pid, pct]) => {
+            if (Number(pct) > 0) {
+                discountMap[String(pid)] = Number(pct);
+            }
+        });
+    }
+
     const productList = Array.isArray(products) ? products : [];
 
     const rowsHtml = productList.map(p => {
-        const val = discounts[p.id] ?? '';
+        const pct = discountMap[String(p.id)] || 0;
+        const val = pct > 0 ? pct : '';
+        const badgeText = pct > 0 ? `خصم ${pct}%` : 'بدون خصم';
+        const badgeClass = pct > 0
+            ? 'bg-red-500/20 text-red-300 border-red-500/40'
+            : 'bg-slate-800 text-slate-400 border-slate-700';
+
         return `
             <div class="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2">
-                <div class="text-right">
-                    <div class="text-xs font-bold text-white">${p.name}</div>
+                <div class="text-right space-y-0.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xs font-bold text-white">${p.name}</span>
+                        <span class="px-2 py-0.5 rounded-md border text-[10px] font-extrabold ${badgeClass}">${badgeText}</span>
+                    </div>
                     <div class="text-[11px] text-slate-400">السعر: ${p.price} ر.س</div>
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -492,16 +516,16 @@ function openOwnerRedOffersManager() {
 
                 <label class="flex items-center justify-between bg-slate-900 px-3 py-2.5 rounded-xl border border-slate-800 cursor-pointer">
                     <span class="text-xs font-bold">تفعيل شريط العروض الأحمر</span>
-                    <input id="red-offer-enabled" type="checkbox" ${currentConfig.enabled !== false ? 'checked' : ''} class="w-4 h-4 accent-red-600" />
+                    <input id="red-offer-enabled" type="checkbox" ${baseCfg.enabled !== false ? 'checked' : ''} class="w-4 h-4 accent-red-600" />
                 </label>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">نص الشريط المتحرك</label>
-                    <input id="red-offer-title" type="text" value="${currentConfig.title || ''}" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white" />
+                    <input id="red-offer-title" type="text" value="${baseCfg.title || 'العروضضض'}" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white" />
                 </div>
 
                 <div>
-                    <div class="text-xs font-bold text-slate-300 mb-2">نسب الخصم على المنتجات</div>
+                    <div class="text-xs font-bold text-slate-300 mb-2">المنتجات ونسب الخصم</div>
                     <div class="max-h-60 overflow-y-auto space-y-2 pr-1">
                         ${rowsHtml || '<div class="text-xs text-slate-400 text-center py-4">لا توجد منتجات</div>'}
                     </div>
@@ -519,26 +543,40 @@ function openOwnerRedOffersManager() {
 
     document.getElementById('save-red-offers-btn').addEventListener('click', () => {
         const enabled = document.getElementById('red-offer-enabled').checked;
-        const title = document.getElementById('red-offer-title').value.trim();
+        const titleInput = document.getElementById('red-offer-title').value.trim();
+        const newItems = [];
         const newDiscounts = {};
 
         document.querySelectorAll('[data-offer-prod-id]').forEach(input => {
             const prodId = input.getAttribute('data-offer-prod-id');
             const num = parseFloat(input.value);
             if (!isNaN(num) && num > 0) {
-                newDiscounts[prodId] = Math.min(95, num);
+                const pct = Math.min(95, num);
+                newItems.push({ productId: prodId, discount: pct });
+                newDiscounts[prodId] = pct;
             }
         });
 
-        currentConfig.enabled = enabled;
-        if (title !== '') currentConfig.title = title;
-        currentConfig.discounts = newDiscounts;
+        const updated = {
+            ...baseCfg,
+            enabled,
+            title: titleInput || baseCfg.title || 'العروضضض',
+            items: newItems,
+            discounts: newDiscounts
+        };
 
-        localStorage.setItem('rkaz_red_offers', JSON.stringify(currentConfig));
+        if (typeof redOffersConfig === 'object' && redOffersConfig) {
+            redOffersConfig.enabled = updated.enabled;
+            redOffersConfig.title = updated.title;
+            redOffersConfig.items = updated.items;
+            redOffersConfig.discounts = updated.discounts;
+        }
+
+        localStorage.setItem('rkaz_red_offers', JSON.stringify(updated));
         if (typeof renderRedOfferBanner === 'function') renderRedOfferBanner();
         if (typeof renderProducts === 'function') renderProducts();
         document.getElementById('red-offers-modal').remove();
-        alert('تم حفظ إعدادات العروض الحمراء بنجاح.');
+        alert('تم حفظ العروض وتحديث الشريط والمنتجات.');
     });
 }
         function addToCart(id) {
