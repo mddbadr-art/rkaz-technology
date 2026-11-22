@@ -151,7 +151,10 @@
             </div>
             <div class="text-xs text-slate-400 font-semibold">عرض <span id="products-count" class="text-sky-400 font-bold">0</span> منتج</div>
         </div>
-
+<!-- شريط العروض الأحمر المتحرك الخاص بالمالك (يظهر فقط إذا فعّله المالك) -->
+<div id="owner-red-offer-banner" class="hidden mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-red-800 via-red-600 to-rose-700 border border-red-400/50 shadow-lg shadow-red-950/60 py-2.5 text-white">
+    <div id="owner-red-offer-track" class="rkaz-ticker-track items-center gap-8 text-xs sm:text-sm font-extrabold whitespace-nowrap px-4"></div>
+</div>
         <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         <div id="empty-state" class="hidden text-center py-16 glass-panel rounded-3xl">
             <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4"></i>
@@ -398,7 +401,106 @@
     if (typeof prod.stock === 'number' && prod.stock <= 0) return false;
     return true;
 }
+let redOffersConfig = JSON.parse(localStorage.getItem('rkaz_red_offers') || '{"enabled":false,"title":"العروضضض","items":[]}');
 
+function isOwnerUser(u) {
+    return Boolean(u && u.role === 'owner');
+}
+
+function getOfferDiscountPct(productId) {
+    if (!redOffersConfig || !redOffersConfig.enabled || !Array.isArray(redOffersConfig.items)) return 0;
+    const found = redOffersConfig.items.find(item => String(item.productId) === String(productId));
+    const pct = Number(found ? found.discount : 0);
+    return Number.isFinite(pct) && pct > 0 && pct < 100 ? pct : 0;
+}
+
+function getEffectivePrice(prod) {
+    const basePrice = Number(prod.price) || 0;
+    const pct = getOfferDiscountPct(prod.id);
+    if (!pct) return { original: basePrice, final: basePrice, discountPct: 0, hasOffer: false };
+    const finalPrice = Number((basePrice * (1 - pct / 100)).toFixed(2));
+    return { original: basePrice, final: finalPrice, discountPct: pct, hasOffer: true };
+}
+        function renderRedOfferBanner() {
+    const banner = document.getElementById('owner-red-offer-banner');
+    const track = document.getElementById('owner-red-offer-track');
+    if (!banner || !track) return;
+
+    if (!redOffersConfig || !redOffersConfig.enabled) {
+        banner.classList.add('hidden');
+        return;
+    }
+
+    const baseTitle = (redOffersConfig.title && redOffersConfig.title.trim()) || 'العروضضض';
+    const discountedNames = (Array.isArray(redOffersConfig.items) ? redOffersConfig.items : [])
+        .map(it => {
+            const p = products.find(pr => String(pr.id) === String(it.productId));
+            return p ? `${p.name} (خصم ${it.discount}%)` : null;
+        })
+        .filter(Boolean);
+
+    const extraText = discountedNames.length ? ` • ${discountedNames.join(' • ')}` : '';
+    const singleSegment = `
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-fire text-amber-300"></i> ${baseTitle}${extraText}</span>
+        <span class="text-white/40">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-tags text-rose-200"></i> ${baseTitle}</span>
+        <span class="text-white/40">•</span>
+    `;
+    track.innerHTML = singleSegment.repeat(6);
+    banner.classList.remove('hidden');
+}
+
+function openOwnerRedOffersManager() {
+    if (!isOwnerUser(currentUser)) {
+        alert('هذا القسم مخصص للمالك فقط.');
+        return;
+    }
+
+    const toggleInput = prompt(
+        'حالة شريط العروض الأحمر:\nاكتب 1 لتشغيل الشريط أو 0 لإخفائه:',
+        redOffersConfig.enabled ? '1' : '0'
+    );
+    if (toggleInput === null) return;
+    redOffersConfig.enabled = toggleInput.trim() === '1';
+
+    const titleInput = prompt(
+        'اكتب نص الشريط الأحمر (مثال: العروضضض):',
+        redOffersConfig.title || 'العروضضض'
+    );
+    if (titleInput !== null && titleInput.trim() !== '') {
+        redOffersConfig.title = titleInput.trim();
+    }
+
+    if (redOffersConfig.enabled && Array.isArray(products) && products.length > 0) {
+        const listText = products.map((p, i) => `${i + 1}. ${p.name} (${p.price} ر.س)`).join('\n');
+        const pickInput = prompt(
+            'اختر رقم المنتج لإضافة/تعديل خصم عليه (أو اتركه فارغاً للتخطي):\n' + listText,
+            ''
+        );
+        if (pickInput && pickInput.trim() !== '') {
+            const idx = Number(pickInput.trim()) - 1;
+            if (idx >= 0 && idx < products.length) {
+                const chosen = products[idx];
+                const discInput = prompt(
+                    `كم نسبة الخصم على "${chosen.name}"؟ (مثال 50 لـ 50% أو 0 لإزالة الخصم):`,
+                    String(getOfferDiscountPct(chosen.id) || 50)
+                );
+                if (discInput !== null) {
+                    const pct = Number(discInput.trim());
+                    redOffersConfig.items = (redOffersConfig.items || []).filter(it => String(it.productId) !== String(chosen.id));
+                    if (!Number.isNaN(pct) && pct > 0 && pct < 100) {
+                        redOffersConfig.items.push({ productId: chosen.id, discount: pct });
+                    }
+                }
+            }
+        }
+    }
+
+    localStorage.setItem('rkaz_red_offers', JSON.stringify(redOffersConfig));
+    renderRedOfferBanner();
+    if (typeof renderProducts === 'function') renderProducts();
+    alert('تم حفظ إعدادات العروض الحمراء بنجاح.');
+}
         function addToCart(id) {
     const prod = products.find(p => p.id === id);
     if (!prod) return;
@@ -406,10 +508,14 @@
         alert('عذراً، نفذت الكمية لهذا المنتج حالياً.');
         return;
     }
+    const priceInfo = getEffectivePrice(prod);
     const existing = cart.find(c => c.id === id);
-    if (existing) existing.qty += 1;
-    else cart.push({ id: prod.id, name: prod.name, price: prod.price, qty: 1 });
-    localStorage.setItem('rkaz_cart', JSON.stringify(cart));
+    if (existing) {
+        existing.qty += 1;
+        existing.price = priceInfo.final;
+    } else {
+        cart.push({ id: prod.id, name: prod.name, price: priceInfo.final, qty: 1 });
+    }
     updateCartBadge();
     alert('تمت إضافة المنتج إلى السلة!');
 }
@@ -586,6 +692,7 @@
 
         function renderProducts() {
             const grid = document.getElementById('products-grid');
+            renderRedOfferBanner();
             const countEl = document.getElementById('products-count');
             const emptyEl = document.getElementById('empty-state');
             if (!grid) return;
@@ -628,7 +735,13 @@
                             <p class="text-xs text-slate-400 mb-4">${descText}</p>
                         </div>
                         <div class="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
-                            <span class="text-lg font-black text-sky-400">${p.price} ر.س</span>
+                            ${(() => {
+    const pr = getEffectivePrice(p);
+    if (pr.hasOffer) {
+        return `<div class="flex flex-col leading-tight"><span class="text-xs line-through text-rose-300/80">${pr.original} ر.س</span><span class="text-lg font-black text-emerald-400">${pr.final} ر.س <span class="text-[11px] bg-red-600/30 text-red-200 px-1.5 py-0.5 rounded">-${pr.discountPct}%</span></span></div>`;
+    }
+    return `<span class="text-lg font-black text-sky-400">${pr.original} ر.س</span>`;
+})()}
                             <div class="flex items-center gap-1.5">
                                 ${canManage ? `<button onclick="editProduct(${p.id})" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">تعديل</button><button onclick="deleteProduct(${p.id})" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>` : ''}
                                 <button onclick="addToCart(${p.id})" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">إضافة للسلة</button>
