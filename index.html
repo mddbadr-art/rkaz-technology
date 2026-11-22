@@ -28,11 +28,42 @@
         .glass-card { background: linear-gradient(145deg, #101724, #080c13); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.25s ease; position: relative; z-index: 20; }
         .glass-card:hover { border-color: rgba(56, 189, 248, 0.5); transform: translateY(-3px); }
         button, input, select, textarea, a { position: relative; z-index: 30; cursor: pointer; }
+        @keyframes rkazTicker {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(50%); }
+}
+.rkaz-ticker-track {
+    display: flex;
+    width: max-content;
+    animation: rkazTicker 26s linear infinite;
+}
+.rkaz-ticker-track:hover {
+    animation-play-state: paused;
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-sky-400 selection:text-black">
     <canvas id="live-bg"></canvas>
+<div dir="rtl" class="relative z-40 w-full bg-gradient-to-l from-sky-500/20 via-sky-400/15 to-emerald-500/20 border-b border-sky-400/30 text-white overflow-hidden py-2">
+    <div class="rkaz-ticker-track items-center gap-8 text-xs sm:text-sm font-bold whitespace-nowrap px-4">
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-gift text-amber-400"></i> اطلب 4 منتجات واحصل على الخامس مع هدية مجانية</span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-truck-fast text-sky-400"></i> شحن لجميع المناطق والخارج عبر أرامكس</span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-credit-card text-emerald-400"></i> متوفر تابي وتمارا في المحل</span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-shield-halved text-sky-300"></i> منتجات أصلية وضمان معتمد</span>
+        <span class="text-white/30">•</span>
 
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-gift text-amber-400"></i> اطلب 4 منتجات واحصل على الخامس مع هدية مجانية</span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-truck-fast text-sky-400"></i> شحن لجميع المناطق والخارج عبر أرامكس</span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-credit-card text-emerald-400"></i> متوفر تابي وتمارا في المحل</span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-2"><i class="fa-solid fa-shield-halved text-sky-300"></i> منتجات أصلية وضمان معتمد</span>
+    </div>
+</div>
     <!-- الهيدر -->
     <header class="sticky top-0 z-50 glass-panel border-b border-white/10 shadow-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
