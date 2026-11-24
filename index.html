@@ -798,20 +798,18 @@ function openOwnerRedOffersManager() {
                 return `
                     <div class="glass-card rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div onclick="openProductDetails(${p.id})" class="cursor-pointer">
+                            <div onclick="openProductDetails(${p.id})" class="w-full flex items-center gap-3 cursor-pointer">
                     ${imgSrc
-                        ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
+                        ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40 shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
                         : ''
                     }
-                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
+                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl shrink-0" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
                 </div>
-                <div onclick="openProductDetails(${p.id})" class="cursor-pointer">
+                <div onclick="openProductDetails(${p.id})" class="w-full cursor-pointer">
                     <span class="text-xs text-sky-400 font-bold">${p.category || ''}</span>
                     <h3 class="text-base font-bold text-white mt-1 mb-2 hover:text-sky-300 transition">${p.name}</h3>
                     <p class="text-xs text-slate-400 mb-4 line-clamp-2">${descText || 'لا يوجد وصف إضافي لهذا المنتج.'}</p>
                 </div>
-                        <div class="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
                             ${(() => {
     const pr = getEffectivePrice(p);
     if (pr.hasOffer) {
