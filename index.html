@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rkaz Technology | ركاز التقنية للجوالات والملحقات</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2305070a'/%3E%3Cpath d='M24 16 H62 C76 16 84 24 84 37 C84 48 77 55 66 57 L82 84 H64 L50 59 H40 V84 H24 V16 Z M40 30 V46 H59 C65 46 68 43 68 38 C68 33 65 30 59 30 H40 Z' fill='%2338bdf8'/%3E%3C/svg%3E">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,10 +41,32 @@
         .rkaz-ticker-track:hover {
             animation-play-state: paused;
         }
+        @keyframes cartPop {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.14) rotate(-6deg); }
+            50% { transform: scale(0.96) rotate(5deg); }
+            75% { transform: scale(1.08) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .cart-animate {
+            animation: cartPop 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            border-color: rgba(52, 211, 153, 0.8) !important;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+        }
+        @keyframes badgeBounce {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.45); }
+            100% { transform: scale(1); }
+        }
+        .badge-bounce {
+            animation: badgeBounce 0.4s ease;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-sky-400 selection:text-black">
     <canvas id="live-bg"></canvas>
+    <div id="rkaz-toast-container" class="fixed bottom-5 left-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full px-4 sm:px-0 pointer-events-none" dir="rtl"></div>
+
     <div dir="rtl" class="relative z-40 w-full bg-gradient-to-l from-sky-500/20 via-sky-400/15 to-emerald-500/20 border-b border-sky-400/30 text-white overflow-hidden py-2">
         <div class="rkaz-ticker-track items-center gap-8 text-xs sm:text-sm font-bold whitespace-nowrap px-4">
             <span class="inline-flex items-center gap-2"><i class="fa-solid fa-gift text-amber-400"></i> اطلب 4 منتجات واحصل على الخامس مع هدية مجانية</span>
@@ -87,10 +110,10 @@
             </div>
 
             <div class="flex items-center gap-2" id="header-right-actions">
-                <button onclick="openCartModal()" class="relative flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-sky-400/30 text-white px-3.5 py-2.5 rounded-xl text-sm font-bold">
+                <button id="header-cart-btn" onclick="openCartModal()" class="relative flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-sky-400/30 text-white px-3.5 py-2.5 rounded-xl text-sm font-bold transition">
                     <i class="fa-solid fa-cart-shopping text-sky-400"></i>
                     <span class="hidden sm:inline">السلة</span>
-                    <span id="cart-badge" class="bg-sky-500 text-black text-xs font-black px-2 py-0.5 rounded-full">0</span>
+                    <span id="cart-badge" class="bg-sky-500 text-black text-xs font-black px-2 py-0.5 rounded-full transition">0</span>
                 </button>
                 <div id="auth-actions-container"></div>
             </div>
@@ -335,6 +358,56 @@
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
             : null;
 
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('rkaz-toast-container');
+            if (!container) return;
+
+            const styles = {
+                success: 'bg-emerald-950/95 border-emerald-400/50 text-emerald-200',
+                warning: 'bg-amber-950/95 border-amber-400/50 text-amber-200',
+                error: 'bg-rose-950/95 border-rose-400/50 text-rose-200',
+                info: 'bg-slate-900/95 border-sky-400/50 text-sky-100'
+            };
+
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                warning: 'fa-triangle-exclamation text-amber-400',
+                error: 'fa-circle-xmark text-rose-400',
+                info: 'fa-cart-plus text-sky-400'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-2.5 border rounded-2xl px-4 py-3 text-xs sm:text-sm font-bold shadow-2xl transition-all duration-300 opacity-0 translate-y-2 ${styles[type] || styles.info}`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-base shrink-0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2200);
+        }
+
+        function triggerCartAnimation() {
+            const btn = document.getElementById('header-cart-btn');
+            const badge = document.getElementById('cart-badge');
+            if (btn) {
+                btn.classList.remove('cart-animate');
+                void btn.offsetWidth;
+                btn.classList.add('cart-animate');
+                setTimeout(() => btn.classList.remove('cart-animate'), 600);
+            }
+            if (badge) {
+                badge.classList.remove('badge-bounce');
+                void badge.offsetWidth;
+                badge.classList.add('badge-bounce');
+                setTimeout(() => badge.classList.remove('badge-bounce'), 420);
+            }
+        }
+
         const canvas = document.getElementById('live-bg');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -458,7 +531,7 @@
 
         function openOwnerRedOffersManager() {
             if (!isOwnerUser(currentUser)) {
-                alert('هذا القسم مخصص للمالك فقط.');
+                showToast('هذا القسم مخصص للمالك فقط.', 'warning');
                 return;
             }
 
@@ -578,7 +651,7 @@
                 renderRedOfferBanner();
                 renderProducts();
                 document.getElementById('red-offers-modal').remove();
-                alert('تم حفظ العروض وتحديث الشريط والمنتجات.');
+                showToast('تم حفظ العروض وتحديث الشريط والمنتجات.', 'success');
             });
         }
 
@@ -586,7 +659,7 @@
             const prod = products.find(p => String(p.id) === String(id));
             if (!prod) return;
             if (!isProductInStock(prod)) {
-                alert('عذراً، نفذت الكمية لهذا المنتج حالياً.');
+                showToast('عذراً، نفذت الكمية لهذا المنتج حالياً.', 'warning');
                 return;
             }
             const priceInfo = getEffectivePrice(prod);
@@ -599,7 +672,8 @@
             }
             localStorage.setItem('rkaz_cart', JSON.stringify(cart));
             updateCartBadge();
-            alert('تمت إضافة المنتج إلى السلة!');
+            triggerCartAnimation();
+            showToast(`تمت إضافة "${prod.name}" إلى السلة`, 'success');
         }
 
         function sendOrderToWhatsApp() {
@@ -609,7 +683,7 @@
                 : savedCart;
 
             if (!currentCart || currentCart.length === 0) {
-                alert('السلة فارغة حالياً، أضف منتجات أولاً.');
+                showToast('السلة فارغة حالياً، أضف منتجات أولاً.', 'warning');
                 return;
             }
 
@@ -696,6 +770,7 @@
                 } catch (_) {}
             }
             renderProducts();
+            showToast('تم حذف المنتج.', 'info');
         }
 
         async function syncProductUpdateToCloud(updatedProd) {
@@ -726,7 +801,7 @@
             if (newPriceInput === null) return;
             const parsedPrice = Number(newPriceInput);
             if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
-                alert('أدخل سعراً صحيحاً.');
+                showToast('أدخل سعراً صحيحاً.', 'warning');
                 return;
             }
 
@@ -748,7 +823,7 @@
             localStorage.setItem('rkaz_products', JSON.stringify(products));
             syncProductUpdateToCloud(prod);
             renderProducts();
-            alert('تم تحديث بيانات المنتج بنجاح!');
+            showToast('تم تحديث بيانات المنتج بنجاح!', 'success');
         }
 
         function renderProducts() {
@@ -777,31 +852,46 @@
             grid.innerHTML = filtered.map(p => {
                 const imgSrc = p.imageUrl || p.image_url || '';
                 const descText = p.desc || p.description || '';
+                const isAvailable = isProductInStock(p);
+                const pr = getEffectivePrice(p);
+
+                const priceBlock = pr.hasOffer
+                    ? `<div class="flex flex-col leading-tight"><span class="text-xs line-through text-rose-300/80">${pr.original} ر.س</span><span class="text-lg font-black text-emerald-400">${pr.final} ر.س <span class="text-[11px] bg-red-600/30 text-red-200 px-1.5 py-0.5 rounded">-${pr.discountPct}%</span></span></div>`
+                    : `<div><span class="text-lg font-black text-sky-400">${pr.original} ر.س</span></div>`;
+
+                const stockBadge = isAvailable
+                    ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">متوفر</span>`
+                    : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">نفدت الكمية</span>`;
+
+                const addCartBtn = isAvailable
+                    ? `<button onclick="addToCart('${p.id}')" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold transition">إضافة للسلة</button>`
+                    : `<button type="button" disabled class="px-3 py-2 rounded-xl bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold cursor-not-allowed">نفدت الكمية</button>`;
+
                 return `
-                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg">
                         <div>
-                            <div onclick="openProductDetails('${p.id}')" class="w-full flex items-center gap-3 cursor-pointer">
-                                ${imgSrc
-                                    ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40 shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
-                                    : ''
-                                }
-                                <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl shrink-0" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
+                            <div onclick="openProductDetails('${p.id}')" class="w-full flex items-center justify-between gap-3 cursor-pointer mb-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    ${imgSrc
+                                        ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40 shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
+                                        : ''
+                                    }
+                                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl shrink-0" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
+                                    <span class="text-xs text-sky-400 font-bold truncate">${p.category || ''}</span>
+                                </div>
+                                ${stockBadge}
                             </div>
                             <div onclick="openProductDetails('${p.id}')" class="w-full cursor-pointer">
-                                <span class="text-xs text-sky-400 font-bold">${p.category || ''}</span>
                                 <h3 class="text-base font-bold text-white mt-1 mb-2 hover:text-sky-300 transition">${p.name}</h3>
-                                <p class="text-xs text-slate-400 mb-4 line-clamp-2">${descText || 'لا يوجد وصف إضافي لهذا المنتج.'}</p>
+                                <p class="text-xs text-slate-400 line-clamp-2">${descText || 'لا يوجد وصف إضافي لهذا المنتج.'}</p>
                             </div>
-                            ${(() => {
-                                const pr = getEffectivePrice(p);
-                                if (pr.hasOffer) {
-                                    return `<div class="flex flex-col leading-tight mb-3"><span class="text-xs line-through text-rose-300/80">${pr.original} ر.س</span><span class="text-lg font-black text-emerald-400">${pr.final} ر.س <span class="text-[11px] bg-red-600/30 text-red-200 px-1.5 py-0.5 rounded">-${pr.discountPct}%</span></span></div>`;
-                                }
-                                return `<div class="mb-3"><span class="text-lg font-black text-sky-400">${pr.original} ر.س</span></div>`;
-                            })()}
+                        </div>
+
+                        <div class="pt-3 border-t border-white/10 space-y-3">
+                            ${priceBlock}
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 ${canManage ? `<button onclick="editProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">تعديل</button><button onclick="deleteProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>` : ''}
-                                <button onclick="addToCart('${p.id}')" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">إضافة للسلة</button>
+                                ${addCartBtn}
                             </div>
                         </div>
                     </div>
@@ -918,6 +1008,13 @@
             document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
 
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const detailsModal = document.getElementById('product-details-modal');
+                if (detailsModal) detailsModal.remove();
+            }
+        });
+
         function filterCategory(cat) {
             currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -1027,7 +1124,7 @@
 
         async function handleAuthSubmit(e) {
             e.preventDefault();
-            if (!supabaseClient) return alert('تعذر الاتصال بخدمة الحسابات حالياً.');
+            if (!supabaseClient) return showToast('تعذر الاتصال بخدمة الحسابات حالياً.', 'error');
 
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
@@ -1039,37 +1136,37 @@
                     password,
                     options: { data: { full_name: name || email.split('@')[0] } }
                 });
-                if (error) return alert('تعذر إنشاء الحساب: ' + error.message);
+                if (error) return showToast('تعذر إنشاء الحساب: ' + error.message, 'error');
 
                 if (data.session && data.user) {
                     await upsertUserProfile(data.user, name);
                     closeLoginModal();
-                    alert('تم إنشاء الحساب وتسجيل الدخول بنجاح!');
+                    showToast('تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success');
                 } else {
                     closeLoginModal();
-                    alert('تم إنشاء الحساب! تم إرسال رابط تأكيد إلى بريدك الإلكتروني (' + email + ')، فعّله ثم سجل دخولك.');
+                    showToast('تم إنشاء الحساب! تم إرسال رابط تأكيد إلى بريدك الإلكتروني (' + email + ').', 'success');
                 }
             } else {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) return alert('بيانات الدخول غير صحيحة أو البريد لم يتم تأكيده بعد: ' + error.message);
+                if (error) return showToast('بيانات الدخول غير صحيحة أو البريد لم يتم تأكيده بعد: ' + error.message, 'error');
 
                 await upsertUserProfile(data.user);
                 closeLoginModal();
-                alert('أهلاً بك يا ' + currentUser.name + '!');
+                showToast('أهلاً بك يا ' + currentUser.name + '!', 'success');
             }
         }
 
         async function setUserRole(identifier, newRole) {
             if (!currentUser || currentUser.role !== 'owner') {
-                return alert('تغيير الرتب متاح للمالك الأساسي فقط.');
+                return showToast('تغيير الرتب متاح للمالك الأساسي فقط.', 'warning');
             }
             if (supabaseClient) {
                 const { error } = await supabaseClient.from('users').update({ role: newRole }).eq('identifier', identifier);
-                if (error) return alert('تعذر تحديث الرتبة في قاعدة البيانات: ' + error.message);
+                if (error) return showToast('تعذر تحديث الرتبة في قاعدة البيانات: ' + error.message, 'error');
             }
             await syncUsersFromSupabase();
             renderDashboard();
-            alert('تم تحديث رتبة المستخدم بنجاح.');
+            showToast('تم تحديث رتبة المستخدم بنجاح.', 'success');
         }
 
         function updateOrderStatus(orderId, status) {
@@ -1188,7 +1285,7 @@
 
                 if (error) {
                     console.error('Supabase insert error:', error);
-                    alert('تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.');
+                    showToast('تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.', 'warning');
                 }
             }
 
@@ -1197,7 +1294,7 @@
             if (imageEl) imageEl.value = '';
             closeProductModal();
             renderProducts();
-            alert('تمت إضافة المنتج بنجاح إلى المتجر!');
+            showToast('تمت إضافة المنتج بنجاح إلى المتجر!', 'success');
         }
 
         async function loadProductsFromCloud() {
