@@ -142,6 +142,9 @@
                 <button onclick="openOwnerRedOffersManager()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold flex items-center gap-1.5">
                     <i class="fa-solid fa-fire"></i> العروض الحمراء
                 </button>
+                <button id="owner-social-manager-btn" onclick="openOwnerSocialManager()" class="hidden px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold flex items-center gap-1.5">
+                    <i class="fa-solid fa-share-nodes"></i> روابط التواصل
+                </button>
             </div>
         </div>
     </div>
@@ -200,14 +203,15 @@
                 </button>
             </div>
             <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 mb-4"></div>
-            <div class="pt-4 border-t border-white/10">
-                <div class="flex items-center justify-between mb-4">
+            <div class="pt-4 border-t border-white/10 space-y-3">
+                <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-300 font-bold">الإجمالي:</span>
                     <span id="cart-total" class="text-xl font-black text-sky-400">0 ر.س</span>
                 </div>
                 <button onclick="sendOrderToWhatsApp()" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm">
                     إتمام الطلب الآن
                 </button>
+                <div id="cart-quick-socials" class="pt-3 border-t border-white/10"></div>
             </div>
         </div>
     </div>
@@ -342,9 +346,12 @@
     </div>
 
     <footer class="relative z-20 glass-panel border-t border-white/10 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span class="font-extrabold text-white">Rkaz <span class="text-sky-400">Technology</span></span>
-            <p class="text-xs text-slate-400">جميع الحقوق محفوظة © 2026 متجر ركاز التقنية</p>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex flex-col items-center sm:items-start gap-1">
+                <span class="font-extrabold text-white">Rkaz <span class="text-sky-400">Technology</span></span>
+                <p class="text-xs text-slate-400">جميع الحقوق محفوظة © 2026 متجر ركاز التقنية</p>
+            </div>
+            <div id="footer-social-links" class="flex flex-wrap items-center justify-center sm:justify-end gap-2"></div>
         </div>
     </footer>
 
@@ -357,6 +364,182 @@
         const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
             : null;
+
+        const defaultSocialConfig = {
+            snapchat: 'https://www.snapchat.com',
+            tiktok: 'https://www.tiktok.com',
+            whatsapp: 'https://wa.me/966500125387',
+            phone: '0500125387'
+        };
+
+        let socialConfig = {
+            ...defaultSocialConfig,
+            ...(JSON.parse(localStorage.getItem('rkaz_social_links') || '{}') || {})
+        };
+
+        function normalizeUrl(val) {
+            const raw = (val || '').trim();
+            if (!raw) return '';
+            if (/^https?:\/\//i.test(raw)) return raw;
+            return 'https://' + raw;
+        }
+
+        function normalizePhoneLink(val) {
+            const cleaned = (val || '').trim().replace(/[^\d+]/g, '');
+            if (!cleaned) return '';
+            return 'tel:' + cleaned;
+        }
+
+        function getActiveSocialChannels() {
+            const list = [];
+            const snap = normalizeUrl(socialConfig.snapchat);
+            const tik = normalizeUrl(socialConfig.tiktok);
+            const wa = normalizeUrl(socialConfig.whatsapp);
+            const phoneHref = normalizePhoneLink(socialConfig.phone);
+            const phoneLabel = (socialConfig.phone || '').trim();
+
+            if (snap) {
+                list.push({
+                    key: 'snapchat',
+                    label: 'سناب شات',
+                    href: snap,
+                    icon: 'fa-brands fa-snapchat',
+                    badgeClass: 'bg-amber-400/15 hover:bg-amber-400/25 border-amber-400/40 text-amber-300'
+                });
+            }
+            if (tik) {
+                list.push({
+                    key: 'tiktok',
+                    label: 'تيك توك',
+                    href: tik,
+                    icon: 'fa-brands fa-tiktok',
+                    badgeClass: 'bg-pink-500/15 hover:bg-pink-500/25 border-pink-400/40 text-pink-300'
+                });
+            }
+            if (wa) {
+                list.push({
+                    key: 'whatsapp',
+                    label: 'واتساب',
+                    href: wa,
+                    icon: 'fa-brands fa-whatsapp',
+                    badgeClass: 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-400/40 text-emerald-300'
+                });
+            }
+            if (phoneHref && phoneLabel) {
+                list.push({
+                    key: 'phone',
+                    label: phoneLabel,
+                    href: phoneHref,
+                    icon: 'fa-solid fa-phone',
+                    badgeClass: 'bg-sky-500/15 hover:bg-sky-500/25 border-sky-400/40 text-sky-300'
+                });
+            }
+            return list;
+        }
+
+        function renderSocialChannels() {
+            const channels = getActiveSocialChannels();
+            const footerBox = document.getElementById('footer-social-links');
+            const cartBox = document.getElementById('cart-quick-socials');
+
+            if (footerBox) {
+                if (!channels.length) {
+                    footerBox.innerHTML = '';
+                } else {
+                    footerBox.innerHTML = channels.map(ch => `
+                        <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
+                            <i class="${ch.icon}"></i>
+                            <span>${ch.label}</span>
+                        </a>
+                    `).join('');
+                }
+            }
+
+            if (cartBox) {
+                if (!channels.length) {
+                    cartBox.innerHTML = '';
+                } else {
+                    cartBox.innerHTML = `
+                        <div class="text-[11px] font-bold text-slate-400 mb-2">تواصل معنا مباشرة:</div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            ${channels.map(ch => `
+                                <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
+                                    <i class="${ch.icon}"></i>
+                                    <span>${ch.label}</span>
+                                </a>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function openOwnerSocialManager() {
+            if (!isOwnerUser(currentUser)) {
+                showToast('إدارة روابط التواصل متاحة للمالك فقط.', 'warning');
+                return;
+            }
+
+            const existing = document.getElementById('owner-social-modal');
+            if (existing) existing.remove();
+
+            const modalHtml = `
+                <div id="owner-social-modal" onclick="if(event.target.id==='owner-social-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" dir="rtl">
+                    <div class="glass-panel border border-emerald-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                            <h2 class="text-lg font-black text-emerald-300 flex items-center gap-2">
+                                <i class="fa-solid fa-share-nodes"></i> إدارة برامج التواصل والرقم
+                            </h2>
+                            <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <p class="text-xs text-slate-400">اترك أي خانة فارغة لإخفاء البرنامج من الشريط السفلي وقائمة السلة.</p>
+
+                        <form id="owner-social-form" class="space-y-3.5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">رابط سناب شات</label>
+                                <input type="text" id="soc-snapchat" value="${socialConfig.snapchat || ''}" placeholder="https://snapchat.com/add/username" class="w-full bg-black border border-white/20 focus:border-amber-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">رابط تيك توك</label>
+                                <input type="text" id="soc-tiktok" value="${socialConfig.tiktok || ''}" placeholder="https://tiktok.com/@username" class="w-full bg-black border border-white/20 focus:border-pink-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">رابط واتساب</label>
+                                <input type="text" id="soc-whatsapp" value="${socialConfig.whatsapp || ''}" placeholder="https://wa.me/966500125387" class="w-full bg-black border border-white/20 focus:border-emerald-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">رقم التواصل</label>
+                                <input type="text" id="soc-phone" value="${socialConfig.phone || ''}" placeholder="0500125387" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+                                <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">إلغاء</button>
+                                <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold">حفظ التعديلات</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            document.getElementById('owner-social-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                socialConfig = {
+                    snapchat: document.getElementById('soc-snapchat').value.trim(),
+                    tiktok: document.getElementById('soc-tiktok').value.trim(),
+                    whatsapp: document.getElementById('soc-whatsapp').value.trim(),
+                    phone: document.getElementById('soc-phone').value.trim()
+                };
+                localStorage.setItem('rkaz_social_links', JSON.stringify(socialConfig));
+                renderSocialChannels();
+                document.getElementById('owner-social-modal').remove();
+                showToast('تم تحديث قنوات التواصل بنجاح.', 'success');
+            });
+        }
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('rkaz-toast-container');
@@ -715,7 +898,7 @@
             renderCartModal();
         }
 
-        function openCartModal() { renderCartModal(); const m = document.getElementById('cart-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
+        function openCartModal() { renderCartModal(); renderSocialChannels(); const m = document.getElementById('cart-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
         function closeCartModal() { const m = document.getElementById('cart-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
 
         function renderCartModal() {
@@ -744,6 +927,7 @@
         function checkAuthUI() {
             const authContainer = document.getElementById('auth-actions-container');
             const adminBar = document.getElementById('admin-panel-bar');
+            const ownerSocialBtn = document.getElementById('owner-social-manager-btn');
             if (currentUser) {
                 const roleLabel = currentUser.role === 'owner' ? 'مالك' : currentUser.role === 'admin' ? 'أدمن' : currentUser.role === 'moderator' ? 'مشرف' : 'عضو';
                 authContainer.innerHTML = '<span class="text-sky-400 font-bold text-xs sm:text-sm">' + currentUser.name + ' (' + roleLabel + ')</span> <button onclick="logout()" class="px-3 py-2 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10">خروج</button>';
@@ -751,11 +935,15 @@
                     adminBar.classList.remove('hidden');
                     document.getElementById('logged-admin-name').textContent = currentUser.name;
                     document.getElementById('logged-admin-role').textContent = roleLabel;
+                    if (ownerSocialBtn) {
+                        ownerSocialBtn.classList.toggle('hidden', !isOwnerUser(currentUser));
+                    }
                 } else {
                     adminBar.classList.add('hidden');
                 }
             } else {
                 adminBar.classList.add('hidden');
+                if (ownerSocialBtn) ownerSocialBtn.classList.add('hidden');
                 authContainer.innerHTML = '<button onclick="openLoginModal(\'login\')" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold"><span>دخول / تسجيل</span></button>';
             }
         }
@@ -1059,6 +1247,11 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                const socialModal = document.getElementById('owner-social-modal');
+                if (socialModal) {
+                    socialModal.remove();
+                    return;
+                }
                 const editModal = document.getElementById('edit-product-modal');
                 if (editModal) {
                     editModal.remove();
@@ -1381,6 +1574,7 @@
 
         async function initSession() {
             updateCartBadge();
+            renderSocialChannels();
             checkAuthUI();
             renderProducts();
             await loadProductsFromCloud();
