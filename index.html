@@ -797,33 +797,82 @@
             const prod = products.find(p => String(p.id) === String(id));
             if (!prod) return;
 
-            const newPriceInput = prompt('السعر الجديد (ر.س):', prod.price);
-            if (newPriceInput === null) return;
-            const parsedPrice = Number(newPriceInput);
-            if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
-                showToast('أدخل سعراً صحيحاً.', 'warning');
-                return;
-            }
+            const existingModal = document.getElementById('edit-product-modal');
+            if (existingModal) existingModal.remove();
 
-            const stockChoice = prompt(
-                'حالة الكمية:\nاكتب 1 للمتوفر\nاكتب 0 إذا نفذت الكمية',
-                prod.in_stock === false ? '0' : '1'
-            );
-            if (stockChoice === null) return;
+            const currentStock = isProductInStock(prod);
+            const currentDesc = prod.desc || prod.description || '';
 
-            const newDesc = prompt('وصف المنتج (اختياري):', prod.desc || prod.description || '');
+            const modalHtml = `
+                <div id="edit-product-modal" onclick="if(event.target.id==='edit-product-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" dir="rtl">
+                    <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                            <h2 class="text-lg font-black text-white flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square text-sky-400"></i> تعديل المنتج
+                            </h2>
+                            <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
 
-            prod.price = parsedPrice;
-            prod.in_stock = stockChoice.trim() !== '0';
-            if (newDesc !== null) {
+                        <div class="text-xs font-bold text-sky-400 bg-sky-500/10 border border-sky-400/20 rounded-xl px-3 py-2">
+                            ${prod.name}
+                        </div>
+
+                        <form id="edit-product-form" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر الجديد (ر.س) *</label>
+                                    <input type="number" id="edit-prod-price" required min="0" step="0.01" value="${Number(prod.price) || 0}" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">حالة التوفر</label>
+                                    <select id="edit-prod-stock" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3 py-2 text-sm text-white outline-none">
+                                        <option value="1" ${currentStock ? 'selected' : ''}>متوفر</option>
+                                        <option value="0" ${!currentStock ? 'selected' : ''}>نفدت الكمية</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج (اختياري)</label>
+                                <textarea id="edit-prod-desc" rows="3" placeholder="اكتب وصفاً واضحاً للمنتج..." class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">${currentDesc}</textarea>
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+                                <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">إلغاء</button>
+                                <button type="submit" class="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">حفظ التعديلات</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            document.getElementById('edit-product-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const parsedPrice = Number(document.getElementById('edit-prod-price').value);
+                if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+                    showToast('أدخل سعراً صحيحاً.', 'warning');
+                    return;
+                }
+
+                const stockVal = document.getElementById('edit-prod-stock').value;
+                const newDesc = document.getElementById('edit-prod-desc').value.trim();
+
+                prod.price = parsedPrice;
+                prod.in_stock = stockVal !== '0';
                 prod.desc = newDesc;
                 prod.description = newDesc;
-            }
 
-            localStorage.setItem('rkaz_products', JSON.stringify(products));
-            syncProductUpdateToCloud(prod);
-            renderProducts();
-            showToast('تم تحديث بيانات المنتج بنجاح!', 'success');
+                localStorage.setItem('rkaz_products', JSON.stringify(products));
+                syncProductUpdateToCloud(prod);
+                renderProducts();
+                document.getElementById('edit-product-modal').remove();
+                showToast('تم تحديث بيانات المنتج بنجاح!', 'success');
+            });
         }
 
         function renderProducts() {
@@ -1010,6 +1059,11 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                const editModal = document.getElementById('edit-product-modal');
+                if (editModal) {
+                    editModal.remove();
+                    return;
+                }
                 const detailsModal = document.getElementById('product-details-modal');
                 if (detailsModal) detailsModal.remove();
             }
