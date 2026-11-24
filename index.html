@@ -837,10 +837,28 @@ function openProductDetails(productId) {
 
     const imgSrc = prod.imageUrl || prod.image_url || '';
     const isAvailable = typeof isProductInStock === 'function'
-        ? isProductInStock(prod)
-        : (prod.in_stock !== false);
-    const descText = (prod.desc || prod.description || '').trim() || 'لا يوجد وصف متوفر لهذا المنتج حالياً.';
-    const pr = typeof getEffectivePrice === 'function'
+        const allProducts = Array.isArray(products) ? products : [];
+    const currentCat = (prod.category || '').trim().toLowerCase();
+    const keywords = (prod.name || '')
+        .toLowerCase()
+        .split(/[\s\-_\/،,]+/)
+        .filter(w => w.length >= 2);
+
+    const scoredSimilar = allProducts
+        .filter(p => String(p.id) !== String(prod.id))
+        .map(p => {
+            const pCat = (p.category || '').trim().toLowerCase();
+            const pName = (p.name || '').toLowerCase();
+            const sameCat = Boolean(currentCat && pCat === currentCat);
+            const matchedWords = keywords.filter(w => pName.includes(w)).length;
+            const score = (sameCat ? 10 : 0) + matchedWords;
+            return { item: p, score, sameCat };
+        })
+        .filter(entry => entry.sameCat || entry.score >= 2)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6);
+
+    const suggestedList = scoredSimilar.map(entry => entry.item);
         ? getEffectivePrice(prod)
         : { original: Number(prod.price) || 0, final: Number(prod.price) || 0, discountPct: 0, hasOffer: false };
 
