@@ -799,19 +799,18 @@ function openOwnerRedOffersManager() {
                     <div class="glass-card rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                ${imgSrc
-                                    ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display:none" class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
-                                    : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>`
-                                }
-                                ${isAvailable
-                                    ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">متوفر</span>'
-                                    : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">نفذت الكمية</span>'
-                                }
-                            </div>
-                            <span class="text-xs text-sky-400 font-bold">${p.category}</span>
-                            <h3 class="text-base font-bold text-white mt-1 mb-2">${p.name}</h3>
-                            <p class="text-xs text-slate-400 mb-4">${descText}</p>
-                        </div>
+                                <div onclick="openProductDetails(${p.id})" class="cursor-pointer">
+                    ${imgSrc
+                        ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
+                        : ''
+                    }
+                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
+                </div>
+                <div onclick="openProductDetails(${p.id})" class="cursor-pointer">
+                    <span class="text-xs text-sky-400 font-bold">${p.category || ''}</span>
+                    <h3 class="text-base font-bold text-white mt-1 mb-2 hover:text-sky-300 transition">${p.name}</h3>
+                    <p class="text-xs text-slate-400 mb-4 line-clamp-2">${descText || 'لا يوجد وصف إضافي لهذا المنتج.'}</p>
+                </div>
                         <div class="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
                             ${(() => {
     const pr = getEffectivePrice(p);
@@ -829,7 +828,121 @@ function openOwnerRedOffersManager() {
                 `;
             }).join('');
         }
+function openProductDetails(productId) {
+    const prod = Array.isArray(products)
+        ? products.find(p => String(p.id) === String(productId))
+        : null;
+    if (!prod) return;
 
+    const existingModal = document.getElementById('product-details-modal');
+    if (existingModal) existingModal.remove();
+
+    const imgSrc = prod.imageUrl || prod.image_url || '';
+    const isAvailable = typeof isProductInStock === 'function'
+        ? isProductInStock(prod)
+        : (prod.in_stock !== false);
+    const descText = (prod.desc || prod.description || '').trim() || 'لا يوجد وصف متوفر لهذا المنتج حالياً.';
+    const pr = typeof getEffectivePrice === 'function'
+        ? getEffectivePrice(prod)
+        : { original: Number(prod.price) || 0, final: Number(prod.price) || 0, discountPct: 0, hasOffer: false };
+
+    const allProducts = Array.isArray(products) ? products : [];
+    const sameCategory = allProducts.filter(p => String(p.id) !== String(prod.id) && p.category && p.category === prod.category);
+    const fallbackOthers = allProducts.filter(p => String(p.id) !== String(prod.id) && !(p.category && p.category === prod.category));
+    const suggestedList = [...sameCategory, ...fallbackOthers].slice(0, 6);
+
+    const priceHtml = pr.hasOffer
+        ? `
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xl font-black text-emerald-400">${pr.final} ر.س</span>
+                <span class="text-xs line-through text-rose-300/80">${pr.original} ر.س</span>
+                <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-red-500/20 text-red-300 border border-red-500/40">خصم ${pr.discountPct}%</span>
+            </div>
+        `
+        : `<span class="text-xl font-black text-sky-400">${pr.original} ر.س</span>`;
+
+    const suggestedHtml = suggestedList.length
+        ? suggestedList.map(item => {
+            const itemImg = item.imageUrl || item.image_url || '';
+            const itemPr = typeof getEffectivePrice === 'function'
+                ? getEffectivePrice(item)
+                : { original: Number(item.price) || 0, final: Number(item.price) || 0, hasOffer: false };
+            const itemPrice = itemPr.hasOffer ? itemPr.final : itemPr.original;
+
+            return `
+                <div onclick="openProductDetails('${item.id}')" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-sky-500/50 rounded-2xl p-3 flex flex-col justify-between gap-2 transition">
+                    <div class="flex items-center gap-2.5">
+                        ${itemImg
+                            ? `<img src="${itemImg}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0" onerror="this.style.display='none';" />`
+                            : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center shrink-0"><i class="fa-solid ${item.icon || 'fa-bolt'}"></i></div>`
+                        }
+                        <div class="min-w-0 text-right">
+                            <div class="text-[10px] text-sky-400 font-bold truncate">${item.category || 'منتج'}</div>
+                            <div class="text-xs font-bold text-white truncate">${item.name}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+                        <span class="text-xs font-black text-emerald-400">${itemPrice} ر.س</span>
+                        <span class="text-[11px] text-sky-300 font-bold">عرض التفاصيل ←</span>
+                    </div>
+                </div>
+            `;
+        }).join('')
+        : `<div class="col-span-full text-center text-xs text-slate-400 py-4">لا توجد منتجات مشابهة حالياً.</div>`;
+
+    const modalHtml = `
+        <div id="product-details-modal" onclick="if(event.target.id==='product-details-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-5 overflow-y-auto" dir="rtl">
+            <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-sky-500/30 p-5 sm:p-6 text-white shadow-2xl space-y-6 my-auto">
+                <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div class="space-y-1 text-right">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30">${prod.category || 'عام'}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isAvailable ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'}">${isAvailable ? 'متوفر' : 'نفدت الكمية'}</span>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-black text-white pt-1">${prod.name}</h2>
+                    </div>
+                    <button type="button" onclick="document.getElementById('product-details-modal').remove()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold">✕ إغلاق</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 items-start">
+                    <div class="sm:col-span-1 flex items-center justify-center bg-slate-900/80 border border-slate-800 rounded-2xl p-4 min-h-44">
+                        ${imgSrc
+                            ? `<img src="${imgSrc}" alt="${prod.name}" class="max-h-48 w-full object-contain rounded-xl" onerror="this.style.display='none';" />`
+                            : `<div class="w-20 h-20 rounded-2xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-3xl"><i class="fa-solid ${prod.icon || 'fa-bolt'}"></i></div>`
+                        }
+                    </div>
+
+                    <div class="sm:col-span-2 space-y-4 text-right">
+                        <div>${priceHtml}</div>
+
+                        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5 space-y-1.5">
+                            <div class="text-xs font-extrabold text-sky-400">وصف المنتج</div>
+                            <p class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">${descText}</p>
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-1">
+                            <button type="button" onclick="addToCart('${prod.id}')" ${!isAvailable ? 'disabled' : ''} class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition ${isAvailable ? 'bg-sky-500 hover:bg-sky-400 text-black cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
+                                ${isAvailable ? 'إضافة إلى السلة' : 'نفدت الكمية'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white">منتجات مشابهة قد تعجبك</h3>
+                        <span class="text-[11px] text-slate-400">${prod.category ? `قسم: ${prod.category}` : 'مقترحات المتجر'}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        ${suggestedHtml}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
         function filterCategory(cat) {
             currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
