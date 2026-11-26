@@ -194,7 +194,7 @@
         </div>
     </div>
 
-    <!-- لوحة التحكم المطورة (قائمة جانبية + بطاقات إحصائيات وإجراءات سريعة + تبديل لغة + دخل وتقفيل يومي للمالك) -->
+    <!-- لوحة التحكم المطورة -->
     <div id="dashboard-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-3 sm:p-5 overflow-y-auto">
         <div class="glass-panel border border-amber-500/30 rounded-3xl max-w-6xl w-full p-5 sm:p-6 shadow-2xl max-h-[92vh] flex flex-col my-auto">
             <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10 mb-4">
@@ -218,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- بطاقات الإحصائيات العلوية -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-3.5 text-start">
                     <div id="stat-label-visitors" class="text-xs text-slate-400">عدد الزوار</div>
@@ -238,7 +237,6 @@
                 </div>
             </div>
 
-            <!-- قائمة جانبية + مساحة عمل البطاقات السريعة والمحتوى -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 overflow-hidden">
                 <aside id="dash-sidebar" class="lg:col-span-3 bg-black/50 border border-white/10 rounded-2xl p-3 space-y-1.5 overflow-y-auto"></aside>
                 <div class="lg:col-span-9 flex flex-col min-h-0 overflow-y-auto space-y-4 pe-1">
@@ -249,7 +247,7 @@
         </div>
     </div>
 
-    <!-- نافذة إنشاء حساب / تسجيل دخول حقيقي -->
+    <!-- نافذة إنشاء حساب / تسجيل دخول -->
     <div id="login-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-md w-full p-6 shadow-2xl">
             <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
@@ -310,6 +308,7 @@
                             <option value="شواحن وكوابل">شواحن وكوابل</option>
                             <option value="حمايات شاشات">حمايات شاشات</option>
                             <option value="إكسسوارات">إكسسوارات</option>
+                            <option value="إلكترونيات">إلكترونيات</option>
                         </select>
                     </div>
 
@@ -320,8 +319,15 @@
                 </div>
 
                 <div>
-                    <label id="new-prod-img-label" class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
-                    <input type="url" id="new-prod-image" placeholder="https://example.com/image.jpg" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                    <label id="new-prod-img-label" class="block text-xs font-bold text-slate-300 mb-1.5">صورة المنتج (رفع من الجهاز أو رابط)</label>
+                    <div class="space-y-2">
+                        <input type="file" id="new-prod-file" accept="image/*" onchange="handleNewProductFile(this)" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2 text-xs text-slate-300 file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-sky-500 file:text-black hover:file:bg-sky-400">
+                        <input type="text" id="new-prod-image" placeholder="images/product.jpg أو https://..." class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                        <div id="new-prod-preview-wrap" class="hidden items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-2">
+                            <img id="new-prod-preview" src="" alt="Preview" class="w-12 h-12 rounded-lg object-cover bg-black">
+                            <button type="button" onclick="clearNewProductImage()" class="text-xs font-bold text-red-400 hover:text-red-300">إزالة الصورة</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div>
@@ -332,6 +338,66 @@
                 <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
                     <button type="button" onclick="closeProductModal()" id="new-prod-cancel" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
                     <button type="submit" id="new-prod-save" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل منتج (تدعم اختيار صورة من الجهاز) -->
+    <div id="edit-product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass-panel border border-amber-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                <h2 class="text-xl font-black text-white">تعديل المنتج</h2>
+                <button type="button" onclick="closeEditProductModal()" class="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveEditedProduct(event)" class="space-y-4 text-start">
+                <input type="hidden" id="edit-prod-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
+                    <input type="text" id="edit-prod-name" required class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
+                        <select id="edit-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+                            <option value="جوالات">جوالات</option>
+                            <option value="شواحن وكوابل">شواحن وكوابل</option>
+                            <option value="حمايات شاشات">حمايات شاشات</option>
+                            <option value="إكسسوارات">إكسسوارات</option>
+                            <option value="إلكترونيات">إلكترونيات</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
+                        <input type="number" id="edit-prod-price" required min="1" step="any" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">صورة المنتج (اختيار من الجهاز أو رابط)</label>
+                    <div class="space-y-2">
+                        <input type="file" id="edit-prod-file" accept="image/*" onchange="handleEditProductFile(this)" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2 text-xs text-slate-300 file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-amber-500 file:text-black hover:file:bg-amber-400">
+                        <input type="text" id="edit-prod-image" placeholder="images/product.jpg أو https://..." class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                        <div id="edit-prod-preview-wrap" class="hidden items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-2">
+                            <img id="edit-prod-preview" src="" alt="Preview" class="w-12 h-12 rounded-lg object-cover bg-black">
+                            <button type="button" onclick="clearEditProductImage()" class="text-xs font-bold text-red-400 hover:text-red-300">إزالة الصورة</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
+                    <textarea id="edit-prod-desc" rows="2" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+                    <button type="button" onclick="closeEditProductModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-sm font-extrabold">حفظ التعديلات</button>
                 </div>
             </form>
         </div>
@@ -412,7 +478,8 @@
                     'جوالات': 'جوالات',
                     'شواحن وكوابل': 'شواحن وكوابل',
                     'حمايات شاشات': 'حمايات شاشات',
-                    'إكسسوارات': 'إكسسوارات'
+                    'إكسسوارات': 'إكسسوارات',
+                    'إلكترونيات': 'إلكترونيات'
                 },
                 promoItems: [
                     'اطلب 4 منتجات واحصل على الخامس مع هدية مجانية',
@@ -440,7 +507,7 @@
                     manageSocials: 'روابط التواصل والرقم'
                 },
                 dashOverviewDesc: 'اختر أي بطاقة أو قسماً من القائمة الجانبية للانتقال المباشر وإدارة المتجر.',
-                dashProductsHint: 'يمكنك إضافة منتج جديد أو تعديل الأسعار وحالة التوفر مباشرة من شبكة المنتجات.',
+                dashProductsHint: 'يمكنك إضافة منتج جديد أو تعديل الأسعار والصور وحالة التوفر مباشرة من شبكة المنتجات.',
                 openAddProdModal: 'فتح نافذة إضافة منتج',
                 dashOffersDesc: 'تفعيل أو إيقاف شريط العروض الأحمر المتحرك وتحديد نسب الخصم لكل منتج.',
                 openOffersModal: 'فتح نافذة العروض الحمراء',
@@ -487,19 +554,19 @@
                 roles: { owner: 'Owner', admin: 'Admin', moderator: 'Moderator', user: 'Member' },
                 adminPanelDesc: 'Manage products, orders, visitors, offers, and contact links.',
                 dashBtn: 'Dashboard',
-                heroBadge: 'Original Tech with Certified Warranty',
+                heroBadge: 'Genuine Latest Tech with Certified Warranty',
                 heroTitle: 'Smart Tech World at <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-white">Rkaz Technology</span>',
-                heroDesc: 'Explore the latest smartphones, fast chargers, and high-durability screen protectors.',
+                heroDesc: 'Discover the latest smartphones, fast chargers, and high-durability screen protectors.',
                 heroCta: 'Browse Products',
                 countPrefix: 'Showing',
                 countSuffix: 'products',
                 emptyTitle: 'No matching products found',
                 cartTitle: 'Shopping Cart',
                 cartEmpty: 'Your cart is currently empty',
-                cartEmptyWarn: 'Your cart is empty. Add products first.',
+                cartEmptyWarn: 'Your cart is empty, please add items first.',
                 total: 'Total:',
-                checkout: 'Complete Order',
-                contactDirect: 'Direct Contact:',
+                checkout: 'Checkout Now',
+                contactDirect: 'Contact us directly:',
                 currency: 'SAR',
                 inStock: 'In Stock',
                 outOfStock: 'Out of Stock',
@@ -509,9 +576,9 @@
                 editBtn: 'Edit',
                 deleteBtn: 'Delete',
                 noDesc: 'No additional description for this product.',
-                noDescDetails: 'No description available for this product right now.',
+                noDescDetails: 'No description available for this product.',
                 prodDescTitle: 'Product Description',
-                similarTitle: 'Similar products you may like',
+                similarTitle: 'Similar Products You May Like',
                 noSimilar: 'No similar products in this category right now.',
                 discountBadge: (pct) => `${pct}% OFF`,
                 categories: {
@@ -519,21 +586,22 @@
                     'جوالات': 'Phones',
                     'شواحن وكوابل': 'Chargers & Cables',
                     'حمايات شاشات': 'Screen Protectors',
-                    'إكسسوارات': 'Accessories'
+                    'إكسسوارات': 'Accessories',
+                    'إلكترونيات': 'Electronics'
                 },
                 promoItems: [
-                    'Buy 4 items and get the 5th with a free gift',
+                    'Order 4 items and get the 5th with a free gift',
                     'Shipping to all regions & international via Aramex',
                     'Tabby & Tamara available in-store',
-                    'Original products with certified warranty'
+                    'Original products & certified warranty'
                 ],
                 socialLabels: { snapchat: 'Snapchat', tiktok: 'TikTok', whatsapp: 'WhatsApp' },
-                dashTitle: 'Owner Control Dashboard',
-                dashSubtitle: 'Complete store & operations control',
+                dashTitle: 'Owner Dashboard',
+                dashSubtitle: 'Complete Store & Operations Management',
                 stats: { visitors: 'Visitors', products: 'Products', orders: 'Orders', users: 'Users' },
                 dashNav: {
                     overview: 'Overview',
-                    revenue: 'Daily Revenue & Close',
+                    revenue: 'Daily Income & Closing',
                     products: 'Products',
                     offers: 'Red Offers',
                     socials: 'Social Links',
@@ -542,390 +610,92 @@
                 },
                 quickActions: {
                     addProd: 'Add New Product',
-                    dailyClose: 'Daily Revenue & Close',
+                    dailyClose: 'Daily Income & Closing',
                     manageOffers: 'Manage Red Offers',
-                    manageSocials: 'Social Links & Phone'
+                    manageSocials: 'Socials & Phone'
                 },
-                dashOverviewDesc: 'Pick a quick card or use the sidebar menu to jump directly to any management section.',
-                dashProductsHint: 'Add new products or update prices and stock status directly from the storefront grid.',
-                openAddProdModal: 'Open Add Product Window',
-                dashOffersDesc: 'Toggle the red offer ticker and set product discount percentages.',
-                openOffersModal: 'Open Red Offers Window',
-                dashSocialsDesc: 'Manage Snapchat, TikTok, WhatsApp, and phone number; empty fields hide automatically.',
-                openSocialsModal: 'Open Social Links Window',
+                dashOverviewDesc: 'Select any card or sidebar section to manage your store.',
+                dashProductsHint: 'Add products or edit prices, images, and stock status directly.',
+                openAddProdModal: 'Open Add Product Modal',
+                dashOffersDesc: 'Enable or disable the red offers ticker and set discount percentages per product.',
+                openOffersModal: 'Open Red Offers Modal',
+                dashSocialsDesc: 'Manage Snapchat, TikTok, WhatsApp links and phone number; empty fields hide automatically.',
+                openSocialsModal: 'Open Social Links Modal',
                 noUsers: 'No registered users yet',
                 lastLogin: 'Last login:',
                 noOrders: 'No orders yet',
-                visitsTitle: 'Visits & Login Log',
-                visits: { visit: 'Site Visit', login: 'Authenticated Login' },
+                visitsTitle: 'Visits & Real Logins Log',
+                visits: { visit: 'Site Visit', login: 'Real Login' },
                 guest: 'Guest',
-                footerCopy: 'All rights reserved © 2026 Rkaz Technology',
+                footerCopy: 'All rights reserved © 2026 Rkaz Technology Store',
                 rev: {
-                    ownerOnly: 'Owner access only.',
-                    todayIncome: 'Current Day Income',
-                    ordersIncome: 'Recorded Orders Total',
+                    ownerOnly: 'This section is restricted to the Owner only.',
+                    todayIncome: "Today's Income",
+                    ordersIncome: 'Recorded Orders Income',
                     closedDaysCount: 'Closed Days',
-                    totalClosed: 'Closed Days Sum',
-                    addSaleTitle: 'Add Today Sale / Amount',
-                    saleNotePlaceholder: 'e.g. Case, charger, cash sale',
+                    totalClosed: 'Total Closed Days',
+                    addSaleTitle: 'Add Sale / Amount for Today',
+                    saleNotePlaceholder: 'e.g. Case, charger, or cash sale',
                     saleAmountPlaceholder: 'Amount (SAR)',
                     addSaleBtn: 'Add to Today',
                     closeDayBtn: 'Close Day & Save Log',
-                    todayEntries: 'Today Entries Before Closing',
+                    todayEntries: "Today's Entries Before Closing",
                     noEntriesToday: 'No entries added for today yet.',
-                    closedHistoryTitle: 'Closed Days Log (Date & Day)',
-                    noClosedDays: 'No days closed yet.',
-                    dayClosedToast: (label, amt) => `Closed (${label}) with ${amt} SAR`,
+                    closedHistoryTitle: 'Closed Days History (Date & Day)',
+                    noClosedDays: 'No days have been closed yet.',
+                    dayClosedToast: (label, amt) => `Closed day (${label}) with total ${amt} SAR`,
                     enterValidAmount: 'Enter a valid amount greater than zero.',
-                    nothingToClose: 'There is no daily income to close.',
+                    nothingToClose: 'There is no income for today to close.',
                     deleteEntry: 'Delete',
                     deleteClosedDay: 'Delete Log'
                 }
             }
         };
 
-        function t() {
-            return i18n[currentLang] || i18n.ar;
-        }
-
-        function applyLanguageUI() {
-            const tr = t();
-            const isEn = currentLang === 'en';
-            document.documentElement.lang = isEn ? 'en' : 'ar';
-            document.documentElement.dir = isEn ? 'ltr' : 'rtl';
-            document.title = tr.title;
-
-            const subEl = document.getElementById('header-subtitle');
-            if (subEl) subEl.textContent = tr.subtitle;
-
-            const searchEl = document.getElementById('search-input');
-            if (searchEl) searchEl.placeholder = tr.searchPlaceholder;
-
-            const langLabel = document.getElementById('lang-toggle-label');
-            if (langLabel) langLabel.textContent = isEn ? 'عربي' : 'EN';
-
-            const dashLangLabel = document.getElementById('dash-lang-label');
-            if (dashLangLabel) dashLangLabel.textContent = isEn ? 'العربية' : 'English';
-
-            const cartLabel = document.getElementById('header-cart-label');
-            if (cartLabel) cartLabel.textContent = tr.cart;
-
-            const adminBtnDash = document.getElementById('admin-btn-dash');
-            if (adminBtnDash) adminBtnDash.textContent = tr.dashBtn;
-
-            const adminBarDesc = document.getElementById('admin-bar-desc');
-            if (adminBarDesc) adminBarDesc.textContent = tr.adminPanelDesc;
-
-            const heroBadge = document.getElementById('hero-badge');
-            if (heroBadge) heroBadge.textContent = tr.heroBadge;
-
-            const heroTitle = document.getElementById('hero-title');
-            if (heroTitle) heroTitle.innerHTML = tr.heroTitle;
-
-            const heroDesc = document.getElementById('hero-desc');
-            if (heroDesc) heroDesc.textContent = tr.heroDesc;
-
-            const heroCta = document.getElementById('hero-cta');
-            if (heroCta) heroCta.textContent = tr.heroCta;
-
-            const countPrefix = document.getElementById('products-count-prefix');
-            if (countPrefix) countPrefix.textContent = tr.countPrefix;
-
-            const countSuffix = document.getElementById('products-count-suffix');
-            if (countSuffix) countSuffix.textContent = tr.countSuffix;
-
-            const emptyTitle = document.getElementById('empty-state-title');
-            if (emptyTitle) emptyTitle.textContent = tr.emptyTitle;
-
-            const cartModalTitle = document.getElementById('cart-modal-title');
-            if (cartModalTitle) cartModalTitle.textContent = tr.cartTitle;
-
-            const cartTotalLabel = document.getElementById('cart-total-label');
-            if (cartTotalLabel) cartTotalLabel.textContent = tr.total;
-
-            const cartCheckoutBtn = document.getElementById('cart-checkout-btn');
-            if (cartCheckoutBtn) cartCheckoutBtn.textContent = tr.checkout;
-
-            const dashTitle = document.getElementById('dash-modal-title');
-            if (dashTitle) dashTitle.textContent = tr.dashTitle;
-
-            const dashSubtitle = document.getElementById('dash-modal-subtitle');
-            if (dashSubtitle) dashSubtitle.textContent = tr.dashSubtitle;
-
-            const statV = document.getElementById('stat-label-visitors');
-            if (statV) statV.textContent = tr.stats.visitors;
-            const statP = document.getElementById('stat-label-products');
-            if (statP) statP.textContent = tr.stats.products;
-            const statO = document.getElementById('stat-label-orders');
-            if (statO) statO.textContent = tr.stats.orders;
-            const statU = document.getElementById('stat-label-users');
-            if (statU) statU.textContent = tr.stats.users;
-
-            const footerCopy = document.getElementById('footer-copyright');
-            if (footerCopy) footerCopy.textContent = tr.footerCopy;
-
-            renderPromoTicker();
-            renderCategoryTabs();
-            checkAuthUI();
-            renderProducts();
-            renderSocialChannels();
-            if (!document.getElementById('cart-modal').classList.contains('hidden')) renderCartModal();
-            if (!document.getElementById('dashboard-modal').classList.contains('hidden')) renderDashboard();
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            localStorage.setItem('rkaz_lang', currentLang);
-            applyLanguageUI();
-            showToast(currentLang === 'en' ? 'Switched to English' : 'تم التحويل إلى العربية', 'info');
-        }
-
-        function renderPromoTicker() {
-            const track = document.getElementById('promo-ticker-track');
-            if (!track) return;
-            const items = t().promoItems;
-            const icons = ['fa-gift text-amber-400', 'fa-truck-fast text-sky-400', 'fa-credit-card text-emerald-400', 'fa-shield-halved text-sky-300'];
-            const once = items.map((txt, idx) =>
-                `<span class="inline-flex items-center gap-2"><i class="fa-solid ${icons[idx % icons.length]}"></i> ${txt}</span><span class="text-white/30">•</span>`
-            ).join('');
-            track.innerHTML = once.repeat(4);
-        }
-
-        function renderCategoryTabs() {
-            const tabsBox = document.getElementById('category-tabs');
-            if (!tabsBox) return;
-            const cats = ['الكل', 'جوالات', 'شواحن وكوابل', 'حمايات شاشات', 'إكسسوارات'];
-            const labels = t().categories;
-            tabsBox.innerHTML = cats.map(cat => {
-                const active = currentCategory === cat;
-                return `<button onclick="filterCategory('${cat}')" data-cat="${cat}" class="cat-btn ${active ? 'active bg-sky-500 text-black' : 'bg-white/5 text-slate-300 hover:bg-white/10'} px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap">${labels[cat] || cat}</button>`;
-            }).join('');
-        }
-
-        const defaultSocialConfig = {
-            snapchat: 'https://www.snapchat.com',
-            tiktok: 'https://www.tiktok.com',
-            whatsapp: 'https://wa.me/966500125387',
-            phone: '0500125387'
-        };
-
-        let socialConfig = {
-            ...defaultSocialConfig,
-            ...(JSON.parse(localStorage.getItem('rkaz_social_links') || '{}') || {})
-        };
-
-        function normalizeUrl(val) {
-            const raw = (val || '').trim();
-            if (!raw) return '';
-            if (/^https?:\/\//i.test(raw)) return raw;
-            return 'https://' + raw;
-        }
-
-        function normalizePhoneLink(val) {
-            const cleaned = (val || '').trim().replace(/[^\d+]/g, '');
-            if (!cleaned) return '';
-            return 'tel:' + cleaned;
-        }
-
-        function getActiveSocialChannels() {
-            const list = [];
-            const sLabels = t().socialLabels;
-            const snap = normalizeUrl(socialConfig.snapchat);
-            const tik = normalizeUrl(socialConfig.tiktok);
-            const wa = normalizeUrl(socialConfig.whatsapp);
-            const phoneHref = normalizePhoneLink(socialConfig.phone);
-            const phoneLabel = (socialConfig.phone || '').trim();
-
-            if (snap) {
-                list.push({
-                    key: 'snapchat',
-                    label: sLabels.snapchat,
-                    href: snap,
-                    icon: 'fa-brands fa-snapchat',
-                    badgeClass: 'bg-amber-400/15 hover:bg-amber-400/25 border-amber-400/40 text-amber-300'
-                });
+        function t(key) {
+            const parts = key.split('.');
+            let obj = i18n[currentLang] || i18n.ar;
+            for (const p of parts) {
+                if (obj && obj[p] !== undefined) obj = obj[p];
+                else return key;
             }
-            if (tik) {
-                list.push({
-                    key: 'tiktok',
-                    label: sLabels.tiktok,
-                    href: tik,
-                    icon: 'fa-brands fa-tiktok',
-                    badgeClass: 'bg-pink-500/15 hover:bg-pink-500/25 border-pink-400/40 text-pink-300'
-                });
-            }
-            if (wa) {
-                list.push({
-                    key: 'whatsapp',
-                    label: sLabels.whatsapp,
-                    href: wa,
-                    icon: 'fa-brands fa-whatsapp',
-                    badgeClass: 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-400/40 text-emerald-300'
-                });
-            }
-            if (phoneHref && phoneLabel) {
-                list.push({
-                    key: 'phone',
-                    label: phoneLabel,
-                    href: phoneHref,
-                    icon: 'fa-solid fa-phone',
-                    badgeClass: 'bg-sky-500/15 hover:bg-sky-500/25 border-sky-400/40 text-sky-300'
-                });
-            }
-            return list;
+            return obj;
         }
 
-        function renderSocialChannels() {
-            const channels = getActiveSocialChannels();
-            const footerBox = document.getElementById('footer-social-links');
-            const cartBox = document.getElementById('cart-quick-socials');
-
-            if (footerBox) {
-                footerBox.innerHTML = channels.length ? channels.map(ch => `
-                    <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
-                        <i class="${ch.icon}"></i>
-                        <span>${ch.label}</span>
-                    </a>
-                `).join('') : '';
-            }
-
-            if (cartBox) {
-                cartBox.innerHTML = channels.length ? `
-                    <div class="text-[11px] font-bold text-slate-400 mb-2">${t().contactDirect}</div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        ${channels.map(ch => `
-                            <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
-                                <i class="${ch.icon}"></i>
-                                <span>${ch.label}</span>
-                            </a>
-                        `).join('')}
-                    </div>
-                ` : '';
-            }
-        }
-
-        function openOwnerSocialManager() {
-            if (!isOwnerUser(currentUser)) {
-                showToast(currentLang === 'en' ? 'Owner access only.' : 'إدارة روابط التواصل متاحة للمالك فقط.', 'warning');
-                return;
-            }
-
-            const existing = document.getElementById('owner-social-modal');
-            if (existing) existing.remove();
-
-            const isEn = currentLang === 'en';
-            const modalHtml = `
-                <div id="owner-social-modal" onclick="if(event.target.id==='owner-social-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div class="glass-panel border border-emerald-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-start">
-                        <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                            <h2 class="text-lg font-black text-emerald-300 flex items-center gap-2">
-                                <i class="fa-solid fa-share-nodes"></i> ${isEn ? 'Manage Social Links & Phone' : 'إدارة برامج التواصل والرقم'}
-                            </h2>
-                            <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <p class="text-xs text-slate-400">${isEn ? 'Leave any field empty to hide it from the footer and cart.' : 'اترك أي خانة فارغة لإخفاء البرنامج من الشريط السفلي وقائمة السلة.'}</p>
-
-                        <form id="owner-social-form" class="space-y-3.5">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'Snapchat Link' : 'رابط سناب شات'}</label>
-                                <input type="text" id="soc-snapchat" value="${socialConfig.snapchat || ''}" placeholder="https://snapchat.com/add/username" class="w-full bg-black border border-white/20 focus:border-amber-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'TikTok Link' : 'رابط تيك توك'}</label>
-                                <input type="text" id="soc-tiktok" value="${socialConfig.tiktok || ''}" placeholder="https://tiktok.com/@username" class="w-full bg-black border border-white/20 focus:border-pink-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'WhatsApp Link' : 'رابط واتساب'}</label>
-                                <input type="text" id="soc-whatsapp" value="${socialConfig.whatsapp || ''}" placeholder="https://wa.me/966500125387" class="w-full bg-black border border-white/20 focus:border-emerald-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'Phone Number' : 'رقم التواصل'}</label>
-                                <input type="text" id="soc-phone" value="${socialConfig.phone || ''}" placeholder="0500125387" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
-                            </div>
-
-                            <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-                                <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">${isEn ? 'Cancel' : 'إلغاء'}</button>
-                                <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold">${isEn ? 'Save Changes' : 'حفظ التعديلات'}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-            document.getElementById('owner-social-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                socialConfig = {
-                    snapchat: document.getElementById('soc-snapchat').value.trim(),
-                    tiktok: document.getElementById('soc-tiktok').value.trim(),
-                    whatsapp: document.getElementById('soc-whatsapp').value.trim(),
-                    phone: document.getElementById('soc-phone').value.trim()
-                };
-                localStorage.setItem('rkaz_social_links', JSON.stringify(socialConfig));
-                renderSocialChannels();
-                document.getElementById('owner-social-modal').remove();
-                showToast(isEn ? 'Contact channels updated.' : 'تم تحديث قنوات التواصل بنجاح.', 'success');
-            });
-        }
-
-        function showToast(message, type = 'info') {
+        function showToast(message, type = 'success') {
             const container = document.getElementById('rkaz-toast-container');
             if (!container) return;
-
-            const styles = {
-                success: 'bg-emerald-950/95 border-emerald-400/50 text-emerald-200',
-                warning: 'bg-amber-950/95 border-amber-400/50 text-amber-200',
-                error: 'bg-rose-950/95 border-rose-400/50 text-rose-200',
-                info: 'bg-slate-900/95 border-sky-400/50 text-sky-100'
-            };
-
-            const icons = {
-                success: 'fa-circle-check text-emerald-400',
-                warning: 'fa-triangle-exclamation text-amber-400',
-                error: 'fa-circle-xmark text-rose-400',
-                info: 'fa-cart-plus text-sky-400'
-            };
-
             const toast = document.createElement('div');
-            toast.className = `pointer-events-auto flex items-center gap-2.5 border rounded-2xl px-4 py-3 text-xs sm:text-sm font-bold shadow-2xl transition-all duration-300 opacity-0 translate-y-2 ${styles[type] || styles.info}`;
-            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-base shrink-0"></i><span>${message}</span>`;
+            const palette = type === 'warn'
+                ? 'bg-amber-950/95 border-amber-400/50 text-amber-100'
+                : type === 'error'
+                ? 'bg-red-950/95 border-red-400/50 text-red-100'
+                : 'bg-slate-900/95 border-sky-400/50 text-white';
+            const icon = type === 'warn'
+                ? '<i class="fa-solid fa-triangle-exclamation text-amber-400 text-base shrink-0"></i>'
+                : type === 'error'
+                ? '<i class="fa-solid fa-circle-xmark text-red-400 text-base shrink-0"></i>'
+                : '<i class="fa-solid fa-circle-check text-sky-400 text-base shrink-0"></i>';
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border shadow-2xl text-xs sm:text-sm font-bold transition-all duration-300 ${palette}`;
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(12px)';
+            toast.innerHTML = `${icon}<span class="flex-1 text-start">${message}</span>`;
             container.appendChild(toast);
-
             requestAnimationFrame(() => {
-                toast.classList.remove('opacity-0', 'translate-y-2');
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
             });
-
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
                 setTimeout(() => toast.remove(), 300);
-            }, 2200);
-        }
-
-        function triggerCartAnimation() {
-            const btn = document.getElementById('header-cart-btn');
-            const badge = document.getElementById('cart-badge');
-            if (btn) {
-                btn.classList.remove('cart-animate');
-                void btn.offsetWidth;
-                btn.classList.add('cart-animate');
-                setTimeout(() => btn.classList.remove('cart-animate'), 600);
-            }
-            if (badge) {
-                badge.classList.remove('badge-bounce');
-                void badge.offsetWidth;
-                badge.classList.add('badge-bounce');
-                setTimeout(() => badge.classList.remove('badge-bounce'), 420);
-            }
+            }, 3000);
         }
 
         const canvas = document.getElementById('live-bg');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); }
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
@@ -937,17 +707,54 @@
         }
         function initParticles() { particles = []; for (let i = 0; i < 50; i++) particles.push(new Particle()); }
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-        window.addEventListener('resize', resizeCanvas); resizeCanvas(); animate();
+        window.addEventListener('resize', resizeCanvas); resizeCanvas(); initParticles(); animate();
+
+        const newStoreProducts = [
+            { id: 1700000011, name: "شاحن جداري RAVPOWER PD Pioneer 20W (RP-PC1041)", category: "شواحن وكوابل", price: 29, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري PD قدرة 20 واط بتصميم مدمج وحماية ذكية.", imageUrl: "images/1700000011.jpg" },
+            { id: 1700000012, name: "بكج سيارة RAVPOWER 2 في 1 شاحن 20W PD + كيبل Type-C (RP-VC1018)", category: "شواحن وكوابل", price: 55, icon: "fa-car-battery", in_stock: true, desc: "شاحن سيارة 20 واط مع كيبل USB-C إلى USB-C بطول 1 متر.", imageUrl: "images/1700000012.jpg" },
+            { id: 1700000013, name: "كيبل RAVPOWER Type-C إلى Type-C بطول 1 متر 60W (RP-CB1049)", category: "شواحن وكوابل", price: 45, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ومزامنة PD 60W مقاوم للأوساخ بعمر +20,000 انحناء.", imageUrl: "images/1700000013.jpg" },
+            { id: 1700000014, name: "توصيلة جدارية RAVPOWER 3 منافذ كهرباء + شحن 20W (RP-PC1036)", category: "شواحن وكوابل", price: 59, icon: "fa-plug-circle-bolt", in_stock: true, desc: "توصيلة جدارية بـ 3 مخارج كهرباء ومنافذ شحن سريع 20W.", imageUrl: "images/1700000014.jpg" },
+            { id: 1700000015, name: "كيبل شحن 3 في 1 YESPLUS YS-841 بطول 1200 ملم (6A)", category: "شواحن وكوابل", price: 35, icon: "fa-plug", in_stock: true, desc: "كيبل مضفر 3 في 1 بطول 120 سم يشحن 3 أجهزة حتى 6 أمبير.", imageUrl: "images/1700000015.jpg" },
+            { id: 1700000016, name: "سماعة سلكية DENX DX355 ستيريو", category: "إكسسوارات", price: 25, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية ستيريو ببيس قوي ومريحة للألعاب والاستماع.", imageUrl: "images/1700000016.jpg" },
+            { id: 1700000017, name: "باور بانك ZENDURE S10 بقدرة 20W وسعة 10,000mAh", category: "شواحن وكوابل", price: 125, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000mAh شحن سريع 20W بمنافذ USB-C وUSB-A وهيكل معدني.", imageUrl: "images/1700000017.jpg" },
+            { id: 1700000018, name: "سماعة سلكية GOLDEN plus 700263 بمنفذ USB-C", category: "إكسسوارات", price: 35, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية كلاسيكية Type-C مع تحكم سلكي وصوت واضح.", imageUrl: "images/1700000018.jpg" },
+            { id: 1700000019, name: "سماعة سلكية SPON TYPE-C LINK بمنفذ Type-C (700304)", category: "إكسسوارات", price: 35, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية Type-C بطول 100 سم مع ميكروفون وأزرار تحكم.", imageUrl: "images/1700000019.jpg" },
+            { id: 1700000020, name: "سماعة سلكية X-SMART XS-HF06 بإكسترا بيس", category: "إكسسوارات", price: 25, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية ستيريو بإكسترا بيس وعزل ضوضاء وميكروفون.", imageUrl: "images/1700000020.jpg" },
+            { id: 1700000021, name: "سماعة سلكية X-SMART بمنفذ TYPE-C بجودة صوت HiFi", category: "إكسسوارات", price: 29, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية Type-C بصوت HiFi نقي وميكروفون وتحكم.", imageUrl: "images/1700000021.jpg" },
+            { id: 1700000022, name: "كيبل ZENDURE SuperCord Type-C إلى Type-C بطول 100 سم (ZDASAC2C)", category: "شواحن وكوابل", price: 29, icon: "fa-plug", in_stock: true, desc: "كيبل مضفر متين بطول 1 متر بعمر انحناء يتجاوز 50,000 مرة.", imageUrl: "images/1700000022.jpg" },
+            { id: 1700000023, name: "شاحن لاسلكي مغناطيسي DENX DX1251", category: "شواحن وكوابل", price: 79, icon: "fa-magnet", in_stock: true, desc: "شاحن لاسلكي مغناطيسي سريع Type-C حتى 15 واط.", imageUrl: "images/1700000023.jpg" },
+            { id: 1700000024, name: "بكج شاحن ANKER 20W بمنفذين + كيبل USB-C بطول 1.5 متر", category: "شواحن وكوابل", price: 99, icon: "fa-bolt", in_stock: true, desc: "شاحن ANKER 20W (USB-C وUSB-A) مع كيبل USB-C بطول 1.5 متر.", imageUrl: "images/1700000024.jpg" },
+            { id: 1700000025, name: "كيبل ANKER PowerLine+ Micro USB بطول 1.8 متر مع جراب", category: "شواحن وكوابل", price: 49, icon: "fa-plug", in_stock: true, desc: "كيبل Micro USB مجدول نايلون بطول 1.8 متر مع جراب حماية.", imageUrl: "images/1700000025.jpg" },
+            { id: 1700000026, name: "باور بانك YESPLUS YS-923 بقدرة 22.5W وسعة 10,000mAh", category: "شواحن وكوابل", price: 89, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000mAh شحن سريع PD 22.5W مع كيابل مدمجة.", imageUrl: "images/1700000026.jpg" },
+            { id: 1700000027, name: "باور بانك YESPLUS 22.5W بسعة 10,000mAh بشاشة وكيابل مدمجة", category: "شواحن وكوابل", price: 95, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000mAh قدرة 22.5W بشاشة رقمية وكيابل مدمجة.", imageUrl: "images/1700000027.jpg" },
+            { id: 1700000028, name: "كيبل ANKER USB-C إلى USB-C مضفر 3 قدم 60W", category: "شواحن وكوابل", price: 49, icon: "fa-plug", in_stock: true, desc: "كيبل شحن سريع PD 60W مضفر يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000028.jpg" },
+            { id: 1700000029, name: "كيبل ANKER USB-C إلى Lightning مضفر 3 قدم MFi", category: "شواحن وكوابل", price: 59, icon: "fa-plug", in_stock: true, desc: "كيبل شحن سريع مضفر لآبل معتمد MFi يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000029.jpg" },
+            { id: 1700000030, name: "شاحن جداري ANKER سريع 20W PD", category: "شواحن وكوابل", price: 49, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري مدمج بقدرة قصوى 20 واط وتوافق واسع.", imageUrl: "images/1700000030.jpg" },
+            { id: 1700000031, name: "كيبل ANKER USB-A إلى Lightning بطول 3 قدم", category: "شواحن وكوابل", price: 45, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ومزامنة متين لآبل يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000031.jpg" },
+            { id: 1700000032, name: "كيبل ANKER USB-A إلى USB-C مضفر بطول 3 قدم", category: "شواحن وكوابل", price: 39, icon: "fa-plug", in_stock: true, desc: "كيبل شحن عالي السرعة مضفر يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000032.jpg" },
+            { id: 1700000033, name: "بكج شاحن SPON GaN 22.5W بمنفذين + كيبل مضفر 1 متر (400279)", category: "شواحن وكوابل", price: 69, icon: "fa-bolt", in_stock: true, desc: "شاحن GaN سريع 22.5W بمنفذين مع كيبل مضفر 1000 ملم.", imageUrl: "images/1700000033.jpg" },
+            { id: 1700000034, name: "سماعة لاسلكية JOYROOM JR-T03S", category: "إكسسوارات", price: 55, icon: "fa-headphones", in_stock: true, desc: "سماعة لاسلكية بتحكم لمس وتقليل ضوضاء واستشعار أذن.", imageUrl: "images/1700000034.jpg" },
+            { id: 1700000035, name: "ساعة ذكية JOYROOM Fit-life JR-FT3S", category: "إكسسوارات", price: 105, icon: "fa-clock", in_stock: true, desc: "ساعة ذكية بشاشة HD 1.96 إنش وبطارية حتى 10 أيام ومقاومة 1ATM.", imageUrl: "images/1700000035.jpg" },
+            { id: 1700000036, name: "جهاز Xiaomi TV Box S الجيل الثالث 4K Ultra-HD", category: "إلكترونيات", price: 319, icon: "fa-tv", in_stock: true, desc: "جهاز بث تلفزيوني 4K Ultra-HD بنظام Google TV وGoogle Cast.", imageUrl: "images/1700000036.jpg" },
+            { id: 1700000037, name: "عصا بث Xiaomi Mi TV Stick FHD", category: "إلكترونيات", price: 229, icon: "fa-tv", in_stock: true, desc: "جهاز بث تلفزيوني محمول FHD بنظام Android TV وريموت تحكم.", imageUrl: "images/1700000037.jpg" }
+        ];
 
         const defaultProducts = [
-            { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", in_stock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد." },
-            { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", in_stock: true, desc: "يدعم الشحن السريع لجميع الأجهزة." },
-            { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", in_stock: true, desc: "حماية كاملة للشاشة بوضوح عالي." }
+            { id: 1, name: "آيفون 17 برو ماكس - 256 جيجا", category: "جوالات", price: 5299, icon: "fa-mobile-screen-button", in_stock: true, desc: "النسخة الأصلية الأحدث بضمان معتمد.", imageUrl: "" },
+            { id: 2, name: "شاحن جداري فائق السرعة 65 واط", category: "شواحن وكوابل", price: 149, icon: "fa-bolt", in_stock: true, desc: "يدعم الشحن السريع لجميع الأجهزة.", imageUrl: "" },
+            { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", in_stock: true, desc: "حماية كاملة للشاشة بوضوح عالٍ.", imageUrl: "" }
         ];
 
         let products = JSON.parse(localStorage.getItem('rkaz_products') || 'null');
-        if (!Array.isArray(products)) {
-            products = [...defaultProducts];
+        const hasNewProducts = Array.isArray(products) && products.some(p => p.id === 1700000011);
+
+        if (!Array.isArray(products) || !hasNewProducts) {
+            const existingMap = new Map((Array.isArray(products) ? products : []).map(p => [p.id, p]));
+            const merged = [...newStoreProducts, ...defaultProducts].map(item => {
+                const prev = existingMap.get(item.id);
+                return prev ? { ...item, ...prev, imageUrl: prev.imageUrl || item.imageUrl } : item;
+            });
+            products = merged;
             localStorage.setItem('rkaz_products', JSON.stringify(products));
         } else {
             products = products.map(p => ({
@@ -958,1243 +765,1260 @@
         }
 
         let cart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
+        let currentUser = JSON.parse(localStorage.getItem('rkaz_user') || 'null');
+        let activeCategory = 'الكل';
+        let searchQuery = '';
+        let authMode = 'login';
+        let activeDashTab = 'overview';
+
+        let users = JSON.parse(localStorage.getItem('rkaz_users') || '[]');
         let orders = JSON.parse(localStorage.getItem('rkaz_orders') || '[]');
-        let usersList = JSON.parse(localStorage.getItem('rkaz_users') || '[]');
-        let visitsList = JSON.parse(localStorage.getItem('rkaz_visits') || '[]');
-        let visitorsCount = parseInt(localStorage.getItem('rkaz_visitors_count') || '0', 10);
+        let visitorsCount = parseInt(localStorage.getItem('rkaz_visitors') || '0', 10);
+        let visitsLog = JSON.parse(localStorage.getItem('rkaz_visits_log') || '[]');
 
         let dailyEntries = JSON.parse(localStorage.getItem('rkaz_daily_entries') || '[]');
-        let closedDaysLog = JSON.parse(localStorage.getItem('rkaz_closed_days') || '[]');
+        let closedDays = JSON.parse(localStorage.getItem('rkaz_closed_days') || '[]');
 
-        visitorsCount += 1;
-        localStorage.setItem('rkaz_visitors_count', String(visitorsCount));
-        visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'visit', user: 'guest' });
-        visitsList = visitsList.slice(0, 50);
-        localStorage.setItem('rkaz_visits', JSON.stringify(visitsList));
-
-        let currentCategory = 'الكل';
-        let searchQuery = '';
-        let currentUser = null;
-        let activeDashSection = 'overview';
-        let activeUsersSubTab = 'users';
-        let authMode = 'login';
-
-        function isStaffOrOwner(u) {
-            return u && (u.role === 'owner' || u.role === 'admin' || u.role === 'moderator');
+        let redOffers = JSON.parse(localStorage.getItem('rkaz_red_offers') || 'null');
+        if (!redOffers || typeof redOffers !== 'object') {
+            redOffers = { enabled: false, discounts: {} };
+            localStorage.setItem('rkaz_red_offers', JSON.stringify(redOffers));
         }
 
-        function isOwnerUser(u) {
-            return Boolean(u && u.role === 'owner');
+        let socialLinks = JSON.parse(localStorage.getItem('rkaz_social_links') || 'null');
+        if (!socialLinks || typeof socialLinks !== 'object') {
+            socialLinks = {
+                snapchat: 'https://snapchat.com/add/rkaz_tech',
+                tiktok: 'https://www.tiktok.com/@rkaz_tech',
+                whatsapp: 'https://wa.me/966500125387',
+                phone: '966500125387'
+            };
+            localStorage.setItem('rkaz_social_links', JSON.stringify(socialLinks));
         }
 
-        function getTodayDayName() {
-            const d = new Date();
-            return d.toLocaleDateString(currentLang === 'en' ? 'en-US' : 'ar-SA', { weekday: 'long' });
-        }
+        function isOwner() { return Boolean(currentUser && currentUser.id === OWNER_ID); }
+        function getUserRole() { return isOwner() ? 'owner' : 'user'; }
+        function isStaff() { return isOwner(); }
+        function getRoleBadgeText(role) { return t('roles')[role] || t('roles').user; }
 
-        function getTodayDateFormatted() {
-            const d = new Date();
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
-        }
-
-        function getCurrentTimeShort() {
-            return new Date().toLocaleTimeString(currentLang === 'en' ? 'en-US' : 'ar-SA', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function getTodayEntriesTotal() {
-            return dailyEntries.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-        }
-
-        function getOrdersTotalRevenue() {
-            return orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-        }
-
-        function getClosedDaysTotalRevenue() {
-            return closedDaysLog.reduce((sum, d) => sum + (Number(d.total) || 0), 0);
-        }
-
-        function addDailyEntry() {
-            if (!isOwnerUser(currentUser)) return showToast(t().rev.ownerOnly, 'warning');
-            const noteInput = document.getElementById('daily-entry-note');
-            const amtInput = document.getElementById('daily-entry-amount');
-            const note = (noteInput ? noteInput.value : '').trim() || (currentLang === 'en' ? 'Daily sale' : 'مبيعات اليوم');
-            const amount = parseFloat(amtInput ? amtInput.value : '0');
-
-            if (isNaN(amount) || amount <= 0) {
-                return showToast(t().rev.enterValidAmount, 'warning');
+        function readImageFileAsDataUrl(file, callback) {
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                showToast(currentLang === 'ar' ? 'يرجى اختيار ملف صورة صالح.' : 'Please choose a valid image file.', 'warn');
+                return;
             }
+            const reader = new FileReader();
+            reader.onload = () => callback(String(reader.result || ''));
+            reader.readAsDataURL(file);
+        }
 
-            dailyEntries.unshift({
-                id: Date.now(),
-                note,
-                amount: Number(amount.toFixed(2)),
-                time: getCurrentTimeShort()
+        function handleNewProductFile(input) {
+            const file = input.files?.[0];
+            readImageFileAsDataUrl(file, (dataUrl) => {
+                document.getElementById('new-prod-image').value = dataUrl;
+                const wrap = document.getElementById('new-prod-preview-wrap');
+                const img = document.getElementById('new-prod-preview');
+                img.src = dataUrl;
+                wrap.classList.remove('hidden');
+                wrap.classList.add('flex');
             });
-            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
-            if (noteInput) noteInput.value = '';
-            if (amtInput) amtInput.value = '';
-            renderDashboard();
-            showToast(currentLang === 'en' ? 'Added to today.' : 'تمت إضافة المبلغ لحساب اليوم.', 'success');
         }
 
-        function deleteDailyEntry(id) {
-            if (!isOwnerUser(currentUser)) return;
-            dailyEntries = dailyEntries.filter(item => String(item.id) !== String(id));
-            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
-            renderDashboard();
+        function clearNewProductImage() {
+            document.getElementById('new-prod-file').value = '';
+            document.getElementById('new-prod-image').value = '';
+            const wrap = document.getElementById('new-prod-preview-wrap');
+            document.getElementById('new-prod-preview').src = '';
+            wrap.classList.add('hidden');
+            wrap.classList.remove('flex');
         }
 
-        function closeCurrentDay() {
-            if (!isOwnerUser(currentUser)) return showToast(t().rev.ownerOnly, 'warning');
-            const todayAmt = getTodayEntriesTotal();
-            if (todayAmt <= 0) {
-                return showToast(t().rev.nothingToClose, 'warning');
+        function handleEditProductFile(input) {
+            const file = input.files?.[0];
+            readImageFileAsDataUrl(file, (dataUrl) => {
+                document.getElementById('edit-prod-image').value = dataUrl;
+                const wrap = document.getElementById('edit-prod-preview-wrap');
+                const img = document.getElementById('edit-prod-preview');
+                img.src = dataUrl;
+                wrap.classList.remove('hidden');
+                wrap.classList.add('flex');
+            });
+        }
+
+        function clearEditProductImage() {
+            document.getElementById('edit-prod-file').value = '';
+            document.getElementById('edit-prod-image').value = '';
+            const wrap = document.getElementById('edit-prod-preview-wrap');
+            document.getElementById('edit-prod-preview').src = '';
+            wrap.classList.add('hidden');
+            wrap.classList.remove('flex');
+        }
+
+        function renderPromoTicker() {
+            const track = document.getElementById('promo-ticker-track');
+            if (!track) return;
+            const items = t('promoItems');
+            const icons = ['fa-gift', 'fa-truck-fast', 'fa-credit-card', 'fa-shield-halved'];
+            const renderSet = () => items.map((txt, idx) =>
+                `<span class="inline-flex items-center gap-2"><i class="fa-solid ${icons[idx % icons.length]} text-sky-400"></i><span>${txt}</span></span><span class="text-sky-400/50">•</span>`
+            ).join('');
+            track.innerHTML = renderSet() + renderSet();
+        }
+
+        function renderSocialLinks() {
+            const footerBox = document.getElementById('footer-social-links');
+            const cartBox = document.getElementById('cart-quick-socials');
+            const links = [];
+            if (socialLinks.snapchat && socialLinks.snapchat.trim()) {
+                links.push(`<a href="${socialLinks.snapchat.trim()}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/30 text-amber-300 text-xs font-bold transition"><i class="fa-brands fa-snapchat"></i><span>${t('socialLabels').snapchat}</span></a>`);
             }
-
-            const dayName = getTodayDayName();
-            const dateStr = getTodayDateFormatted();
-            const timeStr = getCurrentTimeShort();
-            const label = `${dayName} (${dateStr})`;
-
-            closedDaysLog.unshift({
-                id: Date.now(),
-                dayName,
-                dateStr,
-                closedAt: timeStr,
-                entriesCount: dailyEntries.length,
-                entries: [...dailyEntries],
-                total: Number(todayAmt.toFixed(2))
-            });
-
-            dailyEntries = [];
-            localStorage.setItem('rkaz_closed_days', JSON.stringify(closedDaysLog));
-            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
-            renderDashboard();
-            showToast(t().rev.dayClosedToast(label, todayAmt), 'success');
+            if (socialLinks.tiktok && socialLinks.tiktok.trim()) {
+                links.push(`<a href="${socialLinks.tiktok.trim()}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-400/30 text-pink-300 text-xs font-bold transition"><i class="fa-brands fa-tiktok"></i><span>${t('socialLabels').tiktok}</span></a>`);
+            }
+            const cleanPhone = (socialLinks.phone || '').replace(/\D/g, '');
+            const waUrl = (socialLinks.whatsapp && socialLinks.whatsapp.trim())
+                ? socialLinks.whatsapp.trim()
+                : (cleanPhone ? `https://wa.me/${cleanPhone}` : '');
+            if (waUrl) {
+                links.push(`<a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/30 text-emerald-300 text-xs font-bold transition"><i class="fa-brands fa-whatsapp"></i><span>${t('socialLabels').whatsapp}</span></a>`);
+            }
+            if (footerBox) footerBox.innerHTML = links.join('');
+            if (cartBox) {
+                cartBox.innerHTML = links.length
+                    ? `<div class="text-[11px] text-slate-400 font-bold mb-2">${t('contactDirect')}</div><div class="flex flex-wrap items-center gap-2">${links.join('')}</div>`
+                    : '';
+            }
         }
 
-        function deleteClosedDayLog(id) {
-            if (!isOwnerUser(currentUser)) return;
-            closedDaysLog = closedDaysLog.filter(d => String(d.id) !== String(id));
-            localStorage.setItem('rkaz_closed_days', JSON.stringify(closedDaysLog));
-            renderDashboard();
+        function getDiscountedPrice(product) {
+            const pct = Number(redOffers.discounts?.[product.id] || 0);
+            if (!redOffers.enabled || !pct || pct <= 0 || pct >= 100) return product.price;
+            return Math.max(1, Math.round(product.price * (1 - pct / 100)));
         }
 
-        function updateCartBadge() {
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            const badge = document.getElementById('cart-badge');
-            if (badge) badge.textContent = totalQty;
-        }
-
-        function isProductInStock(prod) {
-            if (!prod) return false;
-            if (prod.in_stock === false || prod.inStock === false) return false;
-            if (prod.out_of_stock === true || prod.outOfStock === true) return false;
-            if (typeof prod.stock === 'number' && prod.stock <= 0) return false;
-            return true;
-        }
-
-        let redOffersConfig = JSON.parse(localStorage.getItem('rkaz_red_offers') || '{"enabled":false,"title":"العروضضض","items":[]}');
-
-        function getOfferDiscountPct(productId) {
-            if (!redOffersConfig || !redOffersConfig.enabled || !Array.isArray(redOffersConfig.items)) return 0;
-            const found = redOffersConfig.items.find(item => String(item.productId) === String(productId));
-            const pct = Number(found ? found.discount : 0);
-            return Number.isFinite(pct) && pct > 0 && pct < 100 ? pct : 0;
-        }
-
-        function getEffectivePrice(prod) {
-            const basePrice = Number(prod.price) || 0;
-            const pct = getOfferDiscountPct(prod.id);
-            if (!pct) return { original: basePrice, final: basePrice, discountPct: 0, hasOffer: false };
-            const finalPrice = Number((basePrice * (1 - pct / 100)).toFixed(2));
-            return { original: basePrice, final: finalPrice, discountPct: pct, hasOffer: true };
-        }
-
-        function renderRedOfferBanner() {
+        function renderOwnerRedOfferBanner() {
             const banner = document.getElementById('owner-red-offer-banner');
             const track = document.getElementById('owner-red-offer-track');
             if (!banner || !track) return;
-
-            if (!redOffersConfig || !redOffersConfig.enabled) {
+            const discountedItems = products.filter(p => Number(redOffers.discounts?.[p.id] || 0) > 0);
+            if (!redOffers.enabled || discountedItems.length === 0) {
                 banner.classList.add('hidden');
+                track.innerHTML = '';
                 return;
             }
-
-            const baseTitle = (redOffersConfig.title && redOffersConfig.title.trim()) || (currentLang === 'en' ? 'Special Offers' : 'العروضضض');
-            const offWord = currentLang === 'en' ? 'OFF' : 'خصم';
-            const discountedNames = (Array.isArray(redOffersConfig.items) ? redOffersConfig.items : [])
-                .map(it => {
-                    const p = products.find(pr => String(pr.id) === String(it.productId));
-                    return p ? `${p.name} (${offWord} ${it.discount}%)` : null;
-                })
-                .filter(Boolean);
-
-            const extraText = discountedNames.length ? ` • ${discountedNames.join(' • ')}` : '';
-            const singleSegment = `
-                <span class="inline-flex items-center gap-2"><i class="fa-solid fa-fire text-amber-300"></i> ${baseTitle}${extraText}</span>
-                <span class="text-white/40">•</span>
-                <span class="inline-flex items-center gap-2"><i class="fa-solid fa-tags text-rose-200"></i> ${baseTitle}</span>
-                <span class="text-white/40">•</span>
-            `;
-            track.innerHTML = singleSegment.repeat(6);
             banner.classList.remove('hidden');
-        }
-
-        function openOwnerRedOffersManager() {
-            if (!isOwnerUser(currentUser)) {
-                showToast(currentLang === 'en' ? 'Owner access only.' : 'هذا القسم مخصص للمالك فقط.', 'warning');
-                return;
-            }
-
-            const existingModal = document.getElementById('red-offers-modal');
-            if (existingModal) existingModal.remove();
-
-            const isEn = currentLang === 'en';
-            const baseCfg = (typeof redOffersConfig === 'object' && redOffersConfig)
-                ? redOffersConfig
-                : { enabled: true, title: 'العروضضض', items: [], discounts: {} };
-
-            const discountMap = {};
-            if (Array.isArray(baseCfg.items)) {
-                baseCfg.items.forEach(it => {
-                    if (it && it.productId !== undefined && Number(it.discount) > 0) {
-                        discountMap[String(it.productId)] = Number(it.discount);
-                    }
-                });
-            }
-            if (baseCfg.discounts && typeof baseCfg.discounts === 'object') {
-                Object.entries(baseCfg.discounts).forEach(([pid, pct]) => {
-                    if (Number(pct) > 0) {
-                        discountMap[String(pid)] = Number(pct);
-                    }
-                });
-            }
-
-            const productList = Array.isArray(products) ? products : [];
-
-            const rowsHtml = productList.map(p => {
-                const pct = discountMap[String(p.id)] || 0;
-                const val = pct > 0 ? pct : '';
-                const badgeText = pct > 0 ? (isEn ? `${pct}% OFF` : `خصم ${pct}%`) : (isEn ? 'No discount' : 'بدون خصم');
-                const badgeClass = pct > 0
-                    ? 'bg-red-500/20 text-red-300 border-red-500/40'
-                    : 'bg-slate-800 text-slate-400 border-slate-700';
-
-                return `
-                    <div class="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2">
-                        <div class="text-start space-y-0.5">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="text-xs font-bold text-white">${p.name}</span>
-                                <span class="px-2 py-0.5 rounded-md border text-[10px] font-extrabold ${badgeClass}">${badgeText}</span>
-                            </div>
-                            <div class="text-[11px] text-slate-400">${isEn ? 'Base price:' : 'السعر الأساسي:'} ${Number(p.price) || 0} ${t().currency}</div>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <input type="number" min="0" max="95" step="1" data-offer-prod-id="${p.id}" value="${val}" placeholder="0" class="w-20 bg-black border border-slate-600 focus:border-red-400 rounded-lg px-2.5 py-1.5 text-xs text-white text-center outline-none">
-                            <span class="text-xs text-slate-300 font-bold">%</span>
-                        </div>
-                    </div>
-                `;
+            const buildOnce = () => discountedItems.map(p => {
+                const pct = Number(redOffers.discounts[p.id]);
+                const newPrice = getDiscountedPrice(p);
+                return `<span class="inline-flex items-center gap-2"><i class="fa-solid fa-fire text-amber-300"></i><span>${p.name}</span><span class="bg-black/40 text-amber-200 px-2 py-0.5 rounded-lg">${t('discountBadge')(pct)}</span><span class="line-through text-red-200/80 text-xs">${p.price} ${t('currency')}</span><span class="text-white font-black">${newPrice} ${t('currency')}</span></span><span class="text-red-200/60">✦</span>`;
             }).join('');
-
-            const modalHtml = `
-                <div id="red-offers-modal" onclick="if(event.target.id==='red-offers-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
-                    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-red-500/40 p-6 text-white shadow-2xl space-y-5 my-auto text-start">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h2 class="text-lg font-black text-red-400 flex items-center gap-2"><i class="fa-solid fa-fire"></i> ${isEn ? 'Manage Red Offers' : 'إدارة العروض الحمراء'}</h2>
-                            <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold">✕ ${isEn ? 'Close' : 'إغلاق'}</button>
-                        </div>
-
-                        <div class="flex items-center justify-between bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5">
-                            <span class="text-xs sm:text-sm font-bold text-white">${isEn ? 'Enable animated red offers ticker' : 'تفعيل شريط العروض الأحمر المتحرك'}</span>
-                            <input type="checkbox" id="red-offer-enabled" ${baseCfg.enabled ? 'checked' : ''} class="w-5 h-5 accent-red-500">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'Ticker Title' : 'عنوان الشريط'}</label>
-                            <input type="text" id="red-offer-title" value="${baseCfg.title || 'العروضضض'}" class="w-full bg-black border border-slate-700 focus:border-red-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">
-                        </div>
-
-                        <div class="space-y-2">
-                            <div class="text-xs font-bold text-slate-300">${isEn ? 'Product discount percentages (0 to clear)' : 'نسب الخصم على المنتجات (0 لإلغاء الخصم)'}</div>
-                            <div class="space-y-2 max-h-64 overflow-y-auto pe-1">${rowsHtml || `<div class="text-xs text-slate-400 text-center py-4">${isEn ? 'No products.' : 'لا توجد منتجات.'}</div>`}</div>
-                        </div>
-
-                        <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                            <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">${isEn ? 'Cancel' : 'إلغاء'}</button>
-                            <button type="button" id="save-red-offers-btn" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold">${isEn ? 'Save Offers' : 'حفظ العروض'}</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-            document.getElementById('save-red-offers-btn').addEventListener('click', () => {
-                const enabled = document.getElementById('red-offer-enabled').checked;
-                const titleInput = document.getElementById('red-offer-title').value.trim();
-                const newItems = [];
-                const newDiscounts = {};
-
-                document.querySelectorAll('[data-offer-prod-id]').forEach(input => {
-                    const prodId = input.getAttribute('data-offer-prod-id');
-                    const num = parseFloat(input.value);
-                    if (!isNaN(num) && num > 0) {
-                        const pct = Math.min(95, num);
-                        newItems.push({ productId: prodId, discount: pct });
-                        newDiscounts[prodId] = pct;
-                    }
-                });
-
-                const updated = {
-                    ...baseCfg,
-                    enabled,
-                    title: titleInput || baseCfg.title || 'العروضضض',
-                    items: newItems,
-                    discounts: newDiscounts
-                };
-
-                redOffersConfig.enabled = updated.enabled;
-                redOffersConfig.title = updated.title;
-                redOffersConfig.items = updated.items;
-                redOffersConfig.discounts = updated.discounts;
-
-                localStorage.setItem('rkaz_red_offers', JSON.stringify(updated));
-                renderRedOfferBanner();
-                renderProducts();
-                document.getElementById('red-offers-modal').remove();
-                showToast(isEn ? 'Offers saved and updated.' : 'تم حفظ العروض وتحديث الشريط والمنتجات.', 'success');
-            });
+            track.innerHTML = buildOnce() + buildOnce();
         }
 
-        function addToCart(id) {
-            const prod = products.find(p => String(p.id) === String(id));
-            if (!prod) return;
-            if (!isProductInStock(prod)) {
-                showToast(t().outOfStockMsg, 'warning');
-                return;
-            }
-            const priceInfo = getEffectivePrice(prod);
-            const existing = cart.find(c => String(c.id) === String(prod.id));
-            if (existing) {
-                existing.qty += 1;
-                existing.price = priceInfo.final;
-            } else {
-                cart.push({ id: prod.id, name: prod.name, price: priceInfo.final, qty: 1 });
-            }
-            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
+        function applyLanguageUI() {
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.title = t('title');
+            const langLbl = document.getElementById('lang-toggle-label');
+            if (langLbl) langLbl.textContent = currentLang === 'ar' ? 'EN' : 'AR';
+            const dashLangLbl = document.getElementById('dash-lang-label');
+            if (dashLangLbl) dashLangLbl.textContent = currentLang === 'ar' ? 'English' : 'العربية';
+
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('header-subtitle', t('subtitle'));
+            setText('header-cart-label', t('cart'));
+            setText('admin-bar-desc', t('adminPanelDesc'));
+            setText('admin-btn-dash', t('dashBtn'));
+            setText('hero-badge', t('heroBadge'));
+            setText('hero-desc', t('heroDesc'));
+            setText('hero-cta', t('heroCta'));
+            setText('products-count-prefix', t('countPrefix'));
+            setText('products-count-suffix', t('countSuffix'));
+            setText('empty-state-title', t('emptyTitle'));
+            setText('cart-modal-title', t('cartTitle'));
+            setText('cart-total-label', t('total'));
+            setText('cart-checkout-btn', t('checkout'));
+            setText('dash-modal-title', t('dashTitle'));
+            setText('dash-modal-subtitle', t('dashSubtitle'));
+            setText('stat-label-visitors', t('stats').visitors);
+            setText('stat-label-products', t('stats').products);
+            setText('stat-label-orders', t('stats').orders);
+            setText('stat-label-users', t('stats').users);
+            setText('footer-copyright', t('footerCopy'));
+
+            const heroTitle = document.getElementById('hero-title');
+            if (heroTitle) heroTitle.innerHTML = t('heroTitle');
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.placeholder = t('searchPlaceholder');
+
+            renderPromoTicker();
+            renderSocialLinks();
+            renderOwnerRedOfferBanner();
+            renderCategories();
+            renderProducts();
             updateCartBadge();
-            triggerCartAnimation();
-            showToast(t().addedToCart(prod.name), 'success');
+            renderAuthUI();
+            if (document.getElementById('dashboard-modal').classList.contains('flex')) {
+                renderDashboardTab(activeDashTab);
+            }
         }
 
-        function sendOrderToWhatsApp() {
-            const savedCart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
-            const currentCart = (typeof cart !== 'undefined' && Array.isArray(cart) && cart.length > 0)
-                ? cart
-                : savedCart;
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('rkaz_lang', currentLang);
+            applyLanguageUI();
+        }
 
-            if (!currentCart || currentCart.length === 0) {
-                showToast(t().cartEmptyWarn, 'warning');
-                return;
-            }
-
-            let totalAmount = 0;
-            const itemsLines = currentCart.map((item, index) => {
-                const qty = Number(item.qty) || 1;
-                const price = Number(item.price) || 0;
-                const lineTotal = qty * price;
-                totalAmount += lineTotal;
-                return `${index + 1}. ${item.name} — الكمية: ${qty} — السعر: ${lineTotal} ر.س`;
+        function recordVisit() {
+            visitorsCount += 1;
+            localStorage.setItem('rkaz_visitors', String(visitorsCount));
+            visitsLog.unshift({
+                type: 'visit',
+                userName: currentUser ? currentUser.name : t('guest'),
+                time: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US')
             });
-
-            const message =
-                `مرحباً ركاز التقنية، أود إتمام الطلب التالي:\n\n` +
-                `${itemsLines.join('\n')}\n\n` +
-                `الإجمالي: ${totalAmount} ر.س`;
-
-            const waUrl = `https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${encodeURIComponent(message)}`;
-            window.open(waUrl, '_blank');
+            visitsLog = visitsLog.slice(0, 60);
+            localStorage.setItem('rkaz_visits_log', JSON.stringify(visitsLog));
         }
 
-        function changeCartQty(id, delta) {
-            const item = cart.find(c => String(c.id) === String(id));
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(c => String(c.id) !== String(id));
-            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
-            updateCartBadge();
-            renderCartModal();
+        function recordRealLogin(userObj) {
+            visitsLog.unshift({
+                type: 'login',
+                userName: `${userObj.name} (${userObj.email || ''})`,
+                time: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US')
+            });
+            visitsLog = visitsLog.slice(0, 60);
+            localStorage.setItem('rkaz_visits_log', JSON.stringify(visitsLog));
         }
 
-        function openCartModal() { renderCartModal(); renderSocialChannels(); const m = document.getElementById('cart-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
-        function closeCartModal() { const m = document.getElementById('cart-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
-
-        function renderCartModal() {
-            const list = document.getElementById('cart-items-list');
-            const totalEl = document.getElementById('cart-total');
-            const tr = t();
-            if (!cart.length) {
-                list.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">${tr.cartEmpty}</div>`;
-                totalEl.textContent = `0 ${tr.currency}`;
-                return;
-            }
-            let total = 0;
-            list.innerHTML = cart.map(item => {
-                total += item.price * item.qty;
-                return `<div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div class="text-start"><div class="font-bold text-sm text-white">${item.name}</div><div class="text-xs text-sky-400">${item.price} ${tr.currency}</div></div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="changeCartQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white/10 text-white font-bold">-</button>
-                        <span class="text-sm font-bold px-1">${item.qty}</span>
-                        <button onclick="changeCartQty('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-sky-500 text-black font-bold">+</button>
-                    </div>
-                </div>`;
-            }).join('');
-            totalEl.textContent = total + ' ' + tr.currency;
-        }
-
-        function checkAuthUI() {
-            const authContainer = document.getElementById('auth-actions-container');
+        function renderAuthUI() {
+            const container = document.getElementById('auth-actions-container');
             const adminBar = document.getElementById('admin-panel-bar');
-            const tr = t();
-
             if (currentUser) {
-                const roleLabel = tr.roles[currentUser.role] || tr.roles.user;
-                authContainer.innerHTML = `<span class="text-sky-400 font-bold text-xs sm:text-sm">${currentUser.name} (${roleLabel})</span> <button onclick="logout()" class="px-3 py-2 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10">${tr.logout}</button>`;
-                if (isStaffOrOwner(currentUser)) {
+                const role = getUserRole();
+                const roleLabel = getRoleBadgeText(role);
+                container.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-200 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
+                            <i class="fa-solid fa-user-check text-sky-400"></i> ${currentUser.name}
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">${roleLabel}</span>
+                        </span>
+                        <button onclick="logoutUser()" class="bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 px-3 py-2.5 rounded-xl text-xs font-bold transition">${t('logout')}</button>
+                    </div>`;
+                if (isStaff()) {
                     adminBar.classList.remove('hidden');
                     const adminTitle = document.getElementById('admin-bar-title');
                     if (adminTitle) {
-                        adminTitle.innerHTML = `${tr.adminPanelTitlePrefix} (<span id="logged-admin-name">${currentUser.name}</span>) — ${tr.roleLabel}: <span id="logged-admin-role" class="text-amber-400">${roleLabel}</span>`;
+                        adminTitle.innerHTML = `${t('adminPanelTitlePrefix')} (<span id="logged-admin-name">${currentUser.name}</span>) — ${t('roleLabel')}: <span id="logged-admin-role" class="text-amber-400">${roleLabel}</span>`;
                     }
                 } else {
                     adminBar.classList.add('hidden');
                 }
             } else {
+                container.innerHTML = `<button onclick="openLoginModal('login')" class="bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition">${t('loginReg')}</button>`;
                 adminBar.classList.add('hidden');
-                authContainer.innerHTML = `<button onclick="openLoginModal('login')" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold"><span>${tr.loginReg}</span></button>`;
             }
         }
-
-        async function deleteProduct(id) {
-            if (!isStaffOrOwner(currentUser)) return;
-            products = products.filter(p => String(p.id) !== String(id));
-            localStorage.setItem('rkaz_products', JSON.stringify(products));
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('products').delete().eq('id', id);
-                } catch (_) {}
-            }
-            renderProducts();
-            showToast(currentLang === 'en' ? 'Product deleted.' : 'تم حذف المنتج.', 'info');
-        }
-
-        async function syncProductUpdateToCloud(updatedProd) {
-            try {
-                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                    await supabaseClient
-                        .from('products')
-                        .update({
-                            name: updatedProd.name,
-                            price: Number(updatedProd.price),
-                            description: updatedProd.desc || updatedProd.description || '',
-                            image_url: updatedProd.imageUrl || updatedProd.image_url || '',
-                            in_stock: Boolean(updatedProd.in_stock)
-                        })
-                        .eq('id', updatedProd.id);
-                }
-            } catch (err) {
-                console.error('Supabase update error:', err);
-            }
-        }
-
-        function editProduct(id) {
-            if (!isStaffOrOwner(currentUser)) return;
-            const prod = products.find(p => String(p.id) === String(id));
-            if (!prod) return;
-
-            const existingModal = document.getElementById('edit-product-modal');
-            if (existingModal) existingModal.remove();
-
-            const isEn = currentLang === 'en';
-            const currentStock = isProductInStock(prod);
-            const currentDesc = prod.desc || prod.description || '';
-
-            const modalHtml = `
-                <div id="edit-product-modal" onclick="if(event.target.id==='edit-product-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-start">
-                        <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                            <h2 class="text-lg font-black text-white flex items-center gap-2">
-                                <i class="fa-solid fa-pen-to-square text-sky-400"></i> ${isEn ? 'Edit Product' : 'تعديل المنتج'}
-                            </h2>
-                            <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <div class="text-xs font-bold text-sky-400 bg-sky-500/10 border border-sky-400/20 rounded-xl px-3 py-2">
-                            ${prod.name}
-                        </div>
-
-                        <form id="edit-product-form" class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'New Price (SAR) *' : 'السعر الجديد (ر.س) *'}</label>
-                                    <input type="number" id="edit-prod-price" required min="0" step="0.01" value="${Number(prod.price) || 0}" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'Availability' : 'حالة التوفر'}</label>
-                                    <select id="edit-prod-stock" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3 py-2 text-sm text-white outline-none">
-                                        <option value="1" ${currentStock ? 'selected' : ''}>${t().inStock}</option>
-                                        <option value="0" ${!currentStock ? 'selected' : ''}>${t().outOfStock}</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'Description (Optional)' : 'وصف المنتج (اختياري)'}</label>
-                                <textarea id="edit-prod-desc" rows="3" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">${currentDesc}</textarea>
-                            </div>
-
-                            <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-                                <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">${isEn ? 'Cancel' : 'إلغاء'}</button>
-                                <button type="submit" class="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">${isEn ? 'Save Changes' : 'حفظ التعديلات'}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-            document.getElementById('edit-product-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const parsedPrice = Number(document.getElementById('edit-prod-price').value);
-                if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
-                    showToast(isEn ? 'Enter a valid price.' : 'أدخل سعراً صحيحاً.', 'warning');
-                    return;
-                }
-
-                const stockVal = document.getElementById('edit-prod-stock').value;
-                const newDesc = document.getElementById('edit-prod-desc').value.trim();
-
-                prod.price = parsedPrice;
-                prod.in_stock = stockVal !== '0';
-                prod.desc = newDesc;
-                prod.description = newDesc;
-
-                localStorage.setItem('rkaz_products', JSON.stringify(products));
-                syncProductUpdateToCloud(prod);
-                renderProducts();
-                document.getElementById('edit-product-modal').remove();
-                showToast(isEn ? 'Product updated.' : 'تم تحديث بيانات المنتج بنجاح!', 'success');
-            });
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('products-grid');
-            renderRedOfferBanner();
-            const countEl = document.getElementById('products-count');
-            const emptyEl = document.getElementById('empty-state');
-            if (!grid) return;
-
-            const tr = t();
-            let filtered = products.filter(p => {
-                const descText = (p.desc || p.description || '').toLowerCase();
-                let matchCat = currentCategory === 'الكل' || p.category === currentCategory;
-                let matchSearch = (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || descText.includes(searchQuery.toLowerCase());
-                return matchCat && matchSearch;
-            });
-
-            if (countEl) countEl.textContent = filtered.length;
-            if (!filtered.length) {
-                grid.innerHTML = '';
-                if (emptyEl) emptyEl.classList.remove('hidden');
-                return;
-            }
-            if (emptyEl) emptyEl.classList.add('hidden');
-            const canManage = isStaffOrOwner(currentUser);
-
-            grid.innerHTML = filtered.map(p => {
-                const imgSrc = p.imageUrl || p.image_url || '';
-                const descText = p.desc || p.description || '';
-                const isAvailable = isProductInStock(p);
-                const pr = getEffectivePrice(p);
-                const catName = tr.categories[p.category] || p.category || '';
-
-                const priceBlock = pr.hasOffer
-                    ? `<div class="flex flex-col leading-tight"><span class="text-xs line-through text-rose-300/80">${pr.original} ${tr.currency}</span><span class="text-lg font-black text-emerald-400">${pr.final} ${tr.currency} <span class="text-[11px] bg-red-600/30 text-red-200 px-1.5 py-0.5 rounded">${tr.discountBadge(pr.discountPct)}</span></span></div>`
-                    : `<div><span class="text-lg font-black text-sky-400">${pr.original} ${tr.currency}</span></div>`;
-
-                const stockBadge = isAvailable
-                    ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${tr.inStock}</span>`
-                    : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">${tr.outOfStock}</span>`;
-
-                const addCartBtn = isAvailable
-                    ? `<button onclick="addToCart('${p.id}')" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold transition">${tr.addToCartBtn}</button>`
-                    : `<button type="button" disabled class="px-3 py-2 rounded-xl bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold cursor-not-allowed">${tr.outOfStock}</button>`;
-
-                return `
-                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg text-start">
-                        <div>
-                            <div onclick="openProductDetails('${p.id}')" class="w-full flex items-center justify-between gap-3 cursor-pointer mb-3">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    ${imgSrc
-                                        ? `<img src="${imgSrc}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover border border-white/15 bg-black/40 shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />`
-                                        : ''
-                                    }
-                                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl shrink-0" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
-                                    <span class="text-xs text-sky-400 font-bold truncate">${catName}</span>
-                                </div>
-                                ${stockBadge}
-                            </div>
-                            <div onclick="openProductDetails('${p.id}')" class="w-full cursor-pointer">
-                                <h3 class="text-base font-bold text-white mt-1 mb-2 hover:text-sky-300 transition">${p.name}</h3>
-                                <p class="text-xs text-slate-400 line-clamp-2">${descText || tr.noDesc}</p>
-                            </div>
-                        </div>
-
-                        <div class="pt-3 border-t border-white/10 space-y-3">
-                            ${priceBlock}
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                ${canManage ? `<button onclick="editProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">${tr.editBtn}</button><button onclick="deleteProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">${tr.deleteBtn}</button>` : ''}
-                                ${addCartBtn}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function openProductDetails(productId) {
-            const prod = Array.isArray(products)
-                ? products.find(p => String(p.id) === String(productId))
-                : null;
-            if (!prod) return;
-
-            const existingModal = document.getElementById('product-details-modal');
-            if (existingModal) existingModal.remove();
-
-            const tr = t();
-            const isEn = currentLang === 'en';
-            const imgSrc = prod.imageUrl || prod.image_url || '';
-            const isAvailable = isProductInStock(prod);
-            const descText = (prod.desc || prod.description || '').trim() || tr.noDescDetails;
-            const pr = getEffectivePrice(prod);
-            const catName = tr.categories[prod.category] || prod.category || (isEn ? 'General' : 'عام');
-
-            const allProducts = Array.isArray(products) ? products : [];
-            const sameCategory = allProducts.filter(p => String(p.id) !== String(prod.id) && p.category && p.category === prod.category);
-            const suggestedList = sameCategory.slice(0, 6);
-
-            const priceHtml = pr.hasOffer
-                ? `
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-xl font-black text-emerald-400">${pr.final} ${tr.currency}</span>
-                        <span class="text-xs line-through text-rose-300/80">${pr.original} ${tr.currency}</span>
-                        <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-red-500/20 text-red-300 border border-red-500/40">${tr.discountBadge(pr.discountPct)}</span>
-                    </div>
-                `
-                : `<span class="text-xl font-black text-sky-400">${pr.original} ${tr.currency}</span>`;
-
-            const suggestedHtml = suggestedList.length
-                ? suggestedList.map(item => {
-                    const itemImg = item.imageUrl || item.image_url || '';
-                    const itemPr = getEffectivePrice(item);
-                    const itemPrice = itemPr.hasOffer ? itemPr.final : itemPr.original;
-                    const itemCat = tr.categories[item.category] || item.category || (isEn ? 'Product' : 'منتج');
-
-                    return `
-                        <div onclick="openProductDetails('${item.id}')" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-sky-500/50 rounded-2xl p-3 flex flex-col justify-between gap-2 transition">
-                            <div class="flex items-center gap-2.5">
-                                ${itemImg
-                                    ? `<img src="${itemImg}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0" onerror="this.style.display='none';" />`
-                                    : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center shrink-0"><i class="fa-solid ${item.icon || 'fa-bolt'}"></i></div>`
-                                }
-                                <div class="min-w-0 text-start">
-                                    <div class="text-[10px] text-sky-400 font-bold truncate">${itemCat}</div>
-                                    <div class="text-xs font-bold text-white truncate">${item.name}</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-                                <span class="text-xs font-black text-emerald-400">${itemPrice} ${tr.currency}</span>
-                                <span class="text-[11px] text-sky-300 font-bold">${isEn ? 'View →' : 'عرض التفاصيل ←'}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')
-                : `<div class="col-span-full text-center text-xs text-slate-400 py-4">${tr.noSimilar}</div>`;
-
-            const modalHtml = `
-                <div id="product-details-modal" onclick="if(event.target.id==='product-details-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-5 overflow-y-auto">
-                    <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-sky-500/30 p-5 sm:p-6 text-white shadow-2xl space-y-6 my-auto text-start">
-                        <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30">${catName}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isAvailable ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'}">${isAvailable ? tr.inStock : tr.outOfStock}</span>
-                                </div>
-                                <h2 class="text-lg sm:text-xl font-black text-white pt-1">${prod.name}</h2>
-                            </div>
-                            <button type="button" onclick="document.getElementById('product-details-modal').remove()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold">✕ ${isEn ? 'Close' : 'إغلاق'}</button>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 items-start">
-                            <div class="sm:col-span-1 flex items-center justify-center bg-slate-900/80 border border-slate-800 rounded-2xl p-4 min-h-44">
-                                ${imgSrc
-                                    ? `<img src="${imgSrc}" alt="${prod.name}" class="max-h-48 w-full object-contain rounded-xl" onerror="this.style.display='none';" />`
-                                    : `<div class="w-20 h-20 rounded-2xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-3xl"><i class="fa-solid ${prod.icon || 'fa-bolt'}"></i></div>`
-                                }
-                            </div>
-
-                            <div class="sm:col-span-2 space-y-4">
-                                <div>${priceHtml}</div>
-
-                                <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5 space-y-1.5">
-                                    <div class="text-xs font-extrabold text-sky-400">${tr.prodDescTitle}</div>
-                                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">${descText}</p>
-                                </div>
-
-                                <div class="flex items-center gap-3 pt-1">
-                                    <button type="button" onclick="addToCart('${prod.id}')" ${!isAvailable ? 'disabled' : ''} class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition ${isAvailable ? 'bg-sky-500 hover:bg-sky-400 text-black cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
-                                        ${isAvailable ? tr.addToCartBtn : tr.outOfStock}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-3 pt-4 border-t border-slate-800">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm sm:text-base font-extrabold text-white">${tr.similarTitle}</h3>
-                                <span class="text-[11px] text-slate-400">${catName}</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                ${suggestedHtml}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const socialModal = document.getElementById('owner-social-modal');
-                if (socialModal) { socialModal.remove(); return; }
-                const offersModal = document.getElementById('red-offers-modal');
-                if (offersModal) { offersModal.remove(); return; }
-                const editModal = document.getElementById('edit-product-modal');
-                if (editModal) { editModal.remove(); return; }
-                const detailsModal = document.getElementById('product-details-modal');
-                if (detailsModal) detailsModal.remove();
-            }
-        });
-
-        function filterCategory(cat) {
-            currentCategory = cat;
-            renderCategoryTabs();
-            renderProducts();
-        }
-
-        function handleSearch(val) { searchQuery = val; renderProducts(); }
 
         function switchAuthMode(mode) {
             authMode = mode;
             const loginBtn = document.getElementById('mode-login-btn');
             const signupBtn = document.getElementById('mode-signup-btn');
             const nameGroup = document.getElementById('signup-name-group');
+            const nameInput = document.getElementById('auth-name');
             const title = document.getElementById('auth-modal-title');
             const submitBtn = document.getElementById('auth-submit-btn');
             const hint = document.getElementById('auth-hint');
-            const isEn = currentLang === 'en';
 
-            if (mode === 'signup') {
-                signupBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
-                loginBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
-                nameGroup.classList.remove('hidden');
-                title.textContent = isEn ? 'Create Account' : 'إنشاء حساب جديد';
-                submitBtn.textContent = isEn ? 'Sign Up' : 'إنشاء الحساب';
-                hint.textContent = isEn ? 'A confirmation link will be sent to your email.' : 'سيتم إرسال رابط تأكيد على بريدك الإلكتروني لتفعيل الحساب.';
+            if (currentLang === 'ar') {
+                if (mode === 'login') {
+                    loginBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
+                    signupBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
+                    nameGroup.classList.add('hidden');
+                    nameInput.required = false;
+                    title.textContent = 'تسجيل الدخول';
+                    submitBtn.textContent = 'دخول';
+                    hint.textContent = 'سجّل دخولك بحسابك المسجل في المتجر.';
+                } else {
+                    signupBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
+                    loginBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
+                    nameGroup.classList.remove('hidden');
+                    nameInput.required = true;
+                    title.textContent = 'إنشاء حساب جديد';
+                    submitBtn.textContent = 'إنشاء الحساب';
+                    hint.textContent = 'عند إنشاء حساب جديد سيتم إرسال رسالة تأكيد إلى بريدك الإلكتروني.';
+                }
             } else {
-                loginBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
-                signupBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
-                nameGroup.classList.add('hidden');
-                title.textContent = isEn ? 'Sign In' : 'تسجيل الدخول';
-                submitBtn.textContent = isEn ? 'Login' : 'دخول';
-                hint.textContent = isEn ? 'Sign in with your verified email and password.' : 'سجل دخولك بحسابك المؤكد وكلمة المرور.';
+                if (mode === 'login') {
+                    loginBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
+                    signupBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
+                    nameGroup.classList.add('hidden');
+                    nameInput.required = false;
+                    title.textContent = 'Login';
+                    submitBtn.textContent = 'Login';
+                    hint.textContent = 'Sign in with your registered store account.';
+                } else {
+                    signupBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
+                    loginBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
+                    nameGroup.classList.remove('hidden');
+                    nameInput.required = true;
+                    title.textContent = 'Create New Account';
+                    submitBtn.textContent = 'Sign Up';
+                    hint.textContent = 'A confirmation email will be sent when creating a new account.';
+                }
             }
         }
 
         function openLoginModal(mode = 'login') {
             switchAuthMode(mode);
             const m = document.getElementById('login-modal');
-            m.classList.remove('hidden'); m.classList.add('flex');
-        }
-        function closeLoginModal() { const m = document.getElementById('login-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
-        function openProductModal() { const m = document.getElementById('product-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
-        function closeProductModal() { const m = document.getElementById('product-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
-
-        async function openDashboardModal(section = 'overview') {
-            activeDashSection = section;
-            await syncUsersFromSupabase();
-            renderDashboard();
-            const m = document.getElementById('dashboard-modal');
-            m.classList.remove('hidden'); m.classList.add('flex');
-        }
-        function closeDashboardModal() { const m = document.getElementById('dashboard-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
-
-        async function logout() {
-            if (supabaseClient) await supabaseClient.auth.signOut();
-            currentUser = null;
-            if (activeDashSection === 'revenue') activeDashSection = 'overview';
-            checkAuthUI();
-            renderProducts();
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
 
-        async function syncUsersFromSupabase() {
-            if (!supabaseClient) return;
-            try {
-                const { data, error } = await supabaseClient.from('users').select('*').order('last_login', { ascending: false });
-                if (!error && Array.isArray(data) && data.length) {
-                    usersList = data.map(row => ({
-                        name: row.username || (currentLang === 'en' ? 'User' : 'مستخدم'),
-                        identifier: row.identifier,
-                        role: row.role || 'user',
-                        lastLogin: row.last_login ? new Date(row.last_login).toLocaleString(currentLang === 'en' ? 'en-US' : 'ar-SA') : '-'
-                    }));
-                    localStorage.setItem('rkaz_users', JSON.stringify(usersList));
-                }
-            } catch (_) {}
+        function closeLoginModal() {
+            const m = document.getElementById('login-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
         }
 
-        async function upsertUserProfile(authUser, customName) {
-            const email = authUser.email;
-            const displayName = (customName || authUser.user_metadata?.full_name || email.split('@')[0]).trim();
-            let role = email.toLowerCase().includes(OWNER_ID) ? 'owner' : 'user';
-
-            if (supabaseClient) {
-                try {
-                    const { data: existing } = await supabaseClient.from('users').select('*').eq('identifier', email).maybeSingle();
-                    if (existing && existing.role) {
-                        role = email.toLowerCase().includes(OWNER_ID) ? 'owner' : existing.role;
-                    }
-                    await supabaseClient.from('users').upsert([{
-                        username: displayName,
-                        identifier: email,
-                        role,
-                        last_login: new Date().toISOString()
-                    }], { onConflict: 'identifier' });
-                } catch (_) {}
-            }
-
-            currentUser = { name: displayName, identifier: email, role, isOwner: role === 'owner' };
-            await syncUsersFromSupabase();
-
-            visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'login', user: displayName + ' (' + email + ')' });
-            localStorage.setItem('rkaz_visits', JSON.stringify(visitsList.slice(0, 50)));
-            checkAuthUI();
-            renderProducts();
+        function upsertLocalUser(userObj) {
+            const idx = users.findIndex(u => (userObj.email && u.email === userObj.email) || u.id === userObj.id);
+            const record = {
+                id: userObj.id,
+                name: userObj.name,
+                email: userObj.email || '',
+                role: userObj.id === OWNER_ID ? 'owner' : 'user',
+                lastLogin: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US')
+            };
+            if (idx >= 0) users[idx] = { ...users[idx], ...record };
+            else users.unshift(record);
+            localStorage.setItem('rkaz_users', JSON.stringify(users));
         }
 
         async function handleAuthSubmit(e) {
             e.preventDefault();
-            if (!supabaseClient) return showToast(currentLang === 'en' ? 'Auth service unavailable.' : 'تعذر الاتصال بخدمة الحسابات حالياً.', 'error');
-
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            const name = document.getElementById('auth-name').value.trim();
+            const fullNameInput = document.getElementById('auth-name').value.trim();
+            const submitBtn = document.getElementById('auth-submit-btn');
 
-            if (authMode === 'signup') {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email,
-                    password,
-                    options: { data: { full_name: name || email.split('@')[0] } }
-                });
-                if (error) return showToast(error.message, 'error');
-
-                if (data.session && data.user) {
-                    await upsertUserProfile(data.user, name);
-                    closeLoginModal();
-                    showToast(currentLang === 'en' ? 'Account created & signed in!' : 'تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success');
-                } else {
-                    closeLoginModal();
-                    showToast(currentLang === 'en' ? `Confirmation link sent to ${email}.` : `تم إنشاء الحساب! تم إرسال رابط تأكيد إلى بريدك الإلكتروني (${email}).`, 'success');
-                }
-            } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) return showToast(error.message, 'error');
-
-                await upsertUserProfile(data.user);
-                closeLoginModal();
-                showToast(currentLang === 'en' ? `Welcome, ${currentUser.name}!` : `أهلاً بك يا ${currentUser.name}!`, 'success');
-            }
-        }
-
-        async function setUserRole(identifier, newRole) {
-            if (!currentUser || currentUser.role !== 'owner') {
-                return showToast(currentLang === 'en' ? 'Owner only.' : 'تغيير الرتب متاح للمالك الأساسي فقط.', 'warning');
-            }
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('users').update({ role: newRole }).eq('identifier', identifier);
-                if (error) return showToast(error.message, 'error');
-            }
-            await syncUsersFromSupabase();
-            renderDashboard();
-            showToast(currentLang === 'en' ? 'User role updated.' : 'تم تحديث رتبة المستخدم بنجاح.', 'success');
-        }
-
-        function updateOrderStatus(orderId, status) {
-            orders = orders.map(o => o.id === orderId ? { ...o, status } : o);
-            localStorage.setItem('rkaz_orders', JSON.stringify(orders));
-            renderDashboard();
-        }
-
-        function selectDashSection(sec) {
-            if (sec === 'revenue' && !isOwnerUser(currentUser)) {
-                showToast(t().rev.ownerOnly, 'warning');
+            if (!email || password.length < 6) {
+                showToast(currentLang === 'ar' ? 'أدخل بريدًا إلكترونيًا صحيحًا وكلمة مرور 6 أحرف فأكثر.' : 'Enter a valid email and password (6+ chars).', 'warn');
                 return;
             }
-            activeDashSection = sec;
-            renderDashboard();
+
+            submitBtn.disabled = true;
+            try {
+                if (!supabaseClient) {
+                    showToast(currentLang === 'ar' ? 'تعذر الاتصال بخدمة المصادقة.' : 'Authentication service unavailable.', 'error');
+                    return;
+                }
+
+                if (authMode === 'signup') {
+                    const displayName = fullNameInput || email.split('@')[0];
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: { full_name: displayName },
+                            emailRedirectTo: window.location.href
+                        }
+                    });
+                    if (error) {
+                        showToast(error.message, 'error');
+                        return;
+                    }
+                    const supaUser = data?.user;
+                    const localUser = {
+                        id: supaUser?.id || ('u_' + Date.now()),
+                        name: displayName,
+                        email: email,
+                        role: 'user'
+                    };
+                    upsertLocalUser(localUser);
+                    if (data?.session && supaUser) {
+                        currentUser = localUser;
+                        localStorage.setItem('rkaz_user', JSON.stringify(currentUser));
+                        recordRealLogin(currentUser);
+                        renderAuthUI();
+                        renderProducts();
+                    }
+                    closeLoginModal();
+                    showToast(
+                        currentLang === 'ar'
+                            ? 'تم إنشاء الحساب وإرسال رسالة تأكيد إلى بريدك الإلكتروني.'
+                            : 'Account created and a confirmation email has been sent.',
+                        'success'
+                    );
+                    return;
+                }
+
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    showToast(currentLang === 'ar' ? 'بيانات الدخول غير صحيحة أو البريد لم يُؤكد بعد.' : 'Invalid credentials or email not confirmed yet.', 'error');
+                    return;
+                }
+
+                const supaUser = data.user;
+                const resolvedName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || email.split('@')[0];
+                currentUser = {
+                    id: supaUser.id,
+                    name: resolvedName,
+                    email: supaUser.email || email,
+                    role: supaUser.id === OWNER_ID ? 'owner' : 'user'
+                };
+                localStorage.setItem('rkaz_user', JSON.stringify(currentUser));
+                upsertLocalUser(currentUser);
+                recordRealLogin(currentUser);
+                closeLoginModal();
+                renderAuthUI();
+                renderProducts();
+                showToast(currentLang === 'ar' ? `مرحباً بك ${currentUser.name}` : `Welcome ${currentUser.name}`, 'success');
+            } finally {
+                submitBtn.disabled = false;
+            }
         }
 
-        function renderRevenueSectionHtml() {
-            const tr = t();
-            const rv = tr.rev;
-            const todayTotal = getTodayEntriesTotal();
-            const ordersRev = getOrdersTotalRevenue();
-            const closedRev = getClosedDaysTotalRevenue();
-            const dayName = getTodayDayName();
-            const dateStr = getTodayDateFormatted();
+        async function logoutUser() {
+            try {
+                if (supabaseClient) await supabaseClient.auth.signOut();
+            } catch (_) {}
+            currentUser = null;
+            localStorage.removeItem('rkaz_user');
+            closeDashboardModal();
+            renderAuthUI();
+            renderProducts();
+        }
 
-            const entriesListHtml = !dailyEntries.length
-                ? `<div class="text-xs text-slate-400 text-center py-4">${rv.noEntriesToday}</div>`
-                : dailyEntries.map(item => `
-                    <div class="flex items-center justify-between gap-2 bg-black/50 border border-white/10 rounded-xl px-3.5 py-2 text-xs">
-                        <div class="flex items-center gap-2 text-start">
-                            <span class="text-slate-400">${item.time}</span>
-                            <span class="font-bold text-white">${item.note}</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="font-black text-emerald-400">${item.amount} ${tr.currency}</span>
-                            <button type="button" onclick="deleteDailyEntry('${item.id}')" class="px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 text-[11px] font-bold">${rv.deleteEntry}</button>
-                        </div>
-                    </div>
-                `).join('');
+        function renderCategories() {
+            const cats = ['الكل', 'جوالات', 'شواحن وكوابل', 'حمايات شاشات', 'إكسسوارات', 'إلكترونيات'];
+            const catMap = t('categories');
+            document.getElementById('category-tabs').innerHTML = cats.map(c => {
+                const active = activeCategory === c;
+                const label = catMap[c] || c;
+                return `<button onclick="filterCategory('${c}')" class="px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition ${active ? 'bg-sky-500 text-black' : 'bg-white/5 text-slate-300 hover:bg-white/10'}">${label}</button>`;
+            }).join('');
+        }
 
-            const closedListHtml = !closedDaysLog.length
-                ? `<div class="text-xs text-slate-400 text-center py-5">${rv.noClosedDays}</div>`
-                : closedDaysLog.map(day => `
-                    <div class="bg-black/60 border border-amber-500/25 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-start">
-                        <div class="space-y-0.5">
-                            <div class="text-xs sm:text-sm font-black text-amber-300">
-                                ${day.dayName} — <span class="text-white">${day.dateStr}</span>
+        function filterCategory(cat) { activeCategory = cat; renderCategories(); renderProducts(); }
+        function handleSearch(val) { searchQuery = val.trim().toLowerCase(); renderProducts(); }
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const empty = document.getElementById('empty-state');
+            const catMap = t('categories');
+            const filtered = products.filter(p => {
+                const matchCat = activeCategory === 'الكل' || p.category === activeCategory;
+                const matchSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery) || (p.desc || '').toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
+            document.getElementById('products-count').textContent = filtered.length;
+            if (filtered.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(p => {
+                const isAvail = p.in_stock !== false;
+                const pct = Number(redOffers.discounts?.[p.id] || 0);
+                const hasDiscount = redOffers.enabled && pct > 0 && pct < 100;
+                const finalPrice = getDiscountedPrice(p);
+                const catLabel = catMap[p.category] || p.category;
+                const mediaHtml = p.imageUrl
+                    ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="hidden w-full h-full items-center justify-center"><i class="fa-solid ${p.icon || 'fa-box'} text-4xl text-sky-400"></i></div>`
+                    : `<i class="fa-solid ${p.icon || 'fa-box'} text-4xl text-sky-400"></i>`;
+
+                return `
+                <div class="glass-card rounded-2xl p-5 flex flex-col justify-between ${!isAvail ? 'opacity-75' : ''}">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400">${catLabel}</span>
+                            <div class="flex items-center gap-1.5">
+                                ${hasDiscount ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40">${t('discountBadge')(pct)}</span>` : ''}
+                                <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${isAvail ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'}">
+                                    ${isAvail ? t('inStock') : t('outOfStock')}
+                                </span>
                             </div>
-                            <div class="text-[11px] text-slate-400">
-                                ${currentLang === 'en' ? 'Closed at' : 'وقت الإقفال:'} ${day.closedAt} • ${currentLang === 'en' ? 'Entries:' : 'عدد العمليات:'} ${day.entriesCount}
+                        </div>
+                        <div onclick="openProductDetails(${p.id})" class="h-36 rounded-xl bg-black/50 border border-white/5 overflow-hidden flex items-center justify-center mb-4 cursor-pointer hover:border-sky-400/40 transition">
+                            ${mediaHtml}
+                        </div>
+                        <h3 onclick="openProductDetails(${p.id})" class="font-bold text-white text-base mb-1 cursor-pointer hover:text-sky-400 transition">${p.name}</h3>
+                        <p class="text-xs text-slate-400 mb-4 line-clamp-2">${p.desc || t('noDesc')}</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between pt-3 border-t border-white/10 mb-3">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-lg font-black text-sky-400">${finalPrice} ${t('currency')}</span>
+                                ${hasDiscount ? `<span class="text-xs line-through text-slate-500">${p.price} ${t('currency')}</span>` : ''}
                             </div>
+                            ${isStaff() ? `
+                                <button onclick="toggleStock(${p.id})" class="text-[11px] font-bold px-2.5 py-1 rounded-lg border transition ${isAvail ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20' : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'}">
+                                    ${isAvail ? (currentLang === 'ar' ? 'تعطيل التوفر' : 'Set Out') : (currentLang === 'ar' ? 'تفعيل التوفر' : 'Set In Stock')}
+                                </button>
+                            ` : ''}
                         </div>
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-sm sm:text-base font-black text-emerald-400">${day.total} ${tr.currency}</span>
-                            <button type="button" onclick="deleteClosedDayLog('${day.id}')" class="px-2.5 py-1 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[11px] font-bold">${rv.deleteClosedDay}</button>
-                        </div>
-                    </div>
-                `).join('');
-
-            return `
-                <div class="space-y-4 text-start">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="bg-emerald-950/30 border border-emerald-500/40 rounded-2xl p-3.5">
-                            <div class="text-[11px] text-emerald-300 font-bold">${rv.todayIncome} (${dayName})</div>
-                            <div class="text-xl font-black text-white mt-1">${todayTotal} ${tr.currency}</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">${dateStr}</div>
-                        </div>
-                        <div class="bg-sky-950/30 border border-sky-500/30 rounded-2xl p-3.5">
-                            <div class="text-[11px] text-sky-300 font-bold">${rv.ordersIncome}</div>
-                            <div class="text-xl font-black text-sky-400 mt-1">${ordersRev} ${tr.currency}</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">${orders.length} ${tr.stats.orders}</div>
-                        </div>
-                        <div class="bg-amber-950/30 border border-amber-500/30 rounded-2xl p-3.5">
-                            <div class="text-[11px] text-amber-300 font-bold">${rv.totalClosed} (${closedDaysLog.length})</div>
-                            <div class="text-xl font-black text-amber-400 mt-1">${closedRev} ${tr.currency}</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">${rv.closedDaysCount}</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="text-xs font-extrabold text-white">${rv.addSaleTitle}</span>
-                            <button type="button" onclick="closeCurrentDay()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black flex items-center gap-1.5 shadow">
-                                <i class="fa-solid fa-lock"></i> ${rv.closeDayBtn}
+                        <div class="flex items-center gap-2">
+                            <button onclick="addToCart(${p.id})" ${!isAvail ? 'disabled' : ''} class="flex-1 py-2.5 rounded-xl text-xs font-extrabold transition ${isAvail ? 'bg-sky-500 hover:bg-sky-400 text-black' : 'bg-white/5 text-slate-500 cursor-not-allowed'}">
+                                <i class="fa-solid fa-cart-plus me-1"></i> ${isAvail ? t('addToCartBtn') : t('outOfStock')}
                             </button>
+                            ${isStaff() ? `
+                                <button onclick="editProduct(${p.id})" class="px-3 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-bold" title="${t('editBtn')}"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteProduct(${p.id})" class="px-3 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-bold" title="${t('deleteBtn')}"><i class="fa-solid fa-trash"></i></button>
+                            ` : ''}
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                            <input type="text" id="daily-entry-note" placeholder="${rv.saleNotePlaceholder}" class="sm:col-span-2 bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
-                            <div class="flex gap-2">
-                                <input type="number" id="daily-entry-amount" min="0.5" step="0.5" placeholder="${rv.saleAmountPlaceholder}" class="w-full bg-black border border-white/20 focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white outline-none">
-                                <button type="button" onclick="addDailyEntry()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shrink-0">${rv.addSaleBtn}</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openProductDetails(id) {
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+            const isAvail = p.in_stock !== false;
+            const pct = Number(redOffers.discounts?.[p.id] || 0);
+            const hasDiscount = redOffers.enabled && pct > 0 && pct < 100;
+            const finalPrice = getDiscountedPrice(p);
+            const catMap = t('categories');
+            const catLabel = catMap[p.category] || p.category;
+            const similar = products.filter(item => item.id !== p.id && item.category === p.category).slice(0, 4);
+
+            let modal = document.getElementById('product-details-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'product-details-modal';
+                modal.className = 'fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4 overflow-y-auto';
+                document.body.appendChild(modal);
+            }
+
+            const detailMedia = p.imageUrl
+                ? `<img src="${p.imageUrl}" alt="${p.name}" class="max-h-full max-w-full object-contain rounded-xl" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="hidden w-full h-full items-center justify-center"><i class="fa-solid ${p.icon || 'fa-box'} text-6xl text-sky-400"></i></div>`
+                : `<i class="fa-solid ${p.icon || 'fa-box'} text-6xl text-sky-400"></i>`;
+
+            modal.innerHTML = `
+                <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-2xl w-full p-6 shadow-2xl my-auto max-h-[90vh] overflow-y-auto text-start">
+                    <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold px-3 py-1 rounded-lg bg-sky-500/15 text-sky-400">${catLabel}</span>
+                            <span class="text-xs font-extrabold px-3 py-1 rounded-full ${isAvail ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}">${isAvail ? t('inStock') : t('outOfStock')}</span>
+                        </div>
+                        <button onclick="closeProductDetailsModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                        <div class="h-52 rounded-2xl bg-black/60 border border-white/10 p-3 flex items-center justify-center">
+                            ${detailMedia}
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <div>
+                                <h2 class="text-xl font-black text-white mb-2">${p.name}</h2>
+                                <p class="text-xs text-slate-400 font-bold mb-2">${t('prodDescTitle')}:</p>
+                                <p class="text-sm text-slate-300 leading-relaxed bg-white/5 border border-white/10 rounded-2xl p-3.5">${p.desc || t('noDescDetails')}</p>
                             </div>
-                        </div>
-                        <div class="space-y-1.5 pt-1">
-                            <div class="text-[11px] font-bold text-slate-400">${rv.todayEntries}</div>
-                            ${entriesListHtml}
+                            <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+                                <div>
+                                    <span class="text-2xl font-black text-sky-400">${finalPrice} ${t('currency')}</span>
+                                    ${hasDiscount ? `<span class="text-xs line-through text-slate-500 ms-2">${p.price} ${t('currency')}</span>` : ''}
+                                </div>
+                                <button onclick="addToCart(${p.id}); closeProductDetailsModal();" ${!isAvail ? 'disabled' : ''} class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition ${isAvail ? 'bg-sky-500 hover:bg-sky-400 text-black' : 'bg-white/5 text-slate-500 cursor-not-allowed'}">
+                                    <i class="fa-solid fa-cart-plus me-1"></i> ${isAvail ? t('addToCartBtn') : t('outOfStock')}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5">
-                        <div class="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-calendar-check"></i> ${rv.closedHistoryTitle}
-                        </div>
-                        <div class="space-y-2 max-h-56 overflow-y-auto pe-1">
-                            ${closedListHtml}
-                        </div>
+                    <div class="pt-4 border-t border-white/10">
+                        <h3 class="text-sm font-black text-white mb-3">${t('similarTitle')}</h3>
+                        ${similar.length ? `
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                ${similar.map(s => {
+                                    const sAvail = s.in_stock !== false;
+                                    const sPrice = getDiscountedPrice(s);
+                                    return `
+                                    <div onclick="openProductDetails(${s.id})" class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition">
+                                        <div class="w-12 h-12 rounded-xl bg-black/60 flex items-center justify-center shrink-0 overflow-hidden">
+                                            ${s.imageUrl ? `<img src="${s.imageUrl}" alt="${s.name}" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';"><i class="fa-solid ${s.icon || 'fa-box'} text-sky-400 text-lg" style="display:none;"></i>` : `<i class="fa-solid ${s.icon || 'fa-box'} text-sky-400 text-lg"></i>`}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-xs font-bold text-white truncate">${s.name}</div>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-xs font-black text-sky-400">${sPrice} ${t('currency')}</span>
+                                                <span class="text-[10px] ${sAvail ? 'text-emerald-400' : 'text-rose-400'}">${sAvail ? t('inStock') : t('outOfStock')}</span>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        ` : `<p class="text-xs text-slate-400">${t('noSimilar')}</p>`}
                     </div>
                 </div>
             `;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
-        function renderDashboard() {
-            const tr = t();
-            const isOwner = isOwnerUser(currentUser);
-            if (!isOwner && activeDashSection === 'revenue') {
-                activeDashSection = 'overview';
-            }
-
-            document.getElementById('stat-visitors').textContent = visitorsCount;
-            document.getElementById('stat-products').textContent = products.length;
-            document.getElementById('stat-orders').textContent = orders.length;
-            document.getElementById('stat-users').textContent = usersList.length;
-
-            const navItems = [
-                { key: 'overview', icon: 'fa-grip', label: tr.dashNav.overview, ownerOnly: false },
-                { key: 'revenue', icon: 'fa-sack-dollar', label: tr.dashNav.revenue, ownerOnly: true },
-                { key: 'products', icon: 'fa-box', label: tr.dashNav.products, ownerOnly: false },
-                { key: 'offers', icon: 'fa-fire', label: tr.dashNav.offers, ownerOnly: true },
-                { key: 'socials', icon: 'fa-share-nodes', label: tr.dashNav.socials, ownerOnly: true },
-                { key: 'orders', icon: 'fa-receipt', label: tr.dashNav.orders, ownerOnly: false },
-                { key: 'users', icon: 'fa-users', label: tr.dashNav.users, ownerOnly: false }
-            ].filter(item => !item.ownerOnly || isOwner);
-
-            const sidebar = document.getElementById('dash-sidebar');
-            if (sidebar) {
-                sidebar.innerHTML = navItems.map(item => `
-                    <button type="button" onclick="selectDashSection('${item.key}')" class="w-full text-start px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 transition ${activeDashSection === item.key ? 'bg-sky-500 text-black font-extrabold' : 'text-slate-300 hover:bg-white/5'}">
-                        <i class="fa-solid ${item.icon}"></i>
-                        <span>${item.label}</span>
-                    </button>
-                `).join('');
-            }
-
-            const quickCards = document.getElementById('dash-quick-cards');
-            if (quickCards) {
-                const cards = [
-                    { icon: 'fa-plus', label: tr.quickActions.addProd, action: 'closeDashboardModal(); openProductModal();', cls: 'bg-sky-500/15 border-sky-400/40 text-sky-300', show: true },
-                    { icon: 'fa-sack-dollar', label: tr.quickActions.dailyClose, action: "selectDashSection('revenue');", cls: 'bg-amber-500/15 border-amber-400/40 text-amber-300', show: isOwner },
-                    { icon: 'fa-fire', label: tr.quickActions.manageOffers, action: 'closeDashboardModal(); openOwnerRedOffersManager();', cls: 'bg-red-500/15 border-red-400/40 text-red-300', show: isOwner },
-                    { icon: 'fa-share-nodes', label: tr.quickActions.manageSocials, action: 'closeDashboardModal(); openOwnerSocialManager();', cls: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300', show: isOwner }
-                ].filter(c => c.show);
-
-                quickCards.innerHTML = cards.map(c => `
-                    <button type="button" onclick="${c.action}" class="p-3 rounded-2xl border text-start transition hover:-translate-y-0.5 flex flex-col gap-1.5 ${c.cls}">
-                        <i class="fa-solid ${c.icon} text-sm"></i>
-                        <span class="text-xs font-extrabold">${c.label}</span>
-                    </button>
-                `).join('');
-            }
-
-            const box = document.getElementById('dashboard-content');
-            if (!box) return;
-
-            if (activeDashSection === 'overview') {
-                box.innerHTML = `<div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300 text-start">${tr.dashOverviewDesc}</div>`;
-            } else if (activeDashSection === 'revenue' && isOwner) {
-                box.innerHTML = renderRevenueSectionHtml();
-            } else if (activeDashSection === 'products') {
-                box.innerHTML = `
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
-                        <span class="text-xs text-slate-300">${tr.dashProductsHint}</span>
-                        <button type="button" onclick="closeDashboardModal(); openProductModal();" class="px-4 py-2 rounded-xl bg-sky-500 text-black text-xs font-extrabold">${tr.openAddProdModal}</button>
-                    </div>
-                `;
-            } else if (activeDashSection === 'offers' && isOwner) {
-                box.innerHTML = `
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
-                        <span class="text-xs text-slate-300">${tr.dashOffersDesc}</span>
-                        <button type="button" onclick="closeDashboardModal(); openOwnerRedOffersManager();" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-extrabold">${tr.openOffersModal}</button>
-                    </div>
-                `;
-            } else if (activeDashSection === 'socials' && isOwner) {
-                box.innerHTML = `
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
-                        <span class="text-xs text-slate-300">${tr.dashSocialsDesc}</span>
-                        <button type="button" onclick="closeDashboardModal(); openOwnerSocialManager();" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">${tr.openSocialsModal}</button>
-                    </div>
-                `;
-            } else if (activeDashSection === 'orders') {
-                if (!orders.length) {
-                    box.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">${tr.noOrders}</div>`;
-                    return;
-                }
-                box.innerHTML = orders.map(o => `
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-start">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="font-black text-sm text-sky-400">${o.id} — ${o.customer} (${o.identifier})</span>
-                            <span class="text-xs text-slate-400">${o.date}</span>
-                        </div>
-                        <div class="text-xs text-slate-300">${o.items.map(i => i.name + ' × ' + i.qty).join(' ، ')}</div>
-                        <div class="flex items-center justify-between pt-2 border-t border-white/10">
-                            <span class="font-bold text-sm text-emerald-400">${tr.total} ${o.total} ${tr.currency}</span>
-                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-black border border-white/20 rounded-xl px-2.5 py-1 text-xs text-white">
-                                <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>${currentLang === 'en' ? 'New' : 'جديد'}</option>
-                                <option value="قيد التجهيز" ${o.status === 'قيد التجهيز' ? 'selected' : ''}>${currentLang === 'en' ? 'Preparing' : 'قيد التجهيز'}</option>
-                                <option value="مكتمل" ${o.status === 'مكتمل' ? 'selected' : ''}>${currentLang === 'en' ? 'Completed' : 'مكتمل'}</option>
-                            </select>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                const usersHtml = !usersList.length
-                    ? `<div class="text-center py-6 text-slate-400 text-sm">${tr.noUsers}</div>`
-                    : usersList.map(u => `
-                        <div class="flex flex-wrap items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 text-start">
-                            <div>
-                                <div class="font-bold text-sm text-white">${u.name} <span class="text-xs text-slate-400">(${u.identifier})</span></div>
-                                <div class="text-[11px] text-slate-400">${tr.lastLogin} ${u.lastLogin || '-'}</div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400">${tr.roles[u.role] || tr.roles.user}</span>
-                                ${isOwner && u.role !== 'owner' ? `
-                                    <select onchange="setUserRole('${u.identifier}', this.value)" class="bg-black border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white">
-                                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>${tr.roles.user}</option>
-                                        <option value="moderator" ${u.role === 'moderator' ? 'selected' : ''}>${tr.roles.moderator}</option>
-                                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>${tr.roles.admin}</option>
-                                    </select>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `).join('');
-
-                const visitsHtml = visitsList.map(v => {
-                    const vType = tr.visits[v.type] || v.type;
-                    const vUser = v.user === 'guest' ? tr.guest : v.user;
-                    return `
-                        <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 text-xs text-start">
-                            <div><span class="font-bold text-white">${vUser}</span> — <span class="text-sky-400">${vType}</span></div>
-                            <span class="text-slate-400">${v.time}</span>
-                        </div>
-                    `;
-                }).join('');
-
-                box.innerHTML = `
-                    <div class="flex gap-2 mb-2">
-                        <button type="button" onclick="activeUsersSubTab='users'; renderDashboard();" class="px-3 py-1.5 rounded-xl text-xs font-extrabold ${activeUsersSubTab === 'users' ? 'bg-amber-500 text-black' : 'bg-white/5 text-slate-300'}">${tr.stats.users}</button>
-                        <button type="button" onclick="activeUsersSubTab='visits'; renderDashboard();" class="px-3 py-1.5 rounded-xl text-xs font-extrabold ${activeUsersSubTab === 'visits' ? 'bg-amber-500 text-black' : 'bg-white/5 text-slate-300'}">${tr.visitsTitle}</button>
-                    </div>
-                    ${activeUsersSubTab === 'users' ? usersHtml : visitsHtml}
-                `;
-            }
+        function closeProductDetailsModal() {
+            const modal = document.getElementById('product-details-modal');
+            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
         }
 
-        async function saveNewProduct(e) {
+        function toggleStock(id) {
+            if (!isStaff()) return;
+            products = products.map(p => p.id === id ? { ...p, in_stock: !(p.in_stock !== false) } : p);
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
+            renderProducts();
+            if (document.getElementById('dashboard-modal').classList.contains('flex')) renderDashboardTab(activeDashTab);
+        }
+
+        function openProductModal() {
+            if (!isStaff()) return;
+            clearNewProductImage();
+            const m = document.getElementById('product-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+        function closeProductModal() {
+            const m = document.getElementById('product-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function saveNewProduct(e) {
             e.preventDefault();
+            if (!isStaff()) return;
             const name = document.getElementById('new-prod-name').value.trim();
             const category = document.getElementById('new-prod-cat').value;
             const price = parseFloat(document.getElementById('new-prod-price').value);
+            const imageUrl = document.getElementById('new-prod-image').value.trim();
             const desc = document.getElementById('new-prod-desc').value.trim();
-            const imageEl = document.getElementById('new-prod-image');
-            const imageUrl = imageEl ? imageEl.value.trim() : '';
+            if (!name || isNaN(price) || price <= 0) return;
+            const iconMap = { 'جوالات': 'fa-mobile-screen-button', 'شواحن وكوابل': 'fa-bolt', 'حمايات شاشات': 'fa-shield-halved', 'إكسسوارات': 'fa-headphones', 'إلكترونيات': 'fa-tv' };
+            products.unshift({ id: Date.now(), name, category, price, icon: iconMap[category] || 'fa-box', in_stock: true, desc, imageUrl });
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
+            e.target.reset();
+            clearNewProductImage();
+            closeProductModal();
+            renderProducts();
+            updateDashboardStats();
+        }
 
-            const newProduct = {
-                id: Date.now(),
+        function editProduct(id) {
+            if (!isStaff()) return;
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('edit-prod-id').value = p.id;
+            document.getElementById('edit-prod-name').value = p.name;
+            document.getElementById('edit-prod-cat').value = p.category || 'إكسسوارات';
+            document.getElementById('edit-prod-price').value = p.price;
+            document.getElementById('edit-prod-image').value = p.imageUrl || '';
+            document.getElementById('edit-prod-desc').value = p.desc || '';
+            document.getElementById('edit-prod-file').value = '';
+
+            const wrap = document.getElementById('edit-prod-preview-wrap');
+            const img = document.getElementById('edit-prod-preview');
+            if (p.imageUrl) {
+                img.src = p.imageUrl;
+                wrap.classList.remove('hidden');
+                wrap.classList.add('flex');
+            } else {
+                img.src = '';
+                wrap.classList.add('hidden');
+                wrap.classList.remove('flex');
+            }
+
+            const m = document.getElementById('edit-product-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeEditProductModal() {
+            const m = document.getElementById('edit-product-modal');
+            if (m) {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+        }
+
+        function saveEditedProduct(e) {
+            e.preventDefault();
+            if (!isStaff()) return;
+            const id = Number(document.getElementById('edit-prod-id').value);
+            const name = document.getElementById('edit-prod-name').value.trim();
+            const category = document.getElementById('edit-prod-cat').value;
+            const price = parseFloat(document.getElementById('edit-prod-price').value);
+            const imageUrl = document.getElementById('edit-prod-image').value.trim();
+            const desc = document.getElementById('edit-prod-desc').value.trim();
+            if (!name || isNaN(price) || price <= 0) return;
+
+            products = products.map(item => item.id === id ? {
+                ...item,
                 name,
                 category,
                 price,
-                icon: "fa-bolt",
-                in_stock: true,
-                desc,
-                imageUrl
-            };
-
-            if (supabaseClient) {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .insert([{
-                        id: newProduct.id,
-                        name: newProduct.name,
-                        category: newProduct.category,
-                        price: newProduct.price,
-                        icon: newProduct.icon,
-                        in_stock: newProduct.in_stock,
-                        description: newProduct.desc,
-                        image_url: newProduct.imageUrl
-                    }]);
-
-                if (error) {
-                    console.error('Supabase insert error:', error);
-                    showToast(currentLang === 'en' ? 'Saved locally; cloud sync issue.' : 'تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.', 'warning');
-                }
-            }
-
-            products.unshift(newProduct);
+                imageUrl,
+                desc
+            } : item);
             localStorage.setItem('rkaz_products', JSON.stringify(products));
-            if (imageEl) imageEl.value = '';
-            closeProductModal();
+            closeEditProductModal();
             renderProducts();
-            showToast(currentLang === 'en' ? 'Product added successfully!' : 'تمت إضافة المنتج بنجاح إلى المتجر!', 'success');
+            renderOwnerRedOfferBanner();
+            if (document.getElementById('dashboard-modal').classList.contains('flex')) renderDashboardTab(activeDashTab);
+            showToast(currentLang === 'ar' ? 'تم حفظ تعديلات المنتج' : 'Product updated', 'success');
         }
 
-        async function loadProductsFromCloud() {
-            if (!supabaseClient) return;
+        function deleteProduct(id) {
+            if (!isStaff()) return;
+            const msg = currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا المنتج؟' : 'Are you sure you want to delete this product?';
+            if (!confirm(msg)) return;
+            products = products.filter(item => item.id !== id);
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
+            renderProducts();
+            updateDashboardStats();
+        }
 
-            const { data, error } = await supabaseClient
-                .from('products')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (!error && Array.isArray(data) && data.length > 0) {
-                const cloudProducts = data.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    category: item.category,
-                    price: Number(item.price),
-                    icon: item.icon || 'fa-bolt',
-                    in_stock: item.in_stock !== false,
-                    desc: item.description || '',
-                    imageUrl: item.image_url || ''
-                }));
-
-                const existingIds = new Set(cloudProducts.map(p => p.id));
-                const localOnly = products.filter(p => !existingIds.has(p.id));
-                products = [...cloudProducts, ...localOnly];
-                localStorage.setItem('rkaz_products', JSON.stringify(products));
-                renderProducts();
+        function triggerCartAnimation() {
+            const cartBtn = document.getElementById('header-cart-btn');
+            const badge = document.getElementById('cart-badge');
+            if (cartBtn) {
+                cartBtn.classList.remove('cart-animate');
+                void cartBtn.offsetWidth;
+                cartBtn.classList.add('cart-animate');
+                setTimeout(() => cartBtn.classList.remove('cart-animate'), 600);
+            }
+            if (badge) {
+                badge.classList.remove('badge-bounce');
+                void badge.offsetWidth;
+                badge.classList.add('badge-bounce');
+                setTimeout(() => badge.classList.remove('badge-bounce'), 450);
             }
         }
 
-        async function initSession() {
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+            if (prod.in_stock === false) {
+                showToast(t('outOfStockMsg'), 'warn');
+                return;
+            }
+            const unitPrice = getDiscountedPrice(prod);
+            const existing = cart.find(c => c.id === id);
+            if (existing) {
+                existing.qty += 1;
+                existing.price = unitPrice;
+            } else {
+                cart.push({ id: prod.id, name: prod.name, price: unitPrice, qty: 1 });
+            }
+            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
             updateCartBadge();
-            applyLanguageUI();
-            await loadProductsFromCloud();
+            triggerCartAnimation();
+            showToast(t('addedToCart')(prod.name), 'success');
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cart-badge');
+            if (badge) badge.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+        }
+
+        function openCartModal() {
+            renderCartItems();
+            const m = document.getElementById('cart-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeCartModal() {
+            const m = document.getElementById('cart-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function renderCartItems() {
+            const list = document.getElementById('cart-items-list');
+            const totalEl = document.getElementById('cart-total');
+            if (cart.length === 0) {
+                list.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">${t('cartEmpty')}</div>`;
+                totalEl.textContent = `0 ${t('currency')}`;
+                return;
+            }
+            let total = 0;
+            list.innerHTML = cart.map(item => {
+                total += item.price * item.qty;
+                return `
+                <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3">
+                    <div>
+                        <div class="font-bold text-sm text-white">${item.name}</div>
+                        <div class="text-xs text-sky-400 font-bold">${item.price} ${t('currency')} × ${item.qty}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="changeQty(${item.id}, -1)" class="w-7 h-7 rounded-lg bg-white/10 text-white font-bold">-</button>
+                        <button onclick="changeQty(${item.id}, 1)" class="w-7 h-7 rounded-lg bg-white/10 text-white font-bold">+</button>
+                        <button onclick="removeFromCart(${item.id})" class="w-7 h-7 rounded-lg bg-red-500/20 text-red-400"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+            totalEl.textContent = `${total} ${t('currency')}`;
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(c => c.id !== id);
+            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function sendOrderToWhatsApp() {
+            if (cart.length === 0) {
+                showToast(t('cartEmptyWarn'), 'warn');
+                return;
+            }
+            const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            const newOrder = {
+                id: 'ORD-' + Date.now().toString().slice(-6),
+                customer: currentUser ? currentUser.name : t('guest'),
+                items: cart.map(i => `${i.name} (${i.qty})`).join('، '),
+                total,
+                date: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US')
+            };
+            orders.unshift(newOrder);
+            localStorage.setItem('rkaz_orders', JSON.stringify(orders));
+
+            const lines = cart.map(i => `• ${i.name} (${i.qty}) - ${i.price * i.qty} ${t('currency')}`).join('%0A');
+            const headerTxt = currentLang === 'ar' ? 'مرحباً متجر ركاز التقنية، أود طلب:%0A' : 'Hello Rkaz Technology, I would like to order:%0A';
+            const totalTxt = currentLang === 'ar' ? `%0Aالإجمالي: ${total} ر.س` : `%0ATotal: ${total} SAR`;
+            const targetPhone = (socialLinks.phone || '').replace(/\D/g, '') || WHATSAPP_ORDER_NUMBER;
+            window.open(`https://wa.me/${targetPhone}?text=${headerTxt}${lines}${totalTxt}`, '_blank');
+
+            cart = [];
+            localStorage.setItem('rkaz_cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartItems();
+            closeCartModal();
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            const vEl = document.getElementById('stat-visitors');
+            const pEl = document.getElementById('stat-products');
+            const oEl = document.getElementById('stat-orders');
+            const uEl = document.getElementById('stat-users');
+            if (vEl) vEl.textContent = visitorsCount;
+            if (pEl) pEl.textContent = products.length;
+            if (oEl) oEl.textContent = orders.length;
+            if (uEl) uEl.textContent = users.length;
+        }
+
+        function getTodayIncomeTotal() {
+            return dailyEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+        }
+
+        function getOrdersIncomeTotal() {
+            return orders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+        }
+
+        function getClosedDaysTotal() {
+            return closedDays.reduce((sum, d) => sum + Number(d.total || 0), 0);
+        }
+
+        function addDailyEntry(e) {
+            e.preventDefault();
+            if (!isOwner()) return;
+            const noteInput = document.getElementById('daily-sale-note');
+            const amtInput = document.getElementById('daily-sale-amount');
+            const amount = parseFloat(amtInput.value);
+            const note = (noteInput.value || '').trim() || (currentLang === 'ar' ? 'مبيعات اليوم' : 'Daily Sale');
+            if (isNaN(amount) || amount <= 0) {
+                showToast(t('rev').enterValidAmount, 'warn');
+                return;
+            }
+            const now = new Date();
+            dailyEntries.unshift({
+                id: Date.now(),
+                note,
+                amount,
+                time: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })
+            });
+            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
+            noteInput.value = '';
+            amtInput.value = '';
+            renderDashboardTab('revenue');
+            showToast(currentLang === 'ar' ? `تمت إضافة ${amount} ر.س لدخل اليوم` : `Added ${amount} SAR to today's income`, 'success');
+        }
+
+        function deleteDailyEntry(entryId) {
+            if (!isOwner()) return;
+            dailyEntries = dailyEntries.filter(x => x.id !== entryId);
+            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
+            renderDashboardTab('revenue');
+        }
+
+        function closeCurrentDay() {
+            if (!isOwner()) return;
+            const todayAmt = getTodayIncomeTotal();
+            if (todayAmt <= 0) {
+                showToast(t('rev').nothingToClose, 'warn');
+                return;
+            }
+            const now = new Date();
+            const dayName = now.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { weekday: 'long' });
+            const dateStr = now.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const label = `${dayName} - ${dateStr}`;
+
+            closedDays.unshift({
+                id: Date.now(),
+                dayName,
+                dateStr,
+                label,
+                total: todayAmt,
+                entriesCount: dailyEntries.length,
+                closedAt: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })
+            });
+            dailyEntries = [];
+            localStorage.setItem('rkaz_closed_days', JSON.stringify(closedDays));
+            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
+            renderDashboardTab('revenue');
+            showToast(t('rev').dayClosedToast(label, todayAmt), 'success');
+        }
+
+        function deleteClosedDay(dayId) {
+            if (!isOwner()) return;
+            closedDays = closedDays.filter(d => d.id !== dayId);
+            localStorage.setItem('rkaz_closed_days', JSON.stringify(closedDays));
+            renderDashboardTab('revenue');
+        }
+
+        function openDashboardModal(tab = 'overview') {
+            if (!isStaff()) return;
+            activeDashTab = tab;
+            updateDashboardStats();
+            renderDashboardSidebar();
+            renderDashboardQuickCards();
+            renderDashboardTab(tab);
+            const m = document.getElementById('dashboard-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeDashboardModal() {
+            const m = document.getElementById('dashboard-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function renderDashboardSidebar() {
+            const nav = t('dashNav');
+            const items = [
+                { id: 'overview', icon: 'fa-chart-pie', label: nav.overview },
+                ...(isOwner() ? [{ id: 'revenue', icon: 'fa-coins', label: nav.revenue }] : []),
+                { id: 'products', icon: 'fa-boxes-stacked', label: nav.products },
+                { id: 'offers', icon: 'fa-fire', label: nav.offers },
+                { id: 'socials', icon: 'fa-share-nodes', label: nav.socials },
+                { id: 'orders', icon: 'fa-bag-shopping', label: nav.orders },
+                { id: 'users', icon: 'fa-users', label: nav.users }
+            ];
+            const sidebar = document.getElementById('dash-sidebar');
+            if (!sidebar) return;
+            sidebar.innerHTML = items.map(item => {
+                const active = activeDashTab === item.id;
+                return `<button type="button" onclick="selectDashTab('${item.id}')" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition text-start ${active ? 'bg-amber-500 text-black shadow' : 'text-slate-300 hover:bg-white/10'}">
+                    <i class="fa-solid ${item.icon} w-4 text-center"></i>
+                    <span class="flex-1">${item.label}</span>
+                </button>`;
+            }).join('');
+        }
+
+        function renderDashboardQuickCards() {
+            const q = t('quickActions');
+            const box = document.getElementById('dash-quick-cards');
+            if (!box) return;
+            const cards = [
+                { icon: 'fa-plus-circle', color: 'text-sky-400', label: q.addProd, action: `closeDashboardModal(); openProductModal();` },
+                ...(isOwner() ? [{ icon: 'fa-coins', color: 'text-emerald-400', label: q.dailyClose, action: `selectDashTab('revenue')` }] : []),
+                { icon: 'fa-fire', color: 'text-red-400', label: q.manageOffers, action: `selectDashTab('offers')` },
+                { icon: 'fa-share-nodes', color: 'text-amber-400', label: q.manageSocials, action: `selectDashTab('socials')` }
+            ];
+            box.innerHTML = cards.map(c => `
+                <button type="button" onclick="${c.action}" class="flex items-center gap-2.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 transition text-start">
+                    <i class="fa-solid ${c.icon} ${c.color} text-lg shrink-0"></i>
+                    <span class="text-xs font-extrabold text-white leading-snug">${c.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectDashTab(tab) {
+            activeDashTab = tab;
+            renderDashboardSidebar();
+            renderDashboardTab(tab);
+        }
+
+        function renderDashboardTab(tab) {
+            updateDashboardStats();
+            const content = document.getElementById('dashboard-content');
+            if (!content) return;
+
+            if (tab === 'revenue') {
+                if (!isOwner()) {
+                    content.innerHTML = `<div class="bg-red-500/10 border border-red-500/30 text-red-300 rounded-2xl p-4 text-xs font-bold">${t('rev').ownerOnly}</div>`;
+                    return;
+                }
+                const todayAmt = getTodayIncomeTotal();
+                const ordersAmt = getOrdersIncomeTotal();
+                const closedCount = closedDays.length;
+                const closedSum = getClosedDaysTotal();
+                const r = t('rev');
+
+                content.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-start">
+                            <div class="text-xs text-emerald-300 font-bold">${r.todayIncome}</div>
+                            <div class="text-2xl font-black text-white mt-1">${todayAmt} ${t('currency')}</div>
+                            <div class="text-[11px] text-slate-400 mt-1">${r.ordersIncome}: ${ordersAmt} ${t('currency')}</div>
+                        </div>
+                        <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-start">
+                            <div class="text-xs text-amber-300 font-bold">${r.closedDaysCount}</div>
+                            <div class="text-2xl font-black text-white mt-1">${closedCount}</div>
+                        </div>
+                        <div class="bg-sky-500/10 border border-sky-500/30 rounded-2xl p-4 text-start">
+                            <div class="text-xs text-sky-300 font-bold">${r.totalClosed}</div>
+                            <div class="text-2xl font-black text-white mt-1">${closedSum} ${t('currency')}</div>
+                        </div>
+                    </div>
+
+                    <form onsubmit="addDailyEntry(event)" class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 text-start">
+                        <div class="text-xs font-extrabold text-white">${r.addSaleTitle}</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <input type="text" id="daily-sale-note" placeholder="${r.saleNotePlaceholder}" class="sm:col-span-2 bg-black border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                            <input type="number" id="daily-sale-amount" step="any" min="0.01" required placeholder="${r.saleAmountPlaceholder}" class="bg-black border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                            <button type="submit" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">
+                                <i class="fa-solid fa-plus me-1"></i> ${r.addSaleBtn}
+                            </button>
+                            <button type="button" onclick="closeCurrentDay()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold">
+                                <i class="fa-solid fa-lock me-1"></i> ${r.closeDayBtn}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-start">
+                        <div class="text-xs font-extrabold text-white mb-2.5">${r.todayEntries}</div>
+                        ${dailyEntries.length ? dailyEntries.map(en => `
+                            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0 text-xs">
+                                <div>
+                                    <span class="font-bold text-white">${en.note}</span>
+                                    <span class="text-[11px] text-slate-400 ms-2">${en.time}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-black text-emerald-400">${en.amount} ${t('currency')}</span>
+                                    <button type="button" onclick="deleteDailyEntry(${en.id})" class="text-red-400 hover:text-red-300 text-[11px] font-bold">${r.deleteEntry}</button>
+                                </div>
+                            </div>
+                        `).join('') : `<div class="text-xs text-slate-400">${r.noEntriesToday}</div>`}
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-start">
+                        <div class="text-xs font-extrabold text-amber-300 mb-2.5">${r.closedHistoryTitle}</div>
+                        ${closedDays.length ? closedDays.map(cd => `
+                            <div class="flex flex-wrap items-center justify-between gap-2 py-2.5 border-b border-white/5 last:border-0 text-xs">
+                                <div>
+                                    <div class="font-extrabold text-white">${cd.label}</div>
+                                    <div class="text-[11px] text-slate-400">${cd.closedAt}</div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-black text-amber-400">${cd.total} ${t('currency')}</span>
+                                    <button type="button" onclick="deleteClosedDay(${cd.id})" class="text-red-400 hover:text-red-300 text-[11px] font-bold">${r.deleteClosedDay}</button>
+                                </div>
+                            </div>
+                        `).join('') : `<div class="text-xs text-slate-400">${r.noClosedDays}</div>`}
+                    </div>
+                `;
+                return;
+            }
+
+            if (tab === 'users') {
+                const usersHtml = users.length ? users.map(u => `
+                    <div class="flex flex-wrap items-center justify-between gap-2 bg-white/5 border border-white/10 rounded-2xl p-3.5 text-xs">
+                        <div class="text-start">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <span>${u.name}</span>
+                                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px]">${getRoleBadgeText(u.role || 'user')}</span>
+                            </div>
+                            <div class="text-slate-400">${u.email || ''}</div>
+                        </div>
+                        <div class="text-slate-400">${t('lastLogin')} ${u.lastLogin || '-'}</div>
+                    </div>
+                `).join('') : `<div class="text-center py-6 text-slate-400 text-sm">${t('noUsers')}</div>`;
+
+                const visitsHtml = visitsLog.length ? visitsLog.slice(0, 20).map(v => `
+                    <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0 text-xs">
+                        <span class="text-slate-200 font-semibold">
+                            <i class="fa-solid ${v.type === 'login' ? 'fa-right-to-bracket text-emerald-400' : 'fa-eye text-sky-400'} me-1.5"></i>
+                            ${v.type === 'login' ? t('visits').login : t('visits').visit}: <b>${v.userName}</b>
+                        </span>
+                        <span class="text-slate-400 text-[11px]">${v.time}</span>
+                    </div>
+                `).join('') : '';
+
+                content.innerHTML = `<div class="space-y-2">${usersHtml}</div><div class="bg-white/5 border border-white/10 rounded-2xl p-4 mt-4 text-start"><h4 class="text-xs font-extrabold text-sky-400 mb-2">${t('visitsTitle')}</h4>${visitsHtml}</div>`;
+            } else if (tab === 'orders') {
+                content.innerHTML = orders.length ? orders.map(o => `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs space-y-1.5 text-start">
+                        <div class="flex items-center justify-between font-bold">
+                            <span class="text-sky-400">${o.id}</span>
+                            <span class="text-slate-400">${o.date}</span>
+                        </div>
+                        <div class="text-white font-bold">${o.customer} — <span class="text-emerald-400">${o.total} ${t('currency')}</span></div>
+                        <div class="text-slate-300">${o.items}</div>
+                    </div>
+                `).join('') : `<div class="text-center py-8 text-slate-400 text-sm">${t('noOrders')}</div>`;
+            } else if (tab === 'offers') {
+                content.innerHTML = `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4 text-start">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <div class="text-sm font-extrabold text-white">${t('dashNav').offers}</div>
+                                <div class="text-xs text-slate-400">${t('dashOffersDesc')}</div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="red-offers-enabled-toggle" ${redOffers.enabled ? 'checked' : ''} class="w-4 h-4 accent-red-500">
+                                <span class="text-xs font-extrabold text-red-300">${currentLang === 'ar' ? 'تفعيل الشريط الأحمر' : 'Enable Red Ticker'}</span>
+                            </label>
+                        </div>
+                        <div class="space-y-2 max-h-60 overflow-y-auto pe-1">
+                            ${products.map(p => {
+                                const val = Number(redOffers.discounts?.[p.id] || 0);
+                                return `<div class="flex items-center justify-between gap-3 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs">
+                                    <span class="font-bold text-white truncate">${p.name} (${p.price} ${t('currency')})</span>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <input type="number" min="0" max="90" data-offer-id="${p.id}" value="${val}" class="w-16 bg-black border border-white/20 rounded-lg px-2 py-1 text-center text-white font-bold">
+                                        <span class="text-slate-400">%</span>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                        <button type="button" onclick="saveRedOffersFromTab()" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold">
+                            ${currentLang === 'ar' ? 'حفظ العروض الحمراء' : 'Save Red Offers'}
+                        </button>
+                    </div>
+                `;
+            } else if (tab === 'socials') {
+                content.innerHTML = `
+                    <form onsubmit="saveSocialLinksFromTab(event)" class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 text-start">
+                        <div class="text-xs text-slate-400">${t('dashSocialsDesc')}</div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">${t('socialLabels').snapchat}</label>
+                            <input type="text" id="soc-snapchat" value="${socialLinks.snapchat || ''}" placeholder="https://snapchat.com/add/..." class="w-full bg-black border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">${t('socialLabels').tiktok}</label>
+                            <input type="text" id="soc-tiktok" value="${socialLinks.tiktok || ''}" placeholder="https://www.tiktok.com/@..." class="w-full bg-black border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">${t('socialLabels').whatsapp}</label>
+                            <input type="text" id="soc-whatsapp" value="${socialLinks.whatsapp || ''}" placeholder="https://wa.me/9665..." class="w-full bg-black border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">${currentLang === 'ar' ? 'رقم الجوال / واتساب' : 'Phone / WhatsApp Number'}</label>
+                            <input type="text" id="soc-phone" value="${socialLinks.phone || ''}" placeholder="966500125387" class="w-full bg-black border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                        </div>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">
+                            ${currentLang === 'ar' ? 'حفظ الروابط' : 'Save Links'}
+                        </button>
+                    </form>
+                `;
+            } else if (tab === 'products') {
+                content.innerHTML = `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 text-start">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <p class="text-xs text-slate-300">${t('dashProductsHint')}</p>
+                            <button type="button" onclick="closeDashboardModal(); openProductModal();" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">
+                                <i class="fa-solid fa-plus me-1"></i> ${t('openAddProdModal')}
+                            </button>
+                        </div>
+                        <div class="space-y-2 max-h-64 overflow-y-auto pe-1">
+                            ${products.map(p => {
+                                const isAvail = p.in_stock !== false;
+                                return `<div class="flex items-center justify-between gap-2 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs">
+                                    <span class="font-bold text-white truncate">${p.name} — <span class="text-sky-400">${p.price} ${t('currency')}</span></span>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button type="button" onclick="toggleStock(${p.id})" class="px-2.5 py-1 rounded-lg font-bold ${isAvail ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}">${isAvail ? t('inStock') : t('outOfStock')}</button>
+                                        <button type="button" onclick="editProduct(${p.id})" class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-300 font-bold">${t('editBtn')}</button>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `<div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300 leading-relaxed text-start">${t('dashOverviewDesc')}</div>`;
+            }
+        }
+
+        function saveRedOffersFromTab() {
+            if (!isStaff()) return;
+            const enabled = Boolean(document.getElementById('red-offers-enabled-toggle')?.checked);
+            const discounts = {};
+            document.querySelectorAll('[data-offer-id]').forEach(inp => {
+                const pid = inp.getAttribute('data-offer-id');
+                const pct = Math.max(0, Math.min(90, parseInt(inp.value || '0', 10) || 0));
+                if (pct > 0) discounts[pid] = pct;
+            });
+            redOffers = { enabled, discounts };
+            localStorage.setItem('rkaz_red_offers', JSON.stringify(redOffers));
+            renderOwnerRedOfferBanner();
+            renderProducts();
+            showToast(currentLang === 'ar' ? 'تم حفظ إعدادات العروض الحمراء' : 'Red offers saved', 'success');
+        }
+
+        function saveSocialLinksFromTab(e) {
+            e.preventDefault();
+            if (!isStaff()) return;
+            socialLinks = {
+                snapchat: (document.getElementById('soc-snapchat')?.value || '').trim(),
+                tiktok: (document.getElementById('soc-tiktok')?.value || '').trim(),
+                whatsapp: (document.getElementById('soc-whatsapp')?.value || '').trim(),
+                phone: (document.getElementById('soc-phone')?.value || '').trim()
+            };
+            localStorage.setItem('rkaz_social_links', JSON.stringify(socialLinks));
+            renderSocialLinks();
+            showToast(currentLang === 'ar' ? 'تم حفظ روابط التواصل' : 'Social links saved', 'success');
+        }
+
+        async function restoreSupabaseSession() {
             if (!supabaseClient) return;
             try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session && session.user) {
-                    await upsertUserProfile(session.user);
-                } else {
-                    await syncUsersFromSupabase();
+                const { data } = await supabaseClient.auth.getSession();
+                const supaUser = data?.session?.user;
+                if (supaUser) {
+                    const resolvedName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || (supaUser.email ? supaUser.email.split('@')[0] : t('guest'));
+                    currentUser = {
+                        id: supaUser.id,
+                        name: resolvedName,
+                        email: supaUser.email || '',
+                        role: supaUser.id === OWNER_ID ? 'owner' : 'user'
+                    };
+                    localStorage.setItem('rkaz_user', JSON.stringify(currentUser));
+                    upsertLocalUser(currentUser);
+                    renderAuthUI();
+                    renderProducts();
                 }
             } catch (_) {}
         }
 
-        initSession();
+        applyLanguageUI();
+        recordVisit();
+        updateDashboardStats();
+        restoreSupabaseSession();
     </script>
 </body>
 </html>
