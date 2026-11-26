@@ -29,14 +29,21 @@
         .glass-card { background: linear-gradient(145deg, #101724, #080c13); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.25s ease; position: relative; z-index: 20; }
         .glass-card:hover { border-color: rgba(56, 189, 248, 0.5); transform: translateY(-3px); }
         button, input, select, textarea, a { position: relative; z-index: 30; cursor: pointer; }
-        @keyframes rkazTicker {
+        @keyframes rkazTickerRtl {
             0% { transform: translateX(0%); }
             100% { transform: translateX(50%); }
+        }
+        @keyframes rkazTickerLtr {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
         }
         .rkaz-ticker-track {
             display: flex;
             width: max-content;
-            animation: rkazTicker 26s linear infinite;
+            animation: rkazTickerRtl 26s linear infinite;
+        }
+        html[dir="ltr"] .rkaz-ticker-track {
+            animation-name: rkazTickerLtr;
         }
         .rkaz-ticker-track:hover {
             animation-play-state: paused;
@@ -65,54 +72,42 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-sky-400 selection:text-black">
     <canvas id="live-bg"></canvas>
-    <div id="rkaz-toast-container" class="fixed bottom-5 left-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full px-4 sm:px-0 pointer-events-none" dir="rtl"></div>
+    <div id="rkaz-toast-container" class="fixed bottom-5 end-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full px-4 sm:px-0 pointer-events-none"></div>
 
-    <div dir="rtl" class="relative z-40 w-full bg-gradient-to-l from-sky-500/20 via-sky-400/15 to-emerald-500/20 border-b border-sky-400/30 text-white overflow-hidden py-2">
-        <div class="rkaz-ticker-track items-center gap-8 text-xs sm:text-sm font-bold whitespace-nowrap px-4">
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-gift text-amber-400"></i> اطلب 4 منتجات واحصل على الخامس مع هدية مجانية</span>
-            <span class="text-white/30">•</span>
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-truck-fast text-sky-400"></i> شحن لجميع المناطق والخارج عبر أرامكس</span>
-            <span class="text-white/30">•</span>
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-credit-card text-emerald-400"></i> متوفر تابي وتمارا في المحل</span>
-            <span class="text-white/30">•</span>
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-shield-halved text-sky-300"></i> منتجات أصلية وضمان معتمد</span>
-            <span class="text-white/30">•</span>
-
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-gift text-amber-400"></i> اطلب 4 منتجات واحصل على الخامس مع هدية مجانية</span>
-            <span class="text-white/30">•</span>
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-truck-fast text-sky-400"></i> شحن لجميع المناطق والخارج عبر أرامكس</span>
-            <span class="text-white/30">•</span>
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-credit-card text-emerald-400"></i> متوفر تابي وتمارا في المحل</span>
-            <span class="text-white/30">•</span>
-            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-shield-halved text-sky-300"></i> منتجات أصلية وضمان معتمد</span>
-        </div>
+    <!-- الشريط العلوي الترويجي -->
+    <div class="relative z-40 w-full bg-gradient-to-l from-sky-500/20 via-sky-400/15 to-emerald-500/20 border-b border-sky-400/30 text-white overflow-hidden py-2">
+        <div id="promo-ticker-track" class="rkaz-ticker-track items-center gap-8 text-xs sm:text-sm font-bold whitespace-nowrap px-4"></div>
     </div>
 
     <!-- الهيدر -->
     <header class="sticky top-0 z-50 glass-panel border-b border-white/10 shadow-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
-            <a href="#" onclick="filterCategory('الكل'); return false;" class="flex items-center gap-3">
+            <a href="#" onclick="filterCategory('الكل'); return false;" class="flex items-center gap-3 shrink-0">
                 <div class="w-11 h-11 rounded-xl bg-black border border-sky-500/40 flex items-center justify-center p-1.5">
                     <svg viewBox="0 0 100 100" class="w-full h-full">
                         <path d="M24 16 H62 C76 16 84 24 84 37 C84 48 77 55 66 57 L82 84 H64 L50 59 H40 V84 H24 V16 Z M40 30 V46 H59 C65 46 68 43 68 38 C68 33 65 30 59 30 H40 Z" fill="#38bdf8"/>
                         <path d="M18 72 H52 C68 72 80 62 87 46 C86 67 72 83 51 83 H18 V72 Z" fill="#ffffff"/>
                     </svg>
                 </div>
-                <div class="flex flex-col">
+                <div class="flex flex-col text-start">
                     <span class="text-lg sm:text-2xl font-black text-white leading-none">Rkaz <span class="text-sky-400">Technology</span></span>
-                    <span class="text-[11px] text-slate-400 font-semibold mt-1">ركاز التقنية للجوالات والإكسسوارات</span>
+                    <span id="header-subtitle" class="text-[11px] text-slate-400 font-semibold mt-1">ركاز التقنية للجوالات والإكسسوارات</span>
                 </div>
             </a>
 
             <div class="hidden md:flex flex-1 max-w-md relative">
-                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="ابحث عن جوال، شاحن، حماية شاشة..." class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl py-2.5 pr-11 pl-4 text-sm text-white outline-none">
-                <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="ابحث عن جوال، شاحن، حماية شاشة..." class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl py-2.5 ps-11 pe-4 text-sm text-white outline-none">
+                <i class="fa-solid fa-magnifying-glass absolute start-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
             </div>
 
-            <div class="flex items-center gap-2" id="header-right-actions">
+            <div class="flex items-center gap-2 shrink-0" id="header-right-actions">
+                <button type="button" onclick="toggleLanguage()" id="lang-toggle-btn" class="flex items-center gap-1.5 bg-white/5 hover:bg-white/15 border border-white/15 text-slate-200 px-3 py-2.5 rounded-xl text-xs font-extrabold transition" title="تغيير اللغة / Change Language">
+                    <i class="fa-solid fa-globe text-sky-400"></i>
+                    <span id="lang-toggle-label">EN</span>
+                </button>
                 <button id="header-cart-btn" onclick="openCartModal()" class="relative flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-sky-400/30 text-white px-3.5 py-2.5 rounded-xl text-sm font-bold transition">
                     <i class="fa-solid fa-cart-shopping text-sky-400"></i>
-                    <span class="hidden sm:inline">السلة</span>
+                    <span id="header-cart-label" class="hidden sm:inline">السلة</span>
                     <span id="cart-badge" class="bg-sky-500 text-black text-xs font-black px-2 py-0.5 rounded-full transition">0</span>
                 </button>
                 <div id="auth-actions-container"></div>
@@ -120,30 +115,30 @@
         </div>
     </header>
 
-    <!-- شريط الإدارة الفخم -->
+    <!-- شريط الإدارة الفخم للمالك والطاقم -->
     <div id="admin-panel-bar" class="hidden relative z-40 max-w-7xl w-full mx-auto px-4 mt-6">
         <div class="glass-panel border border-amber-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 bg-amber-950/20">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+            <div class="flex items-center gap-3 text-start">
+                <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0">
                     <i class="fa-solid fa-crown"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-white text-sm">لوحة تحكم الإدارة (<span id="logged-admin-name">أبو ساره</span>) — الرتبة: <span id="logged-admin-role" class="text-amber-400">مالك</span></h3>
-                    <p class="text-xs text-slate-300">إدارة المنتجات، الطلبات، الزوار، وصلاحيات الأدمن والمشرفين.</p>
+                    <h3 id="admin-bar-title" class="font-bold text-white text-sm">لوحة تحكم الإدارة (<span id="logged-admin-name">أبو ساره</span>) — الرتبة: <span id="logged-admin-role" class="text-amber-400">مالك</span></h3>
+                    <p id="admin-bar-desc" class="text-xs text-slate-300">إدارة المنتجات، الطلبات، الزوار، والعروض، وروابط التواصل.</p>
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="openDashboardModal()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-gauge-high"></i> لوحة التحكم
+                <button onclick="openDashboardModal('overview')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge-high"></i> <span id="admin-btn-dash">لوحة التحكم</span>
                 </button>
                 <button onclick="openProductModal()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i> إضافة منتج
+                    <i class="fa-solid fa-plus"></i> <span id="admin-btn-add">إضافة منتج</span>
                 </button>
-                <button onclick="openOwnerRedOffersManager()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-fire"></i> العروض الحمراء
+                <button id="owner-red-offers-btn" onclick="openOwnerRedOffersManager()" class="hidden px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold flex items-center gap-1.5">
+                    <i class="fa-solid fa-fire"></i> <span id="admin-btn-offers">العروض الحمراء</span>
                 </button>
                 <button id="owner-social-manager-btn" onclick="openOwnerSocialManager()" class="hidden px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-share-nodes"></i> روابط التواصل
+                    <i class="fa-solid fa-share-nodes"></i> <span id="admin-btn-socials">روابط التواصل</span>
                 </button>
             </div>
         </div>
@@ -152,31 +147,25 @@
     <!-- المحتوى الرئيسي -->
     <main class="relative z-20 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <section class="rounded-3xl overflow-hidden glass-panel border border-sky-500/20 p-6 sm:p-10 mb-8">
-            <div class="max-w-xl text-center md:text-right">
+            <div class="max-w-xl text-center md:text-start">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-400/30 text-sky-400 text-xs font-bold mb-4">
-                    <i class="fa-solid fa-bolt"></i><span>أحدث التقنيات الأصلية بضمان معتمد</span>
+                    <i class="fa-solid fa-bolt"></i><span id="hero-badge">أحدث التقنيات الأصلية بضمان معتمد</span>
                 </div>
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
+                <h1 id="hero-title" class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
                     عالم التقنية الذكية في <span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-white">Rkaz Technology</span>
                 </h1>
-                <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+                <p id="hero-desc" class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
                     اكتشف أحدث الهواتف الذكية، الشواحن السريعة، وحمايات الشاشة عالية الجودة.
                 </p>
                 <button onclick="document.getElementById('products-section').scrollIntoView({behavior: 'smooth'})" class="px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm shadow-lg">
-                    تصفح المنتجات <i class="fa-solid fa-arrow-down mr-1"></i>
+                    <span id="hero-cta">تصفح المنتجات</span> <i class="fa-solid fa-arrow-down ms-1"></i>
                 </button>
             </div>
         </section>
 
         <div id="products-section" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0" id="category-tabs">
-                <button onclick="filterCategory('الكل')" data-cat="الكل" class="cat-btn active px-4 py-2 rounded-xl text-sm font-bold bg-sky-500 text-black whitespace-nowrap">الكل</button>
-                <button onclick="filterCategory('جوالات')" data-cat="جوالات" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">جوالات</button>
-                <button onclick="filterCategory('شواحن وكوابل')" data-cat="شواحن وكوابل" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">شواحن وكوابل</button>
-                <button onclick="filterCategory('حمايات شاشات')" data-cat="حمايات شاشات" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">حمايات شاشات</button>
-                <button onclick="filterCategory('إكسسوارات')" data-cat="إكسسوارات" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap">إكسسوارات</button>
-            </div>
-            <div class="text-xs text-slate-400 font-semibold">عرض <span id="products-count" class="text-sky-400 font-bold">0</span> منتج</div>
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0" id="category-tabs"></div>
+            <div class="text-xs text-slate-400 font-semibold"><span id="products-count-prefix">عرض</span> <span id="products-count" class="text-sky-400 font-bold">0</span> <span id="products-count-suffix">منتج</span></div>
         </div>
 
         <!-- شريط العروض الأحمر المتحرك الخاص بالمالك -->
@@ -187,7 +176,7 @@
         <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         <div id="empty-state" class="hidden text-center py-16 glass-panel rounded-3xl">
             <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4"></i>
-            <h3 class="text-xl font-bold text-white">لا توجد منتجات مطابقة</h3>
+            <h3 id="empty-state-title" class="text-xl font-bold text-white">لا توجد منتجات مطابقة</h3>
         </div>
     </main>
 
@@ -196,7 +185,7 @@
         <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
                 <h2 class="text-xl font-black text-white flex items-center gap-2">
-                    <i class="fa-solid fa-cart-shopping text-sky-400"></i> سلة المشتريات
+                    <i class="fa-solid fa-cart-shopping text-sky-400"></i> <span id="cart-modal-title">سلة المشتريات</span>
                 </h2>
                 <button onclick="closeCartModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -205,10 +194,10 @@
             <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 mb-4"></div>
             <div class="pt-4 border-t border-white/10 space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-sm text-slate-300 font-bold">الإجمالي:</span>
+                    <span id="cart-total-label" class="text-sm text-slate-300 font-bold">الإجمالي:</span>
                     <span id="cart-total" class="text-xl font-black text-sky-400">0 ر.س</span>
                 </div>
-                <button onclick="sendOrderToWhatsApp()" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm">
+                <button id="cart-checkout-btn" onclick="sendOrderToWhatsApp()" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-sm">
                     إتمام الطلب الآن
                 </button>
                 <div id="cart-quick-socials" class="pt-3 border-t border-white/10"></div>
@@ -216,44 +205,58 @@
         </div>
     </div>
 
-    <!-- لوحة التحكم الفخمة -->
-    <div id="dashboard-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-        <div class="glass-panel border border-amber-500/30 rounded-3xl max-w-4xl w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                <h2 class="text-xl font-black text-white flex items-center gap-2">
-                    <i class="fa-solid fa-gauge-high text-amber-400"></i> لوحة التحكم المتكاملة
-                </h2>
-                <button onclick="closeDashboardModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <!-- لوحة التحكم المطورة (قائمة جانبية + بطاقات إحصائيات وإجراءات سريعة + تبديل لغة) -->
+    <div id="dashboard-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-3 sm:p-5 overflow-y-auto">
+        <div class="glass-panel border border-amber-500/30 rounded-3xl max-w-6xl w-full p-5 sm:p-6 shadow-2xl max-h-[92vh] flex flex-col my-auto">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <div class="text-start">
+                        <h2 id="dash-modal-title" class="text-lg sm:text-xl font-black text-white">لوحة تحكم المالك</h2>
+                        <p id="dash-modal-subtitle" class="text-[11px] text-slate-400">إدارة شاملة للمتجر والعمليات</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleLanguage()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-extrabold text-sky-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-globe"></i>
+                        <span id="dash-lang-label">English</span>
+                    </button>
+                    <button onclick="closeDashboardModal()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
+            <!-- بطاقات الإحصائيات العلوية -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div class="text-xs text-slate-400">عدد الزوار</div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-3.5 text-start">
+                    <div id="stat-label-visitors" class="text-xs text-slate-400">عدد الزوار</div>
                     <div id="stat-visitors" class="text-2xl font-black text-sky-400 mt-1">0</div>
                 </div>
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div class="text-xs text-slate-400">المستخدمون</div>
-                    <div id="stat-users" class="text-2xl font-black text-amber-400 mt-1">0</div>
-                </div>
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div class="text-xs text-slate-400">الطلبات</div>
-                    <div id="stat-orders" class="text-2xl font-black text-emerald-400 mt-1">0</div>
-                </div>
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div class="text-xs text-slate-400">المنتجات</div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-3.5 text-start">
+                    <div id="stat-label-products" class="text-xs text-slate-400">المنتجات</div>
                     <div id="stat-products" class="text-2xl font-black text-white mt-1">0</div>
                 </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-3.5 text-start">
+                    <div id="stat-label-orders" class="text-xs text-slate-400">الطلبات</div>
+                    <div id="stat-orders" class="text-2xl font-black text-emerald-400 mt-1">0</div>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-3.5 text-start">
+                    <div id="stat-label-users" class="text-xs text-slate-400">المستخدمون</div>
+                    <div id="stat-users" class="text-2xl font-black text-amber-400 mt-1">0</div>
+                </div>
             </div>
 
-            <div class="flex flex-wrap gap-2 mb-4">
-                <button onclick="switchDashTab('users')" id="tab-users" class="dash-tab px-4 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-black">المستخدمون والصلاحيات</button>
-                <button onclick="switchDashTab('orders')" id="tab-orders" class="dash-tab px-4 py-2 rounded-xl text-xs font-bold bg-white/5 text-slate-300">الطلبات</button>
-                <button onclick="switchDashTab('visits')" id="tab-visits" class="dash-tab px-4 py-2 rounded-xl text-xs font-bold bg-white/5 text-slate-300">سجل الدخول والزوار</button>
+            <!-- قائمة جانبية + مساحة عمل البطاقات السريعة والمحتوى -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 overflow-hidden">
+                <aside id="dash-sidebar" class="lg:col-span-3 bg-black/50 border border-white/10 rounded-2xl p-3 space-y-1.5 overflow-y-auto"></aside>
+                <div class="lg:col-span-9 flex flex-col min-h-0 overflow-y-auto space-y-4 pe-1">
+                    <div id="dash-quick-cards" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+                    <div id="dashboard-content" class="space-y-3"></div>
+                </div>
             </div>
-
-            <div id="dashboard-content" class="flex-1 overflow-y-auto space-y-3"></div>
         </div>
     </div>
 
@@ -272,22 +275,22 @@
                 <button type="button" id="mode-signup-btn" onclick="switchAuthMode('signup')" class="py-2 rounded-lg text-xs font-bold text-slate-300">إنشاء حساب جديد</button>
             </div>
 
-            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-4 text-start">
                 <div id="signup-name-group" class="hidden">
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">الاسم الكامل *</label>
+                    <label id="auth-name-label" class="block text-xs font-bold text-slate-300 mb-1.5">الاسم الكامل *</label>
                     <input type="text" id="auth-name" placeholder="مثال: أبو ساره" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">البريد الإلكتروني الحقيقي *</label>
+                    <label id="auth-email-label" class="block text-xs font-bold text-slate-300 mb-1.5">البريد الإلكتروني الحقيقي *</label>
                     <input type="email" id="auth-email" required placeholder="example@gmail.com" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">كلمة المرور *</label>
+                    <label id="auth-pass-label" class="block text-xs font-bold text-slate-300 mb-1.5">كلمة المرور *</label>
                     <input type="password" id="auth-password" required minlength="6" placeholder="6 أحرف أو أرقام على الأقل" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
                 </div>
                 <p id="auth-hint" class="text-[11px] text-slate-400">عند إنشاء حساب جديد سيتم إرسال رسالة تأكيد إلى بريدك الإلكتروني.</p>
                 <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-                    <button type="button" onclick="closeLoginModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+                    <button type="button" onclick="closeLoginModal()" id="auth-cancel-btn" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
                     <button type="submit" id="auth-submit-btn" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">دخول</button>
                 </div>
             </form>
@@ -298,21 +301,21 @@
     <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
             <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
-                <h2 class="text-xl font-black text-white">إضافة منتج جديد</h2>
+                <h2 id="new-prod-modal-title" class="text-xl font-black text-white">إضافة منتج جديد</h2>
                 <button type="button" onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <form onsubmit="saveNewProduct(event)" class="space-y-4">
+            <form onsubmit="saveNewProduct(event)" class="space-y-4 text-start">
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
+                    <label id="new-prod-name-label" class="block text-xs font-bold text-slate-300 mb-1.5">اسم المنتج *</label>
                     <input type="text" id="new-prod-name" required class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
+                        <label id="new-prod-cat-label" class="block text-xs font-bold text-slate-300 mb-1.5">القسم *</label>
                         <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
                             <option value="جوالات">جوالات</option>
                             <option value="شواحن وكوابل">شواحن وكوابل</option>
@@ -322,34 +325,35 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
+                        <label id="new-prod-price-label" class="block text-xs font-bold text-slate-300 mb-1.5">السعر (ر.س) *</label>
                         <input type="number" id="new-prod-price" required min="1" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
+                    <label id="new-prod-img-label" class="block text-xs font-bold text-slate-300 mb-1.5">رابط صورة المنتج</label>
                     <input type="url" id="new-prod-image" placeholder="https://example.com/image.jpg" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
+                    <label id="new-prod-desc-label" class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج</label>
                     <textarea id="new-prod-desc" rows="2" class="w-full bg-black border border-white/20 rounded-xl px-4 py-2 text-sm text-white outline-none"></textarea>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
-                    <button type="submit" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
+                    <button type="button" onclick="closeProductModal()" id="new-prod-cancel" class="px-4 py-2 rounded-xl bg-white/5 text-sm font-bold text-slate-300">إلغاء</button>
+                    <button type="submit" id="new-prod-save" class="px-6 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-sm font-extrabold">حفظ ونشر</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- الشريط السفلي (الفوتر) -->
     <footer class="relative z-20 glass-panel border-t border-white/10 mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex flex-col items-center sm:items-start gap-1">
                 <span class="font-extrabold text-white">Rkaz <span class="text-sky-400">Technology</span></span>
-                <p class="text-xs text-slate-400">جميع الحقوق محفوظة © 2026 متجر ركاز التقنية</p>
+                <p id="footer-copyright" class="text-xs text-slate-400">جميع الحقوق محفوظة © 2026 متجر ركاز التقنية</p>
             </div>
             <div id="footer-social-links" class="flex flex-wrap items-center justify-center sm:justify-end gap-2"></div>
         </div>
@@ -364,6 +368,321 @@
         const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
             : null;
+
+        function detectInitialLang() {
+            const saved = localStorage.getItem('rkaz_lang');
+            if (saved === 'ar' || saved === 'en') return saved;
+            const navLang = (navigator.language || navigator.userLanguage || 'ar').toLowerCase();
+            return navLang.startsWith('en') ? 'en' : 'ar';
+        }
+
+        let currentLang = detectInitialLang();
+
+        const i18n = {
+            ar: {
+                title: 'Rkaz Technology | ركاز التقنية للجوالات والملحقات',
+                subtitle: 'ركاز التقنية للجوالات والإكسسوارات',
+                searchPlaceholder: 'ابحث عن جوال، شاحن، حماية شاشة...',
+                cart: 'السلة',
+                loginReg: 'دخول / تسجيل',
+                logout: 'خروج',
+                adminPanelTitlePrefix: 'لوحة تحكم الإدارة',
+                roleLabel: 'الرتبة',
+                roles: { owner: 'مالك', admin: 'أدمن', moderator: 'مشرف', user: 'عضو' },
+                adminPanelDesc: 'إدارة المنتجات، الطلبات، الزوار، والعروض، وروابط التواصل.',
+                dashBtn: 'لوحة التحكم',
+                addProdBtn: 'إضافة منتج',
+                redOffersBtn: 'العروض الحمراء',
+                socialsBtn: 'روابط التواصل',
+                heroBadge: 'أحدث التقنيات الأصلية بضمان معتمد',
+                heroTitle: 'عالم التقنية الذكية في <span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-white">Rkaz Technology</span>',
+                heroDesc: 'اكتشف أحدث الهواتف الذكية، الشواحن السريعة، وحمايات الشاشة عالية الجودة.',
+                heroCta: 'تصفح المنتجات',
+                countPrefix: 'عرض',
+                countSuffix: 'منتج',
+                emptyTitle: 'لا توجد منتجات مطابقة',
+                cartTitle: 'سلة المشتريات',
+                cartEmpty: 'السلة فارغة حالياً',
+                cartEmptyWarn: 'السلة فارغة حالياً، أضف منتجات أولاً.',
+                total: 'الإجمالي:',
+                checkout: 'إتمام الطلب الآن',
+                contactDirect: 'تواصل معنا مباشرة:',
+                currency: 'ر.س',
+                inStock: 'متوفر',
+                outOfStock: 'نفدت الكمية',
+                outOfStockMsg: 'عذراً، نفذت الكمية لهذا المنتج حالياً.',
+                addedToCart: (name) => `تمت إضافة "${name}" إلى السلة`,
+                addToCartBtn: 'إضافة للسلة',
+                editBtn: 'تعديل',
+                deleteBtn: 'حذف',
+                noDesc: 'لا يوجد وصف إضافي لهذا المنتج.',
+                noDescDetails: 'لا يوجد وصف متوفر لهذا المنتج حالياً.',
+                prodDescTitle: 'وصف المنتج',
+                similarTitle: 'منتجات مشابهة قد تعجبك',
+                noSimilar: 'لا توجد منتجات مشابهة في هذا القسم حالياً.',
+                discountBadge: (pct) => `خصم ${pct}%`,
+                categories: {
+                    'الكل': 'الكل',
+                    'جوالات': 'جوالات',
+                    'شواحن وكوابل': 'شواحن وكوابل',
+                    'حمايات شاشات': 'حمايات شاشات',
+                    'إكسسوارات': 'إكسسوارات'
+                },
+                promoItems: [
+                    'اطلب 4 منتجات واحصل على الخامس مع هدية مجانية',
+                    'شحن لجميع المناطق والخارج عبر أرامكس',
+                    'متوفر تابي وتمارا في المحل',
+                    'منتجات أصلية وضمان معتمد'
+                ],
+                socialLabels: { snapchat: 'سناب شات', tiktok: 'تيك توك', whatsapp: 'واتساب' },
+                dashTitle: 'لوحة تحكم المالك',
+                dashSubtitle: 'إدارة شاملة للمتجر والعمليات',
+                stats: { visitors: 'عدد الزوار', products: 'المنتجات', orders: 'الطلبات', users: 'المستخدمون' },
+                dashNav: {
+                    overview: 'نظرة عامة',
+                    products: 'المنتجات',
+                    offers: 'العروض الحمراء',
+                    socials: 'روابط التواصل',
+                    orders: 'الطلبات',
+                    users: 'المستخدمون والزوار'
+                },
+                quickActions: {
+                    addProd: 'إضافة منتج جديد',
+                    manageOffers: 'إدارة العروض الحمراء',
+                    manageSocials: 'روابط التواصل والرقم',
+                    viewOrders: 'سجل الطلبات والزوار'
+                },
+                dashOverviewDesc: 'اختر أي بطاقة أو قسماً من القائمة الجانبية للانتقال المباشر وإدارة المتجر.',
+                dashProductsHint: 'يمكنك إضافة منتج جديد أو تعديل الأسعار وحالة التوفر مباشرة من شبكة المنتجات.',
+                openAddProdModal: 'فتح نافذة إضافة منتج',
+                dashOffersDesc: 'تفعيل أو إيقاف شريط العروض الأحمر المتحرك وتحديد نسب الخصم لكل منتج.',
+                openOffersModal: 'فتح نافذة العروض الحمراء',
+                dashSocialsDesc: 'إدارة روابط سناب شات، تيك توك، واتساب ورقم الهاتف؛ أي خانة فارغة تختفي تلقائياً.',
+                openSocialsModal: 'فتح نافذة روابط التواصل',
+                noUsers: 'لا يوجد مستخدمون مسجلون بعد',
+                lastLogin: 'آخر دخول:',
+                noOrders: 'لا توجد طلبات حتى الآن',
+                visitsTitle: 'سجل الزيارات وتسجيل الدخول',
+                visits: { visit: 'زيارة للموقع', login: 'تسجيل دخول حقيقي' },
+                guest: 'زائر',
+                footerCopy: 'جميع الحقوق محفوظة © 2026 متجر ركاز التقنية'
+            },
+            en: {
+                title: 'Rkaz Technology | Mobile Phones & Accessories',
+                subtitle: 'Mobile Phones & Accessories Store',
+                searchPlaceholder: 'Search phones, chargers, screen protectors...',
+                cart: 'Cart',
+                loginReg: 'Login / Sign Up',
+                logout: 'Logout',
+                adminPanelTitlePrefix: 'Management Control Bar',
+                roleLabel: 'Role',
+                roles: { owner: 'Owner', admin: 'Admin', moderator: 'Moderator', user: 'Member' },
+                adminPanelDesc: 'Manage products, orders, visitors, offers, and contact links.',
+                dashBtn: 'Dashboard',
+                addProdBtn: 'Add Product',
+                redOffersBtn: 'Red Offers',
+                socialsBtn: 'Social Links',
+                heroBadge: 'Original Tech with Certified Warranty',
+                heroTitle: 'Smart Tech World at <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-white">Rkaz Technology</span>',
+                heroDesc: 'Explore the latest smartphones, fast chargers, and high-durability screen protectors.',
+                heroCta: 'Browse Products',
+                countPrefix: 'Showing',
+                countSuffix: 'products',
+                emptyTitle: 'No matching products found',
+                cartTitle: 'Shopping Cart',
+                cartEmpty: 'Your cart is currently empty',
+                cartEmptyWarn: 'Your cart is empty. Add products first.',
+                total: 'Total:',
+                checkout: 'Complete Order',
+                contactDirect: 'Direct Contact:',
+                currency: 'SAR',
+                inStock: 'In Stock',
+                outOfStock: 'Out of Stock',
+                outOfStockMsg: 'Sorry, this product is currently out of stock.',
+                addedToCart: (name) => `"${name}" added to cart`,
+                addToCartBtn: 'Add to Cart',
+                editBtn: 'Edit',
+                deleteBtn: 'Delete',
+                noDesc: 'No additional description for this product.',
+                noDescDetails: 'No description available for this product right now.',
+                prodDescTitle: 'Product Description',
+                similarTitle: 'Similar products you may like',
+                noSimilar: 'No similar products in this category right now.',
+                discountBadge: (pct) => `${pct}% OFF`,
+                categories: {
+                    'الكل': 'All',
+                    'جوالات': 'Phones',
+                    'شواحن وكوابل': 'Chargers & Cables',
+                    'حمايات شاشات': 'Screen Protectors',
+                    'إكسسوارات': 'Accessories'
+                },
+                promoItems: [
+                    'Buy 4 items and get the 5th with a free gift',
+                    'Shipping to all regions & international via Aramex',
+                    'Tabby & Tamara available in-store',
+                    'Original products with certified warranty'
+                ],
+                socialLabels: { snapchat: 'Snapchat', tiktok: 'TikTok', whatsapp: 'WhatsApp' },
+                dashTitle: 'Owner Control Dashboard',
+                dashSubtitle: 'Complete store & operations control',
+                stats: { visitors: 'Visitors', products: 'Products', orders: 'Orders', users: 'Users' },
+                dashNav: {
+                    overview: 'Overview',
+                    products: 'Products',
+                    offers: 'Red Offers',
+                    socials: 'Social Links',
+                    orders: 'Orders',
+                    users: 'Users & Visitors'
+                },
+                quickActions: {
+                    addProd: 'Add New Product',
+                    manageOffers: 'Manage Red Offers',
+                    manageSocials: 'Social Links & Phone',
+                    viewOrders: 'Orders & Visitors'
+                },
+                dashOverviewDesc: 'Pick a quick card or use the sidebar menu to jump directly to any management section.',
+                dashProductsHint: 'Add new products or update prices and stock status directly from the storefront grid.',
+                openAddProdModal: 'Open Add Product Window',
+                dashOffersDesc: 'Toggle the red offer ticker and set product discount percentages.',
+                openOffersModal: 'Open Red Offers Window',
+                dashSocialsDesc: 'Manage Snapchat, TikTok, WhatsApp, and phone number; empty fields hide automatically.',
+                openSocialsModal: 'Open Social Links Window',
+                noUsers: 'No registered users yet',
+                lastLogin: 'Last login:',
+                noOrders: 'No orders yet',
+                visitsTitle: 'Visits & Login Log',
+                visits: { visit: 'Site Visit', login: 'Authenticated Login' },
+                guest: 'Guest',
+                footerCopy: 'All rights reserved © 2026 Rkaz Technology'
+            }
+        };
+
+        function t() {
+            return i18n[currentLang] || i18n.ar;
+        }
+
+        function applyLanguageUI() {
+            const tr = t();
+            const isEn = currentLang === 'en';
+            document.documentElement.lang = isEn ? 'en' : 'ar';
+            document.documentElement.dir = isEn ? 'ltr' : 'rtl';
+            document.title = tr.title;
+
+            const subEl = document.getElementById('header-subtitle');
+            if (subEl) subEl.textContent = tr.subtitle;
+
+            const searchEl = document.getElementById('search-input');
+            if (searchEl) searchEl.placeholder = tr.searchPlaceholder;
+
+            const langLabel = document.getElementById('lang-toggle-label');
+            if (langLabel) langLabel.textContent = isEn ? 'عربي' : 'EN';
+
+            const dashLangLabel = document.getElementById('dash-lang-label');
+            if (dashLangLabel) dashLangLabel.textContent = isEn ? 'العربية' : 'English';
+
+            const cartLabel = document.getElementById('header-cart-label');
+            if (cartLabel) cartLabel.textContent = tr.cart;
+
+            const adminBtnDash = document.getElementById('admin-btn-dash');
+            if (adminBtnDash) adminBtnDash.textContent = tr.dashBtn;
+
+            const adminBtnAdd = document.getElementById('admin-btn-add');
+            if (adminBtnAdd) adminBtnAdd.textContent = tr.addProdBtn;
+
+            const adminBtnOffers = document.getElementById('admin-btn-offers');
+            if (adminBtnOffers) adminBtnOffers.textContent = tr.redOffersBtn;
+
+            const adminBtnSocials = document.getElementById('admin-btn-socials');
+            if (adminBtnSocials) adminBtnSocials.textContent = tr.socialsBtn;
+
+            const adminBarDesc = document.getElementById('admin-bar-desc');
+            if (adminBarDesc) adminBarDesc.textContent = tr.adminPanelDesc;
+
+            const heroBadge = document.getElementById('hero-badge');
+            if (heroBadge) heroBadge.textContent = tr.heroBadge;
+
+            const heroTitle = document.getElementById('hero-title');
+            if (heroTitle) heroTitle.innerHTML = tr.heroTitle;
+
+            const heroDesc = document.getElementById('hero-desc');
+            if (heroDesc) heroDesc.textContent = tr.heroDesc;
+
+            const heroCta = document.getElementById('hero-cta');
+            if (heroCta) heroCta.textContent = tr.heroCta;
+
+            const countPrefix = document.getElementById('products-count-prefix');
+            if (countPrefix) countPrefix.textContent = tr.countPrefix;
+
+            const countSuffix = document.getElementById('products-count-suffix');
+            if (countSuffix) countSuffix.textContent = tr.countSuffix;
+
+            const emptyTitle = document.getElementById('empty-state-title');
+            if (emptyTitle) emptyTitle.textContent = tr.emptyTitle;
+
+            const cartModalTitle = document.getElementById('cart-modal-title');
+            if (cartModalTitle) cartModalTitle.textContent = tr.cartTitle;
+
+            const cartTotalLabel = document.getElementById('cart-total-label');
+            if (cartTotalLabel) cartTotalLabel.textContent = tr.total;
+
+            const cartCheckoutBtn = document.getElementById('cart-checkout-btn');
+            if (cartCheckoutBtn) cartCheckoutBtn.textContent = tr.checkout;
+
+            const dashTitle = document.getElementById('dash-modal-title');
+            if (dashTitle) dashTitle.textContent = tr.dashTitle;
+
+            const dashSubtitle = document.getElementById('dash-modal-subtitle');
+            if (dashSubtitle) dashSubtitle.textContent = tr.dashSubtitle;
+
+            const statV = document.getElementById('stat-label-visitors');
+            if (statV) statV.textContent = tr.stats.visitors;
+            const statP = document.getElementById('stat-label-products');
+            if (statP) statP.textContent = tr.stats.products;
+            const statO = document.getElementById('stat-label-orders');
+            if (statO) statO.textContent = tr.stats.orders;
+            const statU = document.getElementById('stat-label-users');
+            if (statU) statU.textContent = tr.stats.users;
+
+            const footerCopy = document.getElementById('footer-copyright');
+            if (footerCopy) footerCopy.textContent = tr.footerCopy;
+
+            renderPromoTicker();
+            renderCategoryTabs();
+            checkAuthUI();
+            renderProducts();
+            renderSocialChannels();
+            if (!document.getElementById('cart-modal').classList.contains('hidden')) renderCartModal();
+            if (!document.getElementById('dashboard-modal').classList.contains('hidden')) renderDashboard();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('rkaz_lang', currentLang);
+            applyLanguageUI();
+            showToast(currentLang === 'en' ? 'Switched to English' : 'تم التحويل إلى العربية', 'info');
+        }
+
+        function renderPromoTicker() {
+            const track = document.getElementById('promo-ticker-track');
+            if (!track) return;
+            const items = t().promoItems;
+            const icons = ['fa-gift text-amber-400', 'fa-truck-fast text-sky-400', 'fa-credit-card text-emerald-400', 'fa-shield-halved text-sky-300'];
+            const once = items.map((txt, idx) =>
+                `<span class="inline-flex items-center gap-2"><i class="fa-solid ${icons[idx % icons.length]}"></i> ${txt}</span><span class="text-white/30">•</span>`
+            ).join('');
+            track.innerHTML = once.repeat(4);
+        }
+
+        function renderCategoryTabs() {
+            const tabsBox = document.getElementById('category-tabs');
+            if (!tabsBox) return;
+            const cats = ['الكل', 'جوالات', 'شواحن وكوابل', 'حمايات شاشات', 'إكسسوارات'];
+            const labels = t().categories;
+            tabsBox.innerHTML = cats.map(cat => {
+                const active = currentCategory === cat;
+                return `<button onclick="filterCategory('${cat}')" data-cat="${cat}" class="cat-btn ${active ? 'active bg-sky-500 text-black' : 'bg-white/5 text-slate-300 hover:bg-white/10'} px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap">${labels[cat] || cat}</button>`;
+            }).join('');
+        }
 
         const defaultSocialConfig = {
             snapchat: 'https://www.snapchat.com',
@@ -392,6 +711,7 @@
 
         function getActiveSocialChannels() {
             const list = [];
+            const sLabels = t().socialLabels;
             const snap = normalizeUrl(socialConfig.snapchat);
             const tik = normalizeUrl(socialConfig.tiktok);
             const wa = normalizeUrl(socialConfig.whatsapp);
@@ -401,7 +721,7 @@
             if (snap) {
                 list.push({
                     key: 'snapchat',
-                    label: 'سناب شات',
+                    label: sLabels.snapchat,
                     href: snap,
                     icon: 'fa-brands fa-snapchat',
                     badgeClass: 'bg-amber-400/15 hover:bg-amber-400/25 border-amber-400/40 text-amber-300'
@@ -410,7 +730,7 @@
             if (tik) {
                 list.push({
                     key: 'tiktok',
-                    label: 'تيك توك',
+                    label: sLabels.tiktok,
                     href: tik,
                     icon: 'fa-brands fa-tiktok',
                     badgeClass: 'bg-pink-500/15 hover:bg-pink-500/25 border-pink-400/40 text-pink-300'
@@ -419,7 +739,7 @@
             if (wa) {
                 list.push({
                     key: 'whatsapp',
-                    label: 'واتساب',
+                    label: sLabels.whatsapp,
                     href: wa,
                     icon: 'fa-brands fa-whatsapp',
                     badgeClass: 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-400/40 text-emerald-300'
@@ -443,81 +763,74 @@
             const cartBox = document.getElementById('cart-quick-socials');
 
             if (footerBox) {
-                if (!channels.length) {
-                    footerBox.innerHTML = '';
-                } else {
-                    footerBox.innerHTML = channels.map(ch => `
-                        <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
-                            <i class="${ch.icon}"></i>
-                            <span>${ch.label}</span>
-                        </a>
-                    `).join('');
-                }
+                footerBox.innerHTML = channels.length ? channels.map(ch => `
+                    <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
+                        <i class="${ch.icon}"></i>
+                        <span>${ch.label}</span>
+                    </a>
+                `).join('') : '';
             }
 
             if (cartBox) {
-                if (!channels.length) {
-                    cartBox.innerHTML = '';
-                } else {
-                    cartBox.innerHTML = `
-                        <div class="text-[11px] font-bold text-slate-400 mb-2">تواصل معنا مباشرة:</div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            ${channels.map(ch => `
-                                <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
-                                    <i class="${ch.icon}"></i>
-                                    <span>${ch.label}</span>
-                                </a>
-                            `).join('')}
-                        </div>
-                    `;
-                }
+                cartBox.innerHTML = channels.length ? `
+                    <div class="text-[11px] font-bold text-slate-400 mb-2">${t().contactDirect}</div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        ${channels.map(ch => `
+                            <a href="${ch.href}" ${ch.key === 'phone' ? '' : 'target="_blank" rel="noopener noreferrer"'} class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition ${ch.badgeClass}">
+                                <i class="${ch.icon}"></i>
+                                <span>${ch.label}</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                ` : '';
             }
         }
 
         function openOwnerSocialManager() {
             if (!isOwnerUser(currentUser)) {
-                showToast('إدارة روابط التواصل متاحة للمالك فقط.', 'warning');
+                showToast(currentLang === 'en' ? 'Owner access only.' : 'إدارة روابط التواصل متاحة للمالك فقط.', 'warning');
                 return;
             }
 
             const existing = document.getElementById('owner-social-modal');
             if (existing) existing.remove();
 
+            const isEn = currentLang === 'en';
             const modalHtml = `
-                <div id="owner-social-modal" onclick="if(event.target.id==='owner-social-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" dir="rtl">
-                    <div class="glass-panel border border-emerald-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+                <div id="owner-social-modal" onclick="if(event.target.id==='owner-social-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div class="glass-panel border border-emerald-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-start">
                         <div class="flex items-center justify-between pb-3 border-b border-white/10">
                             <h2 class="text-lg font-black text-emerald-300 flex items-center gap-2">
-                                <i class="fa-solid fa-share-nodes"></i> إدارة برامج التواصل والرقم
+                                <i class="fa-solid fa-share-nodes"></i> ${isEn ? 'Manage Social Links & Phone' : 'إدارة برامج التواصل والرقم'}
                             </h2>
                             <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
 
-                        <p class="text-xs text-slate-400">اترك أي خانة فارغة لإخفاء البرنامج من الشريط السفلي وقائمة السلة.</p>
+                        <p class="text-xs text-slate-400">${isEn ? 'Leave any field empty to hide it from the footer and cart.' : 'اترك أي خانة فارغة لإخفاء البرنامج من الشريط السفلي وقائمة السلة.'}</p>
 
                         <form id="owner-social-form" class="space-y-3.5">
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">رابط سناب شات</label>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'Snapchat Link' : 'رابط سناب شات'}</label>
                                 <input type="text" id="soc-snapchat" value="${socialConfig.snapchat || ''}" placeholder="https://snapchat.com/add/username" class="w-full bg-black border border-white/20 focus:border-amber-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">رابط تيك توك</label>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'TikTok Link' : 'رابط تيك توك'}</label>
                                 <input type="text" id="soc-tiktok" value="${socialConfig.tiktok || ''}" placeholder="https://tiktok.com/@username" class="w-full bg-black border border-white/20 focus:border-pink-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">رابط واتساب</label>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'WhatsApp Link' : 'رابط واتساب'}</label>
                                 <input type="text" id="soc-whatsapp" value="${socialConfig.whatsapp || ''}" placeholder="https://wa.me/966500125387" class="w-full bg-black border border-white/20 focus:border-emerald-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">رقم التواصل</label>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">${isEn ? 'Phone Number' : 'رقم التواصل'}</label>
                                 <input type="text" id="soc-phone" value="${socialConfig.phone || ''}" placeholder="0500125387" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
                             </div>
 
                             <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-                                <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">إلغاء</button>
-                                <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold">حفظ التعديلات</button>
+                                <button type="button" onclick="document.getElementById('owner-social-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">${isEn ? 'Cancel' : 'إلغاء'}</button>
+                                <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold">${isEn ? 'Save Changes' : 'حفظ التعديلات'}</button>
                             </div>
                         </form>
                     </div>
@@ -537,7 +850,7 @@
                 localStorage.setItem('rkaz_social_links', JSON.stringify(socialConfig));
                 renderSocialChannels();
                 document.getElementById('owner-social-modal').remove();
-                showToast('تم تحديث قنوات التواصل بنجاح.', 'success');
+                showToast(isEn ? 'Contact channels updated.' : 'تم تحديث قنوات التواصل بنجاح.', 'success');
             });
         }
 
@@ -634,14 +947,15 @@
 
         visitorsCount += 1;
         localStorage.setItem('rkaz_visitors_count', String(visitorsCount));
-        visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'زيارة للموقع', user: 'زائر' });
+        visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'visit', user: 'guest' });
         visitsList = visitsList.slice(0, 50);
         localStorage.setItem('rkaz_visits', JSON.stringify(visitsList));
 
         let currentCategory = 'الكل';
         let searchQuery = '';
         let currentUser = null;
-        let activeDashTab = 'users';
+        let activeDashSection = 'overview';
+        let activeUsersSubTab = 'users';
         let authMode = 'login';
 
         function isStaffOrOwner(u) {
@@ -693,11 +1007,12 @@
                 return;
             }
 
-            const baseTitle = (redOffersConfig.title && redOffersConfig.title.trim()) || 'العروضضض';
+            const baseTitle = (redOffersConfig.title && redOffersConfig.title.trim()) || (currentLang === 'en' ? 'Special Offers' : 'العروضضض');
+            const offWord = currentLang === 'en' ? 'OFF' : 'خصم';
             const discountedNames = (Array.isArray(redOffersConfig.items) ? redOffersConfig.items : [])
                 .map(it => {
                     const p = products.find(pr => String(pr.id) === String(it.productId));
-                    return p ? `${p.name} (خصم ${it.discount}%)` : null;
+                    return p ? `${p.name} (${offWord} ${it.discount}%)` : null;
                 })
                 .filter(Boolean);
 
@@ -714,13 +1029,14 @@
 
         function openOwnerRedOffersManager() {
             if (!isOwnerUser(currentUser)) {
-                showToast('هذا القسم مخصص للمالك فقط.', 'warning');
+                showToast(currentLang === 'en' ? 'Owner access only.' : 'هذا القسم مخصص للمالك فقط.', 'warning');
                 return;
             }
 
             const existingModal = document.getElementById('red-offers-modal');
             if (existingModal) existingModal.remove();
 
+            const isEn = currentLang === 'en';
             const baseCfg = (typeof redOffersConfig === 'object' && redOffersConfig)
                 ? redOffersConfig
                 : { enabled: true, title: 'العروضضض', items: [], discounts: {} };
@@ -746,19 +1062,19 @@
             const rowsHtml = productList.map(p => {
                 const pct = discountMap[String(p.id)] || 0;
                 const val = pct > 0 ? pct : '';
-                const badgeText = pct > 0 ? `خصم ${pct}%` : 'بدون خصم';
+                const badgeText = pct > 0 ? (isEn ? `${pct}% OFF` : `خصم ${pct}%`) : (isEn ? 'No discount' : 'بدون خصم');
                 const badgeClass = pct > 0
                     ? 'bg-red-500/20 text-red-300 border-red-500/40'
                     : 'bg-slate-800 text-slate-400 border-slate-700';
 
                 return `
                     <div class="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2">
-                        <div class="text-right space-y-0.5">
+                        <div class="text-start space-y-0.5">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="text-xs font-bold text-white">${p.name}</span>
                                 <span class="px-2 py-0.5 rounded-md border text-[10px] font-extrabold ${badgeClass}">${badgeText}</span>
                             </div>
-                            <div class="text-[11px] text-slate-400">السعر الأساسي: ${Number(p.price) || 0} ر.س</div>
+                            <div class="text-[11px] text-slate-400">${isEn ? 'Base price:' : 'السعر الأساسي:'} ${Number(p.price) || 0} ${t().currency}</div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
                             <input type="number" min="0" max="95" step="1" data-offer-prod-id="${p.id}" value="${val}" placeholder="0" class="w-20 bg-black border border-slate-600 focus:border-red-400 rounded-lg px-2.5 py-1.5 text-xs text-white text-center outline-none">
@@ -769,31 +1085,31 @@
             }).join('');
 
             const modalHtml = `
-                <div id="red-offers-modal" onclick="if(event.target.id==='red-offers-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto" dir="rtl">
-                    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-red-500/40 p-6 text-white shadow-2xl space-y-5 my-auto">
+                <div id="red-offers-modal" onclick="if(event.target.id==='red-offers-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
+                    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-red-500/40 p-6 text-white shadow-2xl space-y-5 my-auto text-start">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h2 class="text-lg font-black text-red-400 flex items-center gap-2"><i class="fa-solid fa-fire"></i> إدارة العروض الحمراء</h2>
-                            <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold">✕ إغلاق</button>
+                            <h2 class="text-lg font-black text-red-400 flex items-center gap-2"><i class="fa-solid fa-fire"></i> ${isEn ? 'Manage Red Offers' : 'إدارة العروض الحمراء'}</h2>
+                            <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold">✕ ${isEn ? 'Close' : 'إغلاق'}</button>
                         </div>
 
                         <div class="flex items-center justify-between bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5">
-                            <span class="text-xs sm:text-sm font-bold text-white">تفعيل شريط العروض الأحمر المتحرك</span>
+                            <span class="text-xs sm:text-sm font-bold text-white">${isEn ? 'Enable animated red offers ticker' : 'تفعيل شريط العروض الأحمر المتحرك'}</span>
                             <input type="checkbox" id="red-offer-enabled" ${baseCfg.enabled ? 'checked' : ''} class="w-5 h-5 accent-red-500">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1.5">عنوان الشريط</label>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'Ticker Title' : 'عنوان الشريط'}</label>
                             <input type="text" id="red-offer-title" value="${baseCfg.title || 'العروضضض'}" class="w-full bg-black border border-slate-700 focus:border-red-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">
                         </div>
 
                         <div class="space-y-2">
-                            <div class="text-xs font-bold text-slate-300">نسب الخصم على المنتجات (0 لإلغاء الخصم)</div>
-                            <div class="space-y-2 max-h-64 overflow-y-auto pr-1">${rowsHtml || '<div class="text-xs text-slate-400 text-center py-4">لا توجد منتجات.</div>'}</div>
+                            <div class="text-xs font-bold text-slate-300">${isEn ? 'Product discount percentages (0 to clear)' : 'نسب الخصم على المنتجات (0 لإلغاء الخصم)'}</div>
+                            <div class="space-y-2 max-h-64 overflow-y-auto pe-1">${rowsHtml || `<div class="text-xs text-slate-400 text-center py-4">${isEn ? 'No products.' : 'لا توجد منتجات.'}</div>`}</div>
                         </div>
 
                         <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                            <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">إلغاء</button>
-                            <button type="button" id="save-red-offers-btn" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold">حفظ العروض</button>
+                            <button type="button" onclick="document.getElementById('red-offers-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">${isEn ? 'Cancel' : 'إلغاء'}</button>
+                            <button type="button" id="save-red-offers-btn" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold">${isEn ? 'Save Offers' : 'حفظ العروض'}</button>
                         </div>
                     </div>
                 </div>
@@ -834,7 +1150,7 @@
                 renderRedOfferBanner();
                 renderProducts();
                 document.getElementById('red-offers-modal').remove();
-                showToast('تم حفظ العروض وتحديث الشريط والمنتجات.', 'success');
+                showToast(isEn ? 'Offers saved and updated.' : 'تم حفظ العروض وتحديث الشريط والمنتجات.', 'success');
             });
         }
 
@@ -842,7 +1158,7 @@
             const prod = products.find(p => String(p.id) === String(id));
             if (!prod) return;
             if (!isProductInStock(prod)) {
-                showToast('عذراً، نفذت الكمية لهذا المنتج حالياً.', 'warning');
+                showToast(t().outOfStockMsg, 'warning');
                 return;
             }
             const priceInfo = getEffectivePrice(prod);
@@ -856,7 +1172,7 @@
             localStorage.setItem('rkaz_cart', JSON.stringify(cart));
             updateCartBadge();
             triggerCartAnimation();
-            showToast(`تمت إضافة "${prod.name}" إلى السلة`, 'success');
+            showToast(t().addedToCart(prod.name), 'success');
         }
 
         function sendOrderToWhatsApp() {
@@ -866,7 +1182,7 @@
                 : savedCart;
 
             if (!currentCart || currentCart.length === 0) {
-                showToast('السلة فارغة حالياً، أضف منتجات أولاً.', 'warning');
+                showToast(t().cartEmptyWarn, 'warning');
                 return;
             }
 
@@ -904,16 +1220,17 @@
         function renderCartModal() {
             const list = document.getElementById('cart-items-list');
             const totalEl = document.getElementById('cart-total');
+            const tr = t();
             if (!cart.length) {
-                list.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">السلة فارغة حالياً</div>';
-                totalEl.textContent = '0 ر.س';
+                list.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">${tr.cartEmpty}</div>`;
+                totalEl.textContent = `0 ${tr.currency}`;
                 return;
             }
             let total = 0;
             list.innerHTML = cart.map(item => {
                 total += item.price * item.qty;
                 return `<div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div><div class="font-bold text-sm text-white">${item.name}</div><div class="text-xs text-sky-400">${item.price} ر.س</div></div>
+                    <div class="text-start"><div class="font-bold text-sm text-white">${item.name}</div><div class="text-xs text-sky-400">${item.price} ${tr.currency}</div></div>
                     <div class="flex items-center gap-2">
                         <button onclick="changeCartQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white/10 text-white font-bold">-</button>
                         <span class="text-sm font-bold px-1">${item.qty}</span>
@@ -921,30 +1238,36 @@
                     </div>
                 </div>`;
             }).join('');
-            totalEl.textContent = total + ' ر.س';
+            totalEl.textContent = total + ' ' + tr.currency;
         }
 
         function checkAuthUI() {
             const authContainer = document.getElementById('auth-actions-container');
             const adminBar = document.getElementById('admin-panel-bar');
             const ownerSocialBtn = document.getElementById('owner-social-manager-btn');
+            const ownerRedBtn = document.getElementById('owner-red-offers-btn');
+            const tr = t();
+
             if (currentUser) {
-                const roleLabel = currentUser.role === 'owner' ? 'مالك' : currentUser.role === 'admin' ? 'أدمن' : currentUser.role === 'moderator' ? 'مشرف' : 'عضو';
-                authContainer.innerHTML = '<span class="text-sky-400 font-bold text-xs sm:text-sm">' + currentUser.name + ' (' + roleLabel + ')</span> <button onclick="logout()" class="px-3 py-2 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10">خروج</button>';
+                const roleLabel = tr.roles[currentUser.role] || tr.roles.user;
+                authContainer.innerHTML = `<span class="text-sky-400 font-bold text-xs sm:text-sm">${currentUser.name} (${roleLabel})</span> <button onclick="logout()" class="px-3 py-2 rounded-xl bg-white/5 text-xs text-slate-300 hover:text-white border border-white/10">${tr.logout}</button>`;
                 if (isStaffOrOwner(currentUser)) {
                     adminBar.classList.remove('hidden');
-                    document.getElementById('logged-admin-name').textContent = currentUser.name;
-                    document.getElementById('logged-admin-role').textContent = roleLabel;
-                    if (ownerSocialBtn) {
-                        ownerSocialBtn.classList.toggle('hidden', !isOwnerUser(currentUser));
+                    const adminTitle = document.getElementById('admin-bar-title');
+                    if (adminTitle) {
+                        adminTitle.innerHTML = `${tr.adminPanelTitlePrefix} (<span id="logged-admin-name">${currentUser.name}</span>) — ${tr.roleLabel}: <span id="logged-admin-role" class="text-amber-400">${roleLabel}</span>`;
                     }
+                    const isOwn = isOwnerUser(currentUser);
+                    if (ownerSocialBtn) ownerSocialBtn.classList.toggle('hidden', !isOwn);
+                    if (ownerRedBtn) ownerRedBtn.classList.toggle('hidden', !isOwn);
                 } else {
                     adminBar.classList.add('hidden');
                 }
             } else {
                 adminBar.classList.add('hidden');
                 if (ownerSocialBtn) ownerSocialBtn.classList.add('hidden');
-                authContainer.innerHTML = '<button onclick="openLoginModal(\'login\')" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold"><span>دخول / تسجيل</span></button>';
+                if (ownerRedBtn) ownerRedBtn.classList.add('hidden');
+                authContainer.innerHTML = `<button onclick="openLoginModal('login')" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold"><span>${tr.loginReg}</span></button>`;
             }
         }
 
@@ -958,7 +1281,7 @@
                 } catch (_) {}
             }
             renderProducts();
-            showToast('تم حذف المنتج.', 'info');
+            showToast(currentLang === 'en' ? 'Product deleted.' : 'تم حذف المنتج.', 'info');
         }
 
         async function syncProductUpdateToCloud(updatedProd) {
@@ -988,15 +1311,16 @@
             const existingModal = document.getElementById('edit-product-modal');
             if (existingModal) existingModal.remove();
 
+            const isEn = currentLang === 'en';
             const currentStock = isProductInStock(prod);
             const currentDesc = prod.desc || prod.description || '';
 
             const modalHtml = `
-                <div id="edit-product-modal" onclick="if(event.target.id==='edit-product-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" dir="rtl">
-                    <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+                <div id="edit-product-modal" onclick="if(event.target.id==='edit-product-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div class="glass-panel border border-sky-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-start">
                         <div class="flex items-center justify-between pb-3 border-b border-white/10">
                             <h2 class="text-lg font-black text-white flex items-center gap-2">
-                                <i class="fa-solid fa-pen-to-square text-sky-400"></i> تعديل المنتج
+                                <i class="fa-solid fa-pen-to-square text-sky-400"></i> ${isEn ? 'Edit Product' : 'تعديل المنتج'}
                             </h2>
                             <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center">
                                 <i class="fa-solid fa-xmark"></i>
@@ -1010,27 +1334,27 @@
                         <form id="edit-product-form" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">السعر الجديد (ر.س) *</label>
+                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'New Price (SAR) *' : 'السعر الجديد (ر.س) *'}</label>
                                     <input type="number" id="edit-prod-price" required min="0" step="0.01" value="${Number(prod.price) || 0}" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">حالة التوفر</label>
+                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'Availability' : 'حالة التوفر'}</label>
                                     <select id="edit-prod-stock" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3 py-2 text-sm text-white outline-none">
-                                        <option value="1" ${currentStock ? 'selected' : ''}>متوفر</option>
-                                        <option value="0" ${!currentStock ? 'selected' : ''}>نفدت الكمية</option>
+                                        <option value="1" ${currentStock ? 'selected' : ''}>${t().inStock}</option>
+                                        <option value="0" ${!currentStock ? 'selected' : ''}>${t().outOfStock}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1.5">وصف المنتج (اختياري)</label>
-                                <textarea id="edit-prod-desc" rows="3" placeholder="اكتب وصفاً واضحاً للمنتج..." class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">${currentDesc}</textarea>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5">${isEn ? 'Description (Optional)' : 'وصف المنتج (اختياري)'}</label>
+                                <textarea id="edit-prod-desc" rows="3" class="w-full bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-sm text-white outline-none">${currentDesc}</textarea>
                             </div>
 
                             <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
-                                <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">إلغاء</button>
-                                <button type="submit" class="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">حفظ التعديلات</button>
+                                <button type="button" onclick="document.getElementById('edit-product-modal').remove()" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-300">${isEn ? 'Cancel' : 'إلغاء'}</button>
+                                <button type="submit" class="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold">${isEn ? 'Save Changes' : 'حفظ التعديلات'}</button>
                             </div>
                         </form>
                     </div>
@@ -1043,7 +1367,7 @@
                 e.preventDefault();
                 const parsedPrice = Number(document.getElementById('edit-prod-price').value);
                 if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
-                    showToast('أدخل سعراً صحيحاً.', 'warning');
+                    showToast(isEn ? 'Enter a valid price.' : 'أدخل سعراً صحيحاً.', 'warning');
                     return;
                 }
 
@@ -1059,7 +1383,7 @@
                 syncProductUpdateToCloud(prod);
                 renderProducts();
                 document.getElementById('edit-product-modal').remove();
-                showToast('تم تحديث بيانات المنتج بنجاح!', 'success');
+                showToast(isEn ? 'Product updated.' : 'تم تحديث بيانات المنتج بنجاح!', 'success');
             });
         }
 
@@ -1070,6 +1394,7 @@
             const emptyEl = document.getElementById('empty-state');
             if (!grid) return;
 
+            const tr = t();
             let filtered = products.filter(p => {
                 const descText = (p.desc || p.description || '').toLowerCase();
                 let matchCat = currentCategory === 'الكل' || p.category === currentCategory;
@@ -1091,21 +1416,22 @@
                 const descText = p.desc || p.description || '';
                 const isAvailable = isProductInStock(p);
                 const pr = getEffectivePrice(p);
+                const catName = tr.categories[p.category] || p.category || '';
 
                 const priceBlock = pr.hasOffer
-                    ? `<div class="flex flex-col leading-tight"><span class="text-xs line-through text-rose-300/80">${pr.original} ر.س</span><span class="text-lg font-black text-emerald-400">${pr.final} ر.س <span class="text-[11px] bg-red-600/30 text-red-200 px-1.5 py-0.5 rounded">-${pr.discountPct}%</span></span></div>`
-                    : `<div><span class="text-lg font-black text-sky-400">${pr.original} ر.س</span></div>`;
+                    ? `<div class="flex flex-col leading-tight"><span class="text-xs line-through text-rose-300/80">${pr.original} ${tr.currency}</span><span class="text-lg font-black text-emerald-400">${pr.final} ${tr.currency} <span class="text-[11px] bg-red-600/30 text-red-200 px-1.5 py-0.5 rounded">${tr.discountBadge(pr.discountPct)}</span></span></div>`
+                    : `<div><span class="text-lg font-black text-sky-400">${pr.original} ${tr.currency}</span></div>`;
 
                 const stockBadge = isAvailable
-                    ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">متوفر</span>`
-                    : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">نفدت الكمية</span>`;
+                    ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${tr.inStock}</span>`
+                    : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">${tr.outOfStock}</span>`;
 
                 const addCartBtn = isAvailable
-                    ? `<button onclick="addToCart('${p.id}')" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold transition">إضافة للسلة</button>`
-                    : `<button type="button" disabled class="px-3 py-2 rounded-xl bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold cursor-not-allowed">نفدت الكمية</button>`;
+                    ? `<button onclick="addToCart('${p.id}')" class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold transition">${tr.addToCartBtn}</button>`
+                    : `<button type="button" disabled class="px-3 py-2 rounded-xl bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold cursor-not-allowed">${tr.outOfStock}</button>`;
 
                 return `
-                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg">
+                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg text-start">
                         <div>
                             <div onclick="openProductDetails('${p.id}')" class="w-full flex items-center justify-between gap-3 cursor-pointer mb-3">
                                 <div class="flex items-center gap-3 min-w-0">
@@ -1114,20 +1440,20 @@
                                         : ''
                                     }
                                     <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center text-xl shrink-0" style="${imgSrc ? 'display:none;' : ''}"><i class="fa-solid ${p.icon || 'fa-bolt'}"></i></div>
-                                    <span class="text-xs text-sky-400 font-bold truncate">${p.category || ''}</span>
+                                    <span class="text-xs text-sky-400 font-bold truncate">${catName}</span>
                                 </div>
                                 ${stockBadge}
                             </div>
                             <div onclick="openProductDetails('${p.id}')" class="w-full cursor-pointer">
                                 <h3 class="text-base font-bold text-white mt-1 mb-2 hover:text-sky-300 transition">${p.name}</h3>
-                                <p class="text-xs text-slate-400 line-clamp-2">${descText || 'لا يوجد وصف إضافي لهذا المنتج.'}</p>
+                                <p class="text-xs text-slate-400 line-clamp-2">${descText || tr.noDesc}</p>
                             </div>
                         </div>
 
                         <div class="pt-3 border-t border-white/10 space-y-3">
                             ${priceBlock}
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                ${canManage ? `<button onclick="editProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">تعديل</button><button onclick="deleteProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">حذف</button>` : ''}
+                                ${canManage ? `<button onclick="editProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-bold">${tr.editBtn}</button><button onclick="deleteProduct('${p.id}')" class="px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">${tr.deleteBtn}</button>` : ''}
                                 ${addCartBtn}
                             </div>
                         </div>
@@ -1145,10 +1471,13 @@
             const existingModal = document.getElementById('product-details-modal');
             if (existingModal) existingModal.remove();
 
+            const tr = t();
+            const isEn = currentLang === 'en';
             const imgSrc = prod.imageUrl || prod.image_url || '';
             const isAvailable = isProductInStock(prod);
-            const descText = (prod.desc || prod.description || '').trim() || 'لا يوجد وصف متوفر لهذا المنتج حالياً.';
+            const descText = (prod.desc || prod.description || '').trim() || tr.noDescDetails;
             const pr = getEffectivePrice(prod);
+            const catName = tr.categories[prod.category] || prod.category || (isEn ? 'General' : 'عام');
 
             const allProducts = Array.isArray(products) ? products : [];
             const sameCategory = allProducts.filter(p => String(p.id) !== String(prod.id) && p.category && p.category === prod.category);
@@ -1157,18 +1486,19 @@
             const priceHtml = pr.hasOffer
                 ? `
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-xl font-black text-emerald-400">${pr.final} ر.س</span>
-                        <span class="text-xs line-through text-rose-300/80">${pr.original} ر.س</span>
-                        <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-red-500/20 text-red-300 border border-red-500/40">خصم ${pr.discountPct}%</span>
+                        <span class="text-xl font-black text-emerald-400">${pr.final} ${tr.currency}</span>
+                        <span class="text-xs line-through text-rose-300/80">${pr.original} ${tr.currency}</span>
+                        <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-red-500/20 text-red-300 border border-red-500/40">${tr.discountBadge(pr.discountPct)}</span>
                     </div>
                 `
-                : `<span class="text-xl font-black text-sky-400">${pr.original} ر.س</span>`;
+                : `<span class="text-xl font-black text-sky-400">${pr.original} ${tr.currency}</span>`;
 
             const suggestedHtml = suggestedList.length
                 ? suggestedList.map(item => {
                     const itemImg = item.imageUrl || item.image_url || '';
                     const itemPr = getEffectivePrice(item);
                     const itemPrice = itemPr.hasOffer ? itemPr.final : itemPr.original;
+                    const itemCat = tr.categories[item.category] || item.category || (isEn ? 'Product' : 'منتج');
 
                     return `
                         <div onclick="openProductDetails('${item.id}')" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-sky-500/50 rounded-2xl p-3 flex flex-col justify-between gap-2 transition">
@@ -1177,32 +1507,32 @@
                                     ? `<img src="${itemImg}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0" onerror="this.style.display='none';" />`
                                     : `<div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center shrink-0"><i class="fa-solid ${item.icon || 'fa-bolt'}"></i></div>`
                                 }
-                                <div class="min-w-0 text-right">
-                                    <div class="text-[10px] text-sky-400 font-bold truncate">${item.category || 'منتج'}</div>
+                                <div class="min-w-0 text-start">
+                                    <div class="text-[10px] text-sky-400 font-bold truncate">${itemCat}</div>
                                     <div class="text-xs font-bold text-white truncate">${item.name}</div>
                                 </div>
                             </div>
                             <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-                                <span class="text-xs font-black text-emerald-400">${itemPrice} ر.س</span>
-                                <span class="text-[11px] text-sky-300 font-bold">عرض التفاصيل ←</span>
+                                <span class="text-xs font-black text-emerald-400">${itemPrice} ${tr.currency}</span>
+                                <span class="text-[11px] text-sky-300 font-bold">${isEn ? 'View →' : 'عرض التفاصيل ←'}</span>
                             </div>
                         </div>
                     `;
                 }).join('')
-                : `<div class="col-span-full text-center text-xs text-slate-400 py-4">لا توجد منتجات مشابهة في هذا القسم حالياً.</div>`;
+                : `<div class="col-span-full text-center text-xs text-slate-400 py-4">${tr.noSimilar}</div>`;
 
             const modalHtml = `
-                <div id="product-details-modal" onclick="if(event.target.id==='product-details-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-5 overflow-y-auto" dir="rtl">
-                    <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-sky-500/30 p-5 sm:p-6 text-white shadow-2xl space-y-6 my-auto">
+                <div id="product-details-modal" onclick="if(event.target.id==='product-details-modal') this.remove()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-5 overflow-y-auto">
+                    <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-950 border border-sky-500/30 p-5 sm:p-6 text-white shadow-2xl space-y-6 my-auto text-start">
                         <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
-                            <div class="space-y-1 text-right">
+                            <div class="space-y-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30">${prod.category || 'عام'}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isAvailable ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'}">${isAvailable ? 'متوفر' : 'نفدت الكمية'}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30">${catName}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isAvailable ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'}">${isAvailable ? tr.inStock : tr.outOfStock}</span>
                                 </div>
                                 <h2 class="text-lg sm:text-xl font-black text-white pt-1">${prod.name}</h2>
                             </div>
-                            <button type="button" onclick="document.getElementById('product-details-modal').remove()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold">✕ إغلاق</button>
+                            <button type="button" onclick="document.getElementById('product-details-modal').remove()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold">✕ ${isEn ? 'Close' : 'إغلاق'}</button>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 items-start">
@@ -1213,17 +1543,17 @@
                                 }
                             </div>
 
-                            <div class="sm:col-span-2 space-y-4 text-right">
+                            <div class="sm:col-span-2 space-y-4">
                                 <div>${priceHtml}</div>
 
                                 <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5 space-y-1.5">
-                                    <div class="text-xs font-extrabold text-sky-400">وصف المنتج</div>
+                                    <div class="text-xs font-extrabold text-sky-400">${tr.prodDescTitle}</div>
                                     <p class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">${descText}</p>
                                 </div>
 
                                 <div class="flex items-center gap-3 pt-1">
                                     <button type="button" onclick="addToCart('${prod.id}')" ${!isAvailable ? 'disabled' : ''} class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition ${isAvailable ? 'bg-sky-500 hover:bg-sky-400 text-black cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
-                                        ${isAvailable ? 'إضافة إلى السلة' : 'نفدت الكمية'}
+                                        ${isAvailable ? tr.addToCartBtn : tr.outOfStock}
                                     </button>
                                 </div>
                             </div>
@@ -1231,8 +1561,8 @@
 
                         <div class="space-y-3 pt-4 border-t border-slate-800">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-sm sm:text-base font-extrabold text-white">منتجات مشابهة قد تعجبك</h3>
-                                <span class="text-[11px] text-slate-400">${prod.category ? `قسم: ${prod.category}` : 'مقترحات المتجر'}</span>
+                                <h3 class="text-sm sm:text-base font-extrabold text-white">${tr.similarTitle}</h3>
+                                <span class="text-[11px] text-slate-400">${catName}</span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                 ${suggestedHtml}
@@ -1248,15 +1578,11 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const socialModal = document.getElementById('owner-social-modal');
-                if (socialModal) {
-                    socialModal.remove();
-                    return;
-                }
+                if (socialModal) { socialModal.remove(); return; }
+                const offersModal = document.getElementById('red-offers-modal');
+                if (offersModal) { offersModal.remove(); return; }
                 const editModal = document.getElementById('edit-product-modal');
-                if (editModal) {
-                    editModal.remove();
-                    return;
-                }
+                if (editModal) { editModal.remove(); return; }
                 const detailsModal = document.getElementById('product-details-modal');
                 if (detailsModal) detailsModal.remove();
             }
@@ -1264,11 +1590,7 @@
 
         function filterCategory(cat) {
             currentCategory = cat;
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = btn.dataset.cat === cat
-                    ? "cat-btn active px-4 py-2 rounded-xl text-sm font-bold bg-sky-500 text-black whitespace-nowrap"
-                    : "cat-btn px-4 py-2 rounded-xl text-sm font-bold bg-white/5 text-slate-300 hover:bg-white/10 whitespace-nowrap";
-            });
+            renderCategoryTabs();
             renderProducts();
         }
 
@@ -1282,21 +1604,22 @@
             const title = document.getElementById('auth-modal-title');
             const submitBtn = document.getElementById('auth-submit-btn');
             const hint = document.getElementById('auth-hint');
+            const isEn = currentLang === 'en';
 
             if (mode === 'signup') {
                 signupBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
                 loginBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
                 nameGroup.classList.remove('hidden');
-                title.textContent = 'إنشاء حساب جديد';
-                submitBtn.textContent = 'إنشاء الحساب';
-                hint.textContent = 'سيتم إرسال رابط تأكيد على بريدك الإلكتروني لتفعيل الحساب.';
+                title.textContent = isEn ? 'Create Account' : 'إنشاء حساب جديد';
+                submitBtn.textContent = isEn ? 'Sign Up' : 'إنشاء الحساب';
+                hint.textContent = isEn ? 'A confirmation link will be sent to your email.' : 'سيتم إرسال رابط تأكيد على بريدك الإلكتروني لتفعيل الحساب.';
             } else {
                 loginBtn.className = 'py-2 rounded-lg text-xs font-extrabold bg-sky-500 text-black';
                 signupBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-300';
                 nameGroup.classList.add('hidden');
-                title.textContent = 'تسجيل الدخول';
-                submitBtn.textContent = 'دخول';
-                hint.textContent = 'سجل دخولك بحسابك المؤكد وكلمة المرور.';
+                title.textContent = isEn ? 'Sign In' : 'تسجيل الدخول';
+                submitBtn.textContent = isEn ? 'Login' : 'دخول';
+                hint.textContent = isEn ? 'Sign in with your verified email and password.' : 'سجل دخولك بحسابك المؤكد وكلمة المرور.';
             }
         }
 
@@ -1309,7 +1632,8 @@
         function openProductModal() { const m = document.getElementById('product-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
         function closeProductModal() { const m = document.getElementById('product-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
 
-        async function openDashboardModal() {
+        async function openDashboardModal(section = 'overview') {
+            activeDashSection = section;
             await syncUsersFromSupabase();
             renderDashboard();
             const m = document.getElementById('dashboard-modal');
@@ -1330,10 +1654,10 @@
                 const { data, error } = await supabaseClient.from('users').select('*').order('last_login', { ascending: false });
                 if (!error && Array.isArray(data) && data.length) {
                     usersList = data.map(row => ({
-                        name: row.username || 'مستخدم',
+                        name: row.username || (currentLang === 'en' ? 'User' : 'مستخدم'),
                         identifier: row.identifier,
                         role: row.role || 'user',
-                        lastLogin: row.last_login ? new Date(row.last_login).toLocaleString('ar-SA') : '-'
+                        lastLogin: row.last_login ? new Date(row.last_login).toLocaleString(currentLang === 'en' ? 'en-US' : 'ar-SA') : '-'
                     }));
                     localStorage.setItem('rkaz_users', JSON.stringify(usersList));
                 }
@@ -1363,7 +1687,7 @@
             currentUser = { name: displayName, identifier: email, role, isOwner: role === 'owner' };
             await syncUsersFromSupabase();
 
-            visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'تسجيل دخول حقيقي', user: displayName + ' (' + email + ')' });
+            visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'login', user: displayName + ' (' + email + ')' });
             localStorage.setItem('rkaz_visits', JSON.stringify(visitsList.slice(0, 50)));
             checkAuthUI();
             renderProducts();
@@ -1371,7 +1695,7 @@
 
         async function handleAuthSubmit(e) {
             e.preventDefault();
-            if (!supabaseClient) return showToast('تعذر الاتصال بخدمة الحسابات حالياً.', 'error');
+            if (!supabaseClient) return showToast(currentLang === 'en' ? 'Auth service unavailable.' : 'تعذر الاتصال بخدمة الحسابات حالياً.', 'error');
 
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
@@ -1383,37 +1707,37 @@
                     password,
                     options: { data: { full_name: name || email.split('@')[0] } }
                 });
-                if (error) return showToast('تعذر إنشاء الحساب: ' + error.message, 'error');
+                if (error) return showToast(error.message, 'error');
 
                 if (data.session && data.user) {
                     await upsertUserProfile(data.user, name);
                     closeLoginModal();
-                    showToast('تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success');
+                    showToast(currentLang === 'en' ? 'Account created & signed in!' : 'تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success');
                 } else {
                     closeLoginModal();
-                    showToast('تم إنشاء الحساب! تم إرسال رابط تأكيد إلى بريدك الإلكتروني (' + email + ').', 'success');
+                    showToast(currentLang === 'en' ? `Confirmation link sent to ${email}.` : `تم إنشاء الحساب! تم إرسال رابط تأكيد إلى بريدك الإلكتروني (${email}).`, 'success');
                 }
             } else {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) return showToast('بيانات الدخول غير صحيحة أو البريد لم يتم تأكيده بعد: ' + error.message, 'error');
+                if (error) return showToast(error.message, 'error');
 
                 await upsertUserProfile(data.user);
                 closeLoginModal();
-                showToast('أهلاً بك يا ' + currentUser.name + '!', 'success');
+                showToast(currentLang === 'en' ? `Welcome, ${currentUser.name}!` : `أهلاً بك يا ${currentUser.name}!`, 'success');
             }
         }
 
         async function setUserRole(identifier, newRole) {
             if (!currentUser || currentUser.role !== 'owner') {
-                return showToast('تغيير الرتب متاح للمالك الأساسي فقط.', 'warning');
+                return showToast(currentLang === 'en' ? 'Owner only.' : 'تغيير الرتب متاح للمالك الأساسي فقط.', 'warning');
             }
             if (supabaseClient) {
                 const { error } = await supabaseClient.from('users').update({ role: newRole }).eq('identifier', identifier);
-                if (error) return showToast('تعذر تحديث الرتبة في قاعدة البيانات: ' + error.message, 'error');
+                if (error) return showToast(error.message, 'error');
             }
             await syncUsersFromSupabase();
             renderDashboard();
-            showToast('تم تحديث رتبة المستخدم بنجاح.', 'success');
+            showToast(currentLang === 'en' ? 'User role updated.' : 'تم تحديث رتبة المستخدم بنجاح.', 'success');
         }
 
         function updateOrderStatus(orderId, status) {
@@ -1422,77 +1746,144 @@
             renderDashboard();
         }
 
-        function switchDashTab(tab) {
-            activeDashTab = tab;
-            document.querySelectorAll('.dash-tab').forEach(b => {
-                b.className = b.id === 'tab-' + tab
-                    ? 'dash-tab px-4 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-black'
-                    : 'dash-tab px-4 py-2 rounded-xl text-xs font-bold bg-white/5 text-slate-300';
-            });
+        function selectDashSection(sec) {
+            activeDashSection = sec;
             renderDashboard();
         }
 
         function renderDashboard() {
-            document.getElementById('stat-visitors').textContent = visitorsCount;
-            document.getElementById('stat-users').textContent = usersList.length;
-            document.getElementById('stat-orders').textContent = orders.length;
-            document.getElementById('stat-products').textContent = products.length;
-
-            const box = document.getElementById('dashboard-content');
+            const tr = t();
             const isOwner = currentUser && currentUser.role === 'owner';
 
-            if (activeDashTab === 'users') {
-                if (!usersList.length) {
-                    box.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">لا يوجد مستخدمون مسجلون بعد</div>';
-                    return;
-                }
-                box.innerHTML = usersList.map(u => `
-                    <div class="flex flex-wrap items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
-                        <div>
-                            <div class="font-bold text-sm text-white">${u.name} <span class="text-xs text-slate-400">(${u.identifier})</span></div>
-                            <div class="text-[11px] text-slate-400">آخر دخول: ${u.lastLogin || '-'}</div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400">${u.role === 'owner' ? 'مالك' : u.role === 'admin' ? 'أدمن' : u.role === 'moderator' ? 'مشرف' : 'عضو'}</span>
-                            ${isOwner && u.role !== 'owner' ? `
-                                <select onchange="setUserRole('${u.identifier}', this.value)" class="bg-black border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white">
-                                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>عضو</option>
-                                    <option value="moderator" ${u.role === 'moderator' ? 'selected' : ''}>مشرف</option>
-                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>أدمن</option>
-                                </select>
-                            ` : ''}
-                        </div>
-                    </div>
+            document.getElementById('stat-visitors').textContent = visitorsCount;
+            document.getElementById('stat-products').textContent = products.length;
+            document.getElementById('stat-orders').textContent = orders.length;
+            document.getElementById('stat-users').textContent = usersList.length;
+
+            const navItems = [
+                { key: 'overview', icon: 'fa-grip', label: tr.dashNav.overview, ownerOnly: false },
+                { key: 'products', icon: 'fa-box', label: tr.dashNav.products, ownerOnly: false },
+                { key: 'offers', icon: 'fa-fire', label: tr.dashNav.offers, ownerOnly: true },
+                { key: 'socials', icon: 'fa-share-nodes', label: tr.dashNav.socials, ownerOnly: true },
+                { key: 'orders', icon: 'fa-receipt', label: tr.dashNav.orders, ownerOnly: false },
+                { key: 'users', icon: 'fa-users', label: tr.dashNav.users, ownerOnly: false }
+            ].filter(item => !item.ownerOnly || isOwner);
+
+            const sidebar = document.getElementById('dash-sidebar');
+            if (sidebar) {
+                sidebar.innerHTML = navItems.map(item => `
+                    <button type="button" onclick="selectDashSection('${item.key}')" class="w-full text-start px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 transition ${activeDashSection === item.key ? 'bg-sky-500 text-black font-extrabold' : 'text-slate-300 hover:bg-white/5'}">
+                        <i class="fa-solid ${item.icon}"></i>
+                        <span>${item.label}</span>
+                    </button>
                 `).join('');
-            } else if (activeDashTab === 'orders') {
+            }
+
+            const quickCards = document.getElementById('dash-quick-cards');
+            if (quickCards) {
+                const cards = [
+                    { icon: 'fa-plus', label: tr.quickActions.addProd, action: 'closeDashboardModal(); openProductModal();', cls: 'bg-sky-500/15 border-sky-400/40 text-sky-300', show: true },
+                    { icon: 'fa-fire', label: tr.quickActions.manageOffers, action: 'closeDashboardModal(); openOwnerRedOffersManager();', cls: 'bg-red-500/15 border-red-400/40 text-red-300', show: isOwner },
+                    { icon: 'fa-share-nodes', label: tr.quickActions.manageSocials, action: 'closeDashboardModal(); openOwnerSocialManager();', cls: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300', show: isOwner },
+                    { icon: 'fa-clock-rotate-left', label: tr.quickActions.viewOrders, action: "selectDashSection('orders');", cls: 'bg-amber-500/15 border-amber-400/40 text-amber-300', show: true }
+                ].filter(c => c.show);
+
+                quickCards.innerHTML = cards.map(c => `
+                    <button type="button" onclick="${c.action}" class="p-3 rounded-2xl border text-start transition hover:-translate-y-0.5 flex flex-col gap-1.5 ${c.cls}">
+                        <i class="fa-solid ${c.icon} text-sm"></i>
+                        <span class="text-xs font-extrabold">${c.label}</span>
+                    </button>
+                `).join('');
+            }
+
+            const box = document.getElementById('dashboard-content');
+            if (!box) return;
+
+            if (activeDashSection === 'overview') {
+                box.innerHTML = `<div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300 text-start">${tr.dashOverviewDesc}</div>`;
+            } else if (activeDashSection === 'products') {
+                box.innerHTML = `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
+                        <span class="text-xs text-slate-300">${tr.dashProductsHint}</span>
+                        <button type="button" onclick="closeDashboardModal(); openProductModal();" class="px-4 py-2 rounded-xl bg-sky-500 text-black text-xs font-extrabold">${tr.openAddProdModal}</button>
+                    </div>
+                `;
+            } else if (activeDashSection === 'offers' && isOwner) {
+                box.innerHTML = `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
+                        <span class="text-xs text-slate-300">${tr.dashOffersDesc}</span>
+                        <button type="button" onclick="closeDashboardModal(); openOwnerRedOffersManager();" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-extrabold">${tr.openOffersModal}</button>
+                    </div>
+                `;
+            } else if (activeDashSection === 'socials' && isOwner) {
+                box.innerHTML = `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
+                        <span class="text-xs text-slate-300">${tr.dashSocialsDesc}</span>
+                        <button type="button" onclick="closeDashboardModal(); openOwnerSocialManager();" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">${tr.openSocialsModal}</button>
+                    </div>
+                `;
+            } else if (activeDashSection === 'orders') {
                 if (!orders.length) {
-                    box.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">لا توجد طلبات حتى الآن</div>';
+                    box.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">${tr.noOrders}</div>`;
                     return;
                 }
                 box.innerHTML = orders.map(o => `
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-start">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="font-black text-sm text-sky-400">${o.id} — ${o.customer} (${o.identifier})</span>
                             <span class="text-xs text-slate-400">${o.date}</span>
                         </div>
                         <div class="text-xs text-slate-300">${o.items.map(i => i.name + ' × ' + i.qty).join(' ، ')}</div>
                         <div class="flex items-center justify-between pt-2 border-t border-white/10">
-                            <span class="font-bold text-sm text-emerald-400">الإجمالي: ${o.total} ر.س</span>
+                            <span class="font-bold text-sm text-emerald-400">${tr.total} ${o.total} ${tr.currency}</span>
                             <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-black border border-white/20 rounded-xl px-2.5 py-1 text-xs text-white">
-                                <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>جديد</option>
-                                <option value="قيد التجهيز" ${o.status === 'قيد التجهيز' ? 'selected' : ''}>قيد التجهيز</option>
-                                <option value="مكتمل" ${o.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
+                                <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>${currentLang === 'en' ? 'New' : 'جديد'}</option>
+                                <option value="قيد التجهيز" ${o.status === 'قيد التجهيز' ? 'selected' : ''}>${currentLang === 'en' ? 'Preparing' : 'قيد التجهيز'}</option>
+                                <option value="مكتمل" ${o.status === 'مكتمل' ? 'selected' : ''}>${currentLang === 'en' ? 'Completed' : 'مكتمل'}</option>
                             </select>
                         </div>
                     </div>
                 `).join('');
             } else {
-                box.innerHTML = visitsList.map(v => `
-                    <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 text-xs">
-                        <div><span class="font-bold text-white">${v.user}</span> — <span class="text-sky-400">${v.type}</span></div>
-                        <span class="text-slate-400">${v.time}</span>
+                const usersHtml = !usersList.length
+                    ? `<div class="text-center py-6 text-slate-400 text-sm">${tr.noUsers}</div>`
+                    : usersList.map(u => `
+                        <div class="flex flex-wrap items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 text-start">
+                            <div>
+                                <div class="font-bold text-sm text-white">${u.name} <span class="text-xs text-slate-400">(${u.identifier})</span></div>
+                                <div class="text-[11px] text-slate-400">${tr.lastLogin} ${u.lastLogin || '-'}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400">${tr.roles[u.role] || tr.roles.user}</span>
+                                ${isOwner && u.role !== 'owner' ? `
+                                    <select onchange="setUserRole('${u.identifier}', this.value)" class="bg-black border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white">
+                                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>${tr.roles.user}</option>
+                                        <option value="moderator" ${u.role === 'moderator' ? 'selected' : ''}>${tr.roles.moderator}</option>
+                                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>${tr.roles.admin}</option>
+                                    </select>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+
+                const visitsHtml = visitsList.map(v => {
+                    const vType = tr.visits[v.type] || v.type;
+                    const vUser = v.user === 'guest' ? tr.guest : v.user;
+                    return `
+                        <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 text-xs text-start">
+                            <div><span class="font-bold text-white">${vUser}</span> — <span class="text-sky-400">${vType}</span></div>
+                            <span class="text-slate-400">${v.time}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                box.innerHTML = `
+                    <div class="flex gap-2 mb-2">
+                        <button type="button" onclick="activeUsersSubTab='users'; renderDashboard();" class="px-3 py-1.5 rounded-xl text-xs font-extrabold ${activeUsersSubTab === 'users' ? 'bg-amber-500 text-black' : 'bg-white/5 text-slate-300'}">${tr.stats.users}</button>
+                        <button type="button" onclick="activeUsersSubTab='visits'; renderDashboard();" class="px-3 py-1.5 rounded-xl text-xs font-extrabold ${activeUsersSubTab === 'visits' ? 'bg-amber-500 text-black' : 'bg-white/5 text-slate-300'}">${tr.visitsTitle}</button>
                     </div>
-                `).join('');
+                    ${activeUsersSubTab === 'users' ? usersHtml : visitsHtml}
+                `;
             }
         }
 
@@ -1532,7 +1923,7 @@
 
                 if (error) {
                     console.error('Supabase insert error:', error);
-                    showToast('تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.', 'warning');
+                    showToast(currentLang === 'en' ? 'Saved locally; cloud sync issue.' : 'تعذر حفظ المنتج في السحابة، تم حفظه محلياً مؤقتاً.', 'warning');
                 }
             }
 
@@ -1541,7 +1932,7 @@
             if (imageEl) imageEl.value = '';
             closeProductModal();
             renderProducts();
-            showToast('تمت إضافة المنتج بنجاح إلى المتجر!', 'success');
+            showToast(currentLang === 'en' ? 'Product added successfully!' : 'تمت إضافة المنتج بنجاح إلى المتجر!', 'success');
         }
 
         async function loadProductsFromCloud() {
@@ -1574,9 +1965,7 @@
 
         async function initSession() {
             updateCartBadge();
-            renderSocialChannels();
-            checkAuthUI();
-            renderProducts();
+            applyLanguageUI();
             await loadProductsFromCloud();
             if (!supabaseClient) return;
             try {
