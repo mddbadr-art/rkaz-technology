@@ -115,7 +115,7 @@
         </div>
     </header>
 
-    <!-- شريط الإدارة الفخم للمالك والطاقم -->
+    <!-- شريط الإدارة المبسط للمالك والطاقم -->
     <div id="admin-panel-bar" class="hidden relative z-40 max-w-7xl w-full mx-auto px-4 mt-6">
         <div class="glass-panel border border-amber-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 bg-amber-950/20">
             <div class="flex items-center gap-3 text-start">
@@ -127,20 +127,9 @@
                     <p id="admin-bar-desc" class="text-xs text-slate-300">إدارة المنتجات، الطلبات، الزوار، والعروض، وروابط التواصل.</p>
                 </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <button onclick="openDashboardModal('overview')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-gauge-high"></i> <span id="admin-btn-dash">لوحة التحكم</span>
-                </button>
-                <button onclick="openProductModal()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i> <span id="admin-btn-add">إضافة منتج</span>
-                </button>
-                <button id="owner-red-offers-btn" onclick="openOwnerRedOffersManager()" class="hidden px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-fire"></i> <span id="admin-btn-offers">العروض الحمراء</span>
-                </button>
-                <button id="owner-social-manager-btn" onclick="openOwnerSocialManager()" class="hidden px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-share-nodes"></i> <span id="admin-btn-socials">روابط التواصل</span>
-                </button>
-            </div>
+            <button onclick="openDashboardModal('overview')" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
+                <i class="fa-solid fa-gauge-high"></i> <span id="admin-btn-dash">لوحة التحكم</span>
+            </button>
         </div>
     </div>
 
@@ -205,7 +194,7 @@
         </div>
     </div>
 
-    <!-- لوحة التحكم المطورة (قائمة جانبية + بطاقات إحصائيات وإجراءات سريعة + تبديل لغة) -->
+    <!-- لوحة التحكم المطورة (قائمة جانبية + بطاقات إحصائيات وإجراءات سريعة + تبديل لغة + دخل وتقفيل يومي للمالك) -->
     <div id="dashboard-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm p-3 sm:p-5 overflow-y-auto">
         <div class="glass-panel border border-amber-500/30 rounded-3xl max-w-6xl w-full p-5 sm:p-6 shadow-2xl max-h-[92vh] flex flex-col my-auto">
             <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10 mb-4">
@@ -391,9 +380,6 @@
                 roles: { owner: 'مالك', admin: 'أدمن', moderator: 'مشرف', user: 'عضو' },
                 adminPanelDesc: 'إدارة المنتجات، الطلبات، الزوار، والعروض، وروابط التواصل.',
                 dashBtn: 'لوحة التحكم',
-                addProdBtn: 'إضافة منتج',
-                redOffersBtn: 'العروض الحمراء',
-                socialsBtn: 'روابط التواصل',
                 heroBadge: 'أحدث التقنيات الأصلية بضمان معتمد',
                 heroTitle: 'عالم التقنية الذكية في <span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-white">Rkaz Technology</span>',
                 heroDesc: 'اكتشف أحدث الهواتف الذكية، الشواحن السريعة، وحمايات الشاشة عالية الجودة.',
@@ -440,6 +426,7 @@
                 stats: { visitors: 'عدد الزوار', products: 'المنتجات', orders: 'الطلبات', users: 'المستخدمون' },
                 dashNav: {
                     overview: 'نظرة عامة',
+                    revenue: 'الدخل والتقفيل اليومي',
                     products: 'المنتجات',
                     offers: 'العروض الحمراء',
                     socials: 'روابط التواصل',
@@ -448,9 +435,9 @@
                 },
                 quickActions: {
                     addProd: 'إضافة منتج جديد',
+                    dailyClose: 'الدخل والتقفيل اليومي',
                     manageOffers: 'إدارة العروض الحمراء',
-                    manageSocials: 'روابط التواصل والرقم',
-                    viewOrders: 'سجل الطلبات والزوار'
+                    manageSocials: 'روابط التواصل والرقم'
                 },
                 dashOverviewDesc: 'اختر أي بطاقة أو قسماً من القائمة الجانبية للانتقال المباشر وإدارة المتجر.',
                 dashProductsHint: 'يمكنك إضافة منتج جديد أو تعديل الأسعار وحالة التوفر مباشرة من شبكة المنتجات.',
@@ -465,7 +452,28 @@
                 visitsTitle: 'سجل الزيارات وتسجيل الدخول',
                 visits: { visit: 'زيارة للموقع', login: 'تسجيل دخول حقيقي' },
                 guest: 'زائر',
-                footerCopy: 'جميع الحقوق محفوظة © 2026 متجر ركاز التقنية'
+                footerCopy: 'جميع الحقوق محفوظة © 2026 متجر ركاز التقنية',
+                rev: {
+                    ownerOnly: 'هذا القسم مخصص للمالك فقط.',
+                    todayIncome: 'دخل اليوم الحالي',
+                    ordersIncome: 'دخل الطلبات المسجلة',
+                    closedDaysCount: 'الأيام المقفلة',
+                    totalClosed: 'إجمالي الأيام المقفلة',
+                    addSaleTitle: 'إضافة عملية / مبلغ لليوم',
+                    saleNotePlaceholder: 'مثال: بيع كفر أو شاحن أو كاش',
+                    saleAmountPlaceholder: 'المبلغ (ر.س)',
+                    addSaleBtn: 'إضافة لليوم',
+                    closeDayBtn: 'إقفال اليوم وحفظ السجل',
+                    todayEntries: 'عمليات اليوم قبل الإقفال',
+                    noEntriesToday: 'لا توجد عمليات مضافة لليوم بعد.',
+                    closedHistoryTitle: 'سجل تقفيل الأيام السابقة (بالتاريخ واليوم)',
+                    noClosedDays: 'لم يتم إقفال أي يوم حتى الآن.',
+                    dayClosedToast: (label, amt) => `تم إقفال يوم (${label}) بإجمالي ${amt} ر.س`,
+                    enterValidAmount: 'أدخل مبلغاً صحيحاً أكبر من صفر.',
+                    nothingToClose: 'لا يوجد دخل لليوم لتقفيله.',
+                    deleteEntry: 'حذف',
+                    deleteClosedDay: 'حذف السجل'
+                }
             },
             en: {
                 title: 'Rkaz Technology | Mobile Phones & Accessories',
@@ -479,9 +487,6 @@
                 roles: { owner: 'Owner', admin: 'Admin', moderator: 'Moderator', user: 'Member' },
                 adminPanelDesc: 'Manage products, orders, visitors, offers, and contact links.',
                 dashBtn: 'Dashboard',
-                addProdBtn: 'Add Product',
-                redOffersBtn: 'Red Offers',
-                socialsBtn: 'Social Links',
                 heroBadge: 'Original Tech with Certified Warranty',
                 heroTitle: 'Smart Tech World at <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-white">Rkaz Technology</span>',
                 heroDesc: 'Explore the latest smartphones, fast chargers, and high-durability screen protectors.',
@@ -528,6 +533,7 @@
                 stats: { visitors: 'Visitors', products: 'Products', orders: 'Orders', users: 'Users' },
                 dashNav: {
                     overview: 'Overview',
+                    revenue: 'Daily Revenue & Close',
                     products: 'Products',
                     offers: 'Red Offers',
                     socials: 'Social Links',
@@ -536,9 +542,9 @@
                 },
                 quickActions: {
                     addProd: 'Add New Product',
+                    dailyClose: 'Daily Revenue & Close',
                     manageOffers: 'Manage Red Offers',
-                    manageSocials: 'Social Links & Phone',
-                    viewOrders: 'Orders & Visitors'
+                    manageSocials: 'Social Links & Phone'
                 },
                 dashOverviewDesc: 'Pick a quick card or use the sidebar menu to jump directly to any management section.',
                 dashProductsHint: 'Add new products or update prices and stock status directly from the storefront grid.',
@@ -553,7 +559,28 @@
                 visitsTitle: 'Visits & Login Log',
                 visits: { visit: 'Site Visit', login: 'Authenticated Login' },
                 guest: 'Guest',
-                footerCopy: 'All rights reserved © 2026 Rkaz Technology'
+                footerCopy: 'All rights reserved © 2026 Rkaz Technology',
+                rev: {
+                    ownerOnly: 'Owner access only.',
+                    todayIncome: 'Current Day Income',
+                    ordersIncome: 'Recorded Orders Total',
+                    closedDaysCount: 'Closed Days',
+                    totalClosed: 'Closed Days Sum',
+                    addSaleTitle: 'Add Today Sale / Amount',
+                    saleNotePlaceholder: 'e.g. Case, charger, cash sale',
+                    saleAmountPlaceholder: 'Amount (SAR)',
+                    addSaleBtn: 'Add to Today',
+                    closeDayBtn: 'Close Day & Save Log',
+                    todayEntries: 'Today Entries Before Closing',
+                    noEntriesToday: 'No entries added for today yet.',
+                    closedHistoryTitle: 'Closed Days Log (Date & Day)',
+                    noClosedDays: 'No days closed yet.',
+                    dayClosedToast: (label, amt) => `Closed (${label}) with ${amt} SAR`,
+                    enterValidAmount: 'Enter a valid amount greater than zero.',
+                    nothingToClose: 'There is no daily income to close.',
+                    deleteEntry: 'Delete',
+                    deleteClosedDay: 'Delete Log'
+                }
             }
         };
 
@@ -585,15 +612,6 @@
 
             const adminBtnDash = document.getElementById('admin-btn-dash');
             if (adminBtnDash) adminBtnDash.textContent = tr.dashBtn;
-
-            const adminBtnAdd = document.getElementById('admin-btn-add');
-            if (adminBtnAdd) adminBtnAdd.textContent = tr.addProdBtn;
-
-            const adminBtnOffers = document.getElementById('admin-btn-offers');
-            if (adminBtnOffers) adminBtnOffers.textContent = tr.redOffersBtn;
-
-            const adminBtnSocials = document.getElementById('admin-btn-socials');
-            if (adminBtnSocials) adminBtnSocials.textContent = tr.socialsBtn;
 
             const adminBarDesc = document.getElementById('admin-bar-desc');
             if (adminBarDesc) adminBarDesc.textContent = tr.adminPanelDesc;
@@ -945,6 +963,9 @@
         let visitsList = JSON.parse(localStorage.getItem('rkaz_visits') || '[]');
         let visitorsCount = parseInt(localStorage.getItem('rkaz_visitors_count') || '0', 10);
 
+        let dailyEntries = JSON.parse(localStorage.getItem('rkaz_daily_entries') || '[]');
+        let closedDaysLog = JSON.parse(localStorage.getItem('rkaz_closed_days') || '[]');
+
         visitorsCount += 1;
         localStorage.setItem('rkaz_visitors_count', String(visitorsCount));
         visitsList.unshift({ time: new Date().toLocaleString('ar-SA'), type: 'visit', user: 'guest' });
@@ -962,6 +983,106 @@
             return u && (u.role === 'owner' || u.role === 'admin' || u.role === 'moderator');
         }
 
+        function isOwnerUser(u) {
+            return Boolean(u && u.role === 'owner');
+        }
+
+        function getTodayDayName() {
+            const d = new Date();
+            return d.toLocaleDateString(currentLang === 'en' ? 'en-US' : 'ar-SA', { weekday: 'long' });
+        }
+
+        function getTodayDateFormatted() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function getCurrentTimeShort() {
+            return new Date().toLocaleTimeString(currentLang === 'en' ? 'en-US' : 'ar-SA', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getTodayEntriesTotal() {
+            return dailyEntries.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        }
+
+        function getOrdersTotalRevenue() {
+            return orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+        }
+
+        function getClosedDaysTotalRevenue() {
+            return closedDaysLog.reduce((sum, d) => sum + (Number(d.total) || 0), 0);
+        }
+
+        function addDailyEntry() {
+            if (!isOwnerUser(currentUser)) return showToast(t().rev.ownerOnly, 'warning');
+            const noteInput = document.getElementById('daily-entry-note');
+            const amtInput = document.getElementById('daily-entry-amount');
+            const note = (noteInput ? noteInput.value : '').trim() || (currentLang === 'en' ? 'Daily sale' : 'مبيعات اليوم');
+            const amount = parseFloat(amtInput ? amtInput.value : '0');
+
+            if (isNaN(amount) || amount <= 0) {
+                return showToast(t().rev.enterValidAmount, 'warning');
+            }
+
+            dailyEntries.unshift({
+                id: Date.now(),
+                note,
+                amount: Number(amount.toFixed(2)),
+                time: getCurrentTimeShort()
+            });
+            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
+            if (noteInput) noteInput.value = '';
+            if (amtInput) amtInput.value = '';
+            renderDashboard();
+            showToast(currentLang === 'en' ? 'Added to today.' : 'تمت إضافة المبلغ لحساب اليوم.', 'success');
+        }
+
+        function deleteDailyEntry(id) {
+            if (!isOwnerUser(currentUser)) return;
+            dailyEntries = dailyEntries.filter(item => String(item.id) !== String(id));
+            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
+            renderDashboard();
+        }
+
+        function closeCurrentDay() {
+            if (!isOwnerUser(currentUser)) return showToast(t().rev.ownerOnly, 'warning');
+            const todayAmt = getTodayEntriesTotal();
+            if (todayAmt <= 0) {
+                return showToast(t().rev.nothingToClose, 'warning');
+            }
+
+            const dayName = getTodayDayName();
+            const dateStr = getTodayDateFormatted();
+            const timeStr = getCurrentTimeShort();
+            const label = `${dayName} (${dateStr})`;
+
+            closedDaysLog.unshift({
+                id: Date.now(),
+                dayName,
+                dateStr,
+                closedAt: timeStr,
+                entriesCount: dailyEntries.length,
+                entries: [...dailyEntries],
+                total: Number(todayAmt.toFixed(2))
+            });
+
+            dailyEntries = [];
+            localStorage.setItem('rkaz_closed_days', JSON.stringify(closedDaysLog));
+            localStorage.setItem('rkaz_daily_entries', JSON.stringify(dailyEntries));
+            renderDashboard();
+            showToast(t().rev.dayClosedToast(label, todayAmt), 'success');
+        }
+
+        function deleteClosedDayLog(id) {
+            if (!isOwnerUser(currentUser)) return;
+            closedDaysLog = closedDaysLog.filter(d => String(d.id) !== String(id));
+            localStorage.setItem('rkaz_closed_days', JSON.stringify(closedDaysLog));
+            renderDashboard();
+        }
+
         function updateCartBadge() {
             const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
             const badge = document.getElementById('cart-badge');
@@ -977,10 +1098,6 @@
         }
 
         let redOffersConfig = JSON.parse(localStorage.getItem('rkaz_red_offers') || '{"enabled":false,"title":"العروضضض","items":[]}');
-
-        function isOwnerUser(u) {
-            return Boolean(u && u.role === 'owner');
-        }
 
         function getOfferDiscountPct(productId) {
             if (!redOffersConfig || !redOffersConfig.enabled || !Array.isArray(redOffersConfig.items)) return 0;
@@ -1244,8 +1361,6 @@
         function checkAuthUI() {
             const authContainer = document.getElementById('auth-actions-container');
             const adminBar = document.getElementById('admin-panel-bar');
-            const ownerSocialBtn = document.getElementById('owner-social-manager-btn');
-            const ownerRedBtn = document.getElementById('owner-red-offers-btn');
             const tr = t();
 
             if (currentUser) {
@@ -1257,16 +1372,11 @@
                     if (adminTitle) {
                         adminTitle.innerHTML = `${tr.adminPanelTitlePrefix} (<span id="logged-admin-name">${currentUser.name}</span>) — ${tr.roleLabel}: <span id="logged-admin-role" class="text-amber-400">${roleLabel}</span>`;
                     }
-                    const isOwn = isOwnerUser(currentUser);
-                    if (ownerSocialBtn) ownerSocialBtn.classList.toggle('hidden', !isOwn);
-                    if (ownerRedBtn) ownerRedBtn.classList.toggle('hidden', !isOwn);
                 } else {
                     adminBar.classList.add('hidden');
                 }
             } else {
                 adminBar.classList.add('hidden');
-                if (ownerSocialBtn) ownerSocialBtn.classList.add('hidden');
-                if (ownerRedBtn) ownerRedBtn.classList.add('hidden');
                 authContainer.innerHTML = `<button onclick="openLoginModal('login')" class="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-black px-4 py-2.5 rounded-xl text-sm font-extrabold"><span>${tr.loginReg}</span></button>`;
             }
         }
@@ -1644,6 +1754,7 @@
         async function logout() {
             if (supabaseClient) await supabaseClient.auth.signOut();
             currentUser = null;
+            if (activeDashSection === 'revenue') activeDashSection = 'overview';
             checkAuthUI();
             renderProducts();
         }
@@ -1747,13 +1858,115 @@
         }
 
         function selectDashSection(sec) {
+            if (sec === 'revenue' && !isOwnerUser(currentUser)) {
+                showToast(t().rev.ownerOnly, 'warning');
+                return;
+            }
             activeDashSection = sec;
             renderDashboard();
         }
 
+        function renderRevenueSectionHtml() {
+            const tr = t();
+            const rv = tr.rev;
+            const todayTotal = getTodayEntriesTotal();
+            const ordersRev = getOrdersTotalRevenue();
+            const closedRev = getClosedDaysTotalRevenue();
+            const dayName = getTodayDayName();
+            const dateStr = getTodayDateFormatted();
+
+            const entriesListHtml = !dailyEntries.length
+                ? `<div class="text-xs text-slate-400 text-center py-4">${rv.noEntriesToday}</div>`
+                : dailyEntries.map(item => `
+                    <div class="flex items-center justify-between gap-2 bg-black/50 border border-white/10 rounded-xl px-3.5 py-2 text-xs">
+                        <div class="flex items-center gap-2 text-start">
+                            <span class="text-slate-400">${item.time}</span>
+                            <span class="font-bold text-white">${item.note}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="font-black text-emerald-400">${item.amount} ${tr.currency}</span>
+                            <button type="button" onclick="deleteDailyEntry('${item.id}')" class="px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 text-[11px] font-bold">${rv.deleteEntry}</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            const closedListHtml = !closedDaysLog.length
+                ? `<div class="text-xs text-slate-400 text-center py-5">${rv.noClosedDays}</div>`
+                : closedDaysLog.map(day => `
+                    <div class="bg-black/60 border border-amber-500/25 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-start">
+                        <div class="space-y-0.5">
+                            <div class="text-xs sm:text-sm font-black text-amber-300">
+                                ${day.dayName} — <span class="text-white">${day.dateStr}</span>
+                            </div>
+                            <div class="text-[11px] text-slate-400">
+                                ${currentLang === 'en' ? 'Closed at' : 'وقت الإقفال:'} ${day.closedAt} • ${currentLang === 'en' ? 'Entries:' : 'عدد العمليات:'} ${day.entriesCount}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-sm sm:text-base font-black text-emerald-400">${day.total} ${tr.currency}</span>
+                            <button type="button" onclick="deleteClosedDayLog('${day.id}')" class="px-2.5 py-1 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[11px] font-bold">${rv.deleteClosedDay}</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            return `
+                <div class="space-y-4 text-start">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-emerald-950/30 border border-emerald-500/40 rounded-2xl p-3.5">
+                            <div class="text-[11px] text-emerald-300 font-bold">${rv.todayIncome} (${dayName})</div>
+                            <div class="text-xl font-black text-white mt-1">${todayTotal} ${tr.currency}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">${dateStr}</div>
+                        </div>
+                        <div class="bg-sky-950/30 border border-sky-500/30 rounded-2xl p-3.5">
+                            <div class="text-[11px] text-sky-300 font-bold">${rv.ordersIncome}</div>
+                            <div class="text-xl font-black text-sky-400 mt-1">${ordersRev} ${tr.currency}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">${orders.length} ${tr.stats.orders}</div>
+                        </div>
+                        <div class="bg-amber-950/30 border border-amber-500/30 rounded-2xl p-3.5">
+                            <div class="text-[11px] text-amber-300 font-bold">${rv.totalClosed} (${closedDaysLog.length})</div>
+                            <div class="text-xl font-black text-amber-400 mt-1">${closedRev} ${tr.currency}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">${rv.closedDaysCount}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-xs font-extrabold text-white">${rv.addSaleTitle}</span>
+                            <button type="button" onclick="closeCurrentDay()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black flex items-center gap-1.5 shadow">
+                                <i class="fa-solid fa-lock"></i> ${rv.closeDayBtn}
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <input type="text" id="daily-entry-note" placeholder="${rv.saleNotePlaceholder}" class="sm:col-span-2 bg-black border border-white/20 focus:border-sky-400 rounded-xl px-3.5 py-2 text-xs text-white outline-none">
+                            <div class="flex gap-2">
+                                <input type="number" id="daily-entry-amount" min="0.5" step="0.5" placeholder="${rv.saleAmountPlaceholder}" class="w-full bg-black border border-white/20 focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white outline-none">
+                                <button type="button" onclick="addDailyEntry()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shrink-0">${rv.addSaleBtn}</button>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="text-[11px] font-bold text-slate-400">${rv.todayEntries}</div>
+                            ${entriesListHtml}
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5">
+                        <div class="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar-check"></i> ${rv.closedHistoryTitle}
+                        </div>
+                        <div class="space-y-2 max-h-56 overflow-y-auto pe-1">
+                            ${closedListHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderDashboard() {
             const tr = t();
-            const isOwner = currentUser && currentUser.role === 'owner';
+            const isOwner = isOwnerUser(currentUser);
+            if (!isOwner && activeDashSection === 'revenue') {
+                activeDashSection = 'overview';
+            }
 
             document.getElementById('stat-visitors').textContent = visitorsCount;
             document.getElementById('stat-products').textContent = products.length;
@@ -1762,6 +1975,7 @@
 
             const navItems = [
                 { key: 'overview', icon: 'fa-grip', label: tr.dashNav.overview, ownerOnly: false },
+                { key: 'revenue', icon: 'fa-sack-dollar', label: tr.dashNav.revenue, ownerOnly: true },
                 { key: 'products', icon: 'fa-box', label: tr.dashNav.products, ownerOnly: false },
                 { key: 'offers', icon: 'fa-fire', label: tr.dashNav.offers, ownerOnly: true },
                 { key: 'socials', icon: 'fa-share-nodes', label: tr.dashNav.socials, ownerOnly: true },
@@ -1783,9 +1997,9 @@
             if (quickCards) {
                 const cards = [
                     { icon: 'fa-plus', label: tr.quickActions.addProd, action: 'closeDashboardModal(); openProductModal();', cls: 'bg-sky-500/15 border-sky-400/40 text-sky-300', show: true },
+                    { icon: 'fa-sack-dollar', label: tr.quickActions.dailyClose, action: "selectDashSection('revenue');", cls: 'bg-amber-500/15 border-amber-400/40 text-amber-300', show: isOwner },
                     { icon: 'fa-fire', label: tr.quickActions.manageOffers, action: 'closeDashboardModal(); openOwnerRedOffersManager();', cls: 'bg-red-500/15 border-red-400/40 text-red-300', show: isOwner },
-                    { icon: 'fa-share-nodes', label: tr.quickActions.manageSocials, action: 'closeDashboardModal(); openOwnerSocialManager();', cls: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300', show: isOwner },
-                    { icon: 'fa-clock-rotate-left', label: tr.quickActions.viewOrders, action: "selectDashSection('orders');", cls: 'bg-amber-500/15 border-amber-400/40 text-amber-300', show: true }
+                    { icon: 'fa-share-nodes', label: tr.quickActions.manageSocials, action: 'closeDashboardModal(); openOwnerSocialManager();', cls: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300', show: isOwner }
                 ].filter(c => c.show);
 
                 quickCards.innerHTML = cards.map(c => `
@@ -1801,6 +2015,8 @@
 
             if (activeDashSection === 'overview') {
                 box.innerHTML = `<div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300 text-start">${tr.dashOverviewDesc}</div>`;
+            } else if (activeDashSection === 'revenue' && isOwner) {
+                box.innerHTML = renderRevenueSectionHtml();
             } else if (activeDashSection === 'products') {
                 box.innerHTML = `
                     <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-start">
