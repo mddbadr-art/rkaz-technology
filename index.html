@@ -796,7 +796,7 @@
             localStorage.setItem('rkaz_social_links', JSON.stringify(socialLinks));
         }
 
-        function isOwner() { return Boolean(currentUser && currentUser.id === OWNER_ID); }
+        function isOwner() { return Boolean(currentUser && (currentUser.id === OWNER_ID || (currentUser.email && currentUser.email.toLowerCase() === 'mddbadr@gmail.com'))); }
         function getUserRole() { return isOwner() ? 'owner' : 'user'; }
         function isStaff() { return isOwner(); }
         function getRoleBadgeText(role) { return t('roles')[role] || t('roles').user; }
