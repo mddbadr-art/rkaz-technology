@@ -1785,6 +1785,45 @@
             updateDashboardStats();
         }
 
+        function claimOrder(orderId) {
+            if (!isStaff() || !currentUser) return;
+            const roleLabel = getRoleBadgeText(getUserRole());
+            orders = orders.map(o => {
+                if (o.id !== orderId) return o;
+                return {
+                    ...o,
+                    status: o.status === 'completed' ? 'completed' : 'claimed',
+                    claimedBy: currentUser.name,
+                    claimedRole: roleLabel,
+                    claimedAt: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US')
+                };
+            });
+            localStorage.setItem('rkaz_orders', JSON.stringify(orders));
+            renderDashboardTab('orders');
+            showToast(currentLang === 'ar' ? `تم استلام الطلب ${orderId} باسمك` : `Order ${orderId} claimed by you`, 'success');
+        }
+
+        function completeOrder(orderId) {
+            if (!isStaff() || !currentUser) return;
+            const roleLabel = getRoleBadgeText(getUserRole());
+            const nowStr = new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US');
+            orders = orders.map(o => {
+                if (o.id !== orderId) return o;
+                return {
+                    ...o,
+                    status: 'completed',
+                    claimedBy: o.claimedBy || currentUser.name,
+                    claimedRole: o.claimedRole || roleLabel,
+                    completedBy: currentUser.name,
+                    completedRole: roleLabel,
+                    completedAt: nowStr
+                };
+            });
+            localStorage.setItem('rkaz_orders', JSON.stringify(orders));
+            renderDashboardTab('orders');
+            showToast(currentLang === 'ar' ? `تم إنهاء الطلب ${orderId} مع العميل` : `Order ${orderId} completed with customer`, 'success');
+        }
+
         function updateDashboardStats() {
             const vEl = document.getElementById('stat-visitors');
             const pEl = document.getElementById('stat-products');
@@ -2100,16 +2139,46 @@
                     ` : ''}
                 `;
             } else if (tab === 'orders') {
-                content.innerHTML = orders.length ? orders.map(o => `
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs space-y-1.5 text-start">
-                        <div class="flex items-center justify-between font-bold">
-                            <span class="text-sky-400">${o.id}</span>
+                content.innerHTML = orders.length ? orders.map(o => {
+                    const isDone = o.status === 'completed';
+                    const isClaimed = Boolean(o.claimedBy) || o.status === 'claimed';
+                    const statusBadge = isDone
+                        ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold">${currentLang === 'ar' ? 'منتهي مع العميل' : 'Completed'}</span>`
+                        : isClaimed
+                        ? `<span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold">${currentLang === 'ar' ? 'قيد المتابعة' : 'In Progress'}</span>`
+                        : `<span class="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40 text-[10px] font-extrabold">${currentLang === 'ar' ? 'جديد' : 'New'}</span>`;
+
+                    return `
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs space-y-2 text-start">
+                        <div class="flex flex-wrap items-center justify-between gap-2 font-bold">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sky-400">${o.id}</span>
+                                ${statusBadge}
+                            </div>
                             <span class="text-slate-400">${o.date}</span>
                         </div>
-                        <div class="text-white font-bold">${o.customer} — <span class="text-emerald-400">${o.total} ${t('currency')}</span></div>
+                        <div class="text-white font-bold">${currentLang === 'ar' ? 'العميل' : 'Customer'}: ${o.customer} — <span class="text-emerald-400">${o.total} ${t('currency')}</span></div>
                         <div class="text-slate-300">${o.items}</div>
-                    </div>
-                `).join('') : `<div class="text-center py-8 text-slate-400 text-sm">${t('noOrders')}</div>`;
+
+                        <div class="pt-2 border-t border-white/10 space-y-1 text-[11px]">
+                            ${o.claimedBy ? `<div class="text-amber-300 font-bold"><i class="fa-solid fa-user-check me-1"></i>${currentLang === 'ar' ? 'استلمه الإداري' : 'Claimed by'}: ${o.claimedBy} (${o.claimedRole || ''}) — <span class="text-slate-400">${o.claimedAt || ''}</span></div>` : ''}
+                            ${o.completedBy ? `<div class="text-emerald-300 font-bold"><i class="fa-solid fa-circle-check me-1"></i>${currentLang === 'ar' ? 'أنهى الطلب مع العميل' : 'Completed by'}: ${o.completedBy} (${o.completedRole || ''}) — <span class="text-slate-400">${o.completedAt || ''}</span></div>` : ''}
+                        </div>
+
+                        ${isStaff() ? `
+                            <div class="pt-2 flex flex-wrap items-center gap-2">
+                                ${!isDone ? `
+                                    <button type="button" onclick="claimOrder('${o.id}')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-[11px] font-extrabold">
+                                        <i class="fa-solid fa-hand me-1"></i>${currentLang === 'ar' ? 'استلام الطلب باسمي' : 'Claim Order'}
+                                    </button>
+                                    <button type="button" onclick="completeOrder('${o.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-extrabold">
+                                        <i class="fa-solid fa-check-double me-1"></i>${currentLang === 'ar' ? 'إنهاء الطلب مع العميل' : 'Complete Order'}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>`;
+                }).join('') : `<div class="text-center py-8 text-slate-400 text-sm">${t('noOrders')}</div>`;
             } else if (tab === 'offers') {
                 content.innerHTML = `
                     <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4 text-start">
