@@ -203,7 +203,7 @@
                         <i class="fa-solid fa-gauge-high"></i>
                     </div>
                     <div class="text-start">
-                        <h2 id="dash-modal-title" class="text-lg sm:text-xl font-black text-white">لوحة تحكم المالك</h2>
+                        <h2 id="dash-modal-title" class="text-lg sm:text-xl font-black text-white">لوحة تحكم الإدارة</h2>
                         <p id="dash-modal-subtitle" class="text-[11px] text-slate-400">إدارة شاملة للمتجر والعمليات</p>
                     </div>
                 </div>
@@ -811,7 +811,6 @@
         let dailyEntries = JSON.parse(localStorage.getItem('rkaz_daily_entries') || '[]');
         let closedDays = JSON.parse(localStorage.getItem('rkaz_closed_days') || '[]');
 
-        // سجل الحماية والتنبيهات وعداد الحذف للموظفين
         let securityLogs = JSON.parse(localStorage.getItem('rkaz_security_logs') || '[]');
         let staffDeleteCounts = JSON.parse(localStorage.getItem('rkaz_staff_delete_counts') || '{}');
 
@@ -860,6 +859,11 @@
             return r === 'owner' ? 'user' : r;
         }
 
+        function canAssignRoles() {
+            if (!currentUser || isUserSuspended(currentUser)) return false;
+            return isOwner() || getUserRole() === 'manager';
+        }
+
         function isStaff() {
             if (!currentUser) return false;
             if (isOwner()) return true;
@@ -882,11 +886,13 @@
         }
 
         function setUserRole(userId, newRole) {
-            if (!isOwner()) return;
-            const allowed = ['manager', 'moderator', 'user'];
+            if (!canAssignRoles()) return;
+            const actorIsOwner = isOwner();
+            const allowed = actorIsOwner ? ['manager', 'moderator', 'user'] : ['moderator', 'user'];
             if (!allowed.includes(newRole)) return;
             const target = users.find(u => u.id === userId);
             if (!target || isOwnerAccountObj(target)) return;
+            if (!actorIsOwner && target.role === 'manager') return;
 
             users = users.map(u => {
                 if (u.id !== userId) return u;
@@ -2020,7 +2026,9 @@
             }
 
             if (tab === 'users') {
-                const ownerView = isOwner();
+                const canManageRoles = canAssignRoles();
+                const actorIsOwner = isOwner();
+
                 const usersHtml = users.length ? users.map(u => {
                     const targetIsOwner = isOwnerAccountObj(u);
                     const targetRole = targetIsOwner ? 'owner' : (u.role || 'user');
@@ -2039,13 +2047,13 @@
                             <div class="text-slate-400">${u.email || ''}</div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            ${(ownerView && !targetIsOwner) ? `
+                            ${(canManageRoles && !targetIsOwner && (actorIsOwner || targetRole !== 'manager')) ? `
                                 <select onchange="setUserRole('${u.id}', this.value)" class="bg-black border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white font-bold outline-none">
                                     <option value="user" ${targetRole === 'user' ? 'selected' : ''}>${t('roles').user}</option>
                                     <option value="moderator" ${targetRole === 'moderator' ? 'selected' : ''}>${t('roles').moderator}</option>
-                                    <option value="manager" ${targetRole === 'manager' ? 'selected' : ''}>${t('roles').manager}</option>
+                                    ${actorIsOwner ? `<option value="manager" ${targetRole === 'manager' ? 'selected' : ''}>${t('roles').manager}</option>` : ''}
                                 </select>
-                                ${targetSuspended ? `
+                                ${(actorIsOwner && targetSuspended) ? `
                                     <button type="button" onclick="restoreUserPermissions('${u.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold">
                                         ${t('guard').restoreBtn}
                                     </button>
@@ -2055,35 +2063,41 @@
                     </div>`;
                 }).join('') : `<div class="text-center py-6 text-slate-400 text-sm">${t('noUsers')}</div>`;
 
-                const secLogsHtml = securityLogs.length ? securityLogs.slice(0, 20).map(l => `
-                    <div class="flex items-center justify-between gap-2 py-2 border-b border-white/5 last:border-0 text-xs">
-                        <span class="${l.alertOwner ? 'text-red-300 font-bold' : 'text-slate-200'}">
-                            <i class="fa-solid fa-shield-halved text-amber-400 me-1.5"></i>${l.message}
-                        </span>
-                        <span class="text-slate-400 text-[11px] shrink-0">${l.time}</span>
-                    </div>
-                `).join('') : `<div class="text-xs text-slate-400">${t('guard').noLogs}</div>`;
+                const secLogsHtml = actorIsOwner
+                    ? (securityLogs.length ? securityLogs.slice(0, 20).map(l => `
+                        <div class="flex items-center justify-between gap-2 py-2 border-b border-white/5 last:border-0 text-xs">
+                            <span class="${l.alertOwner ? 'text-red-300 font-bold' : 'text-slate-200'}">
+                                <i class="fa-solid fa-shield-halved text-amber-400 me-1.5"></i>${l.message}
+                            </span>
+                            <span class="text-slate-400 text-[11px] shrink-0">${l.time}</span>
+                        </div>
+                    `).join('') : `<div class="text-xs text-slate-400">${t('guard').noLogs}</div>`)
+                    : '';
 
-                const visitsHtml = visitsLog.length ? visitsLog.slice(0, 15).map(v => `
-                    <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0 text-xs">
-                        <span class="text-slate-200 font-semibold">
-                            <i class="fa-solid ${v.type === 'login' ? 'fa-right-to-bracket text-emerald-400' : 'fa-eye text-sky-400'} me-1.5"></i>
-                            ${v.type === 'login' ? t('visits').login : t('visits').visit}: <b>${v.userName}</b>
-                        </span>
-                        <span class="text-slate-400 text-[11px]">${v.time}</span>
-                    </div>
-                `).join('') : '';
+                const visitsHtml = actorIsOwner
+                    ? (visitsLog.length ? visitsLog.slice(0, 15).map(v => `
+                        <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0 text-xs">
+                            <span class="text-slate-200 font-semibold">
+                                <i class="fa-solid ${v.type === 'login' ? 'fa-right-to-bracket text-emerald-400' : 'fa-eye text-sky-400'} me-1.5"></i>
+                                ${v.type === 'login' ? t('visits').login : t('visits').visit}: <b>${v.userName}</b>
+                            </span>
+                            <span class="text-slate-400 text-[11px]">${v.time}</span>
+                        </div>
+                    `).join('') : '')
+                    : '';
 
                 content.innerHTML = `
                     <div class="space-y-2">${usersHtml}</div>
-                    <div class="bg-red-950/20 border border-red-500/30 rounded-2xl p-4 mt-4 text-start">
-                        <h4 class="text-xs font-extrabold text-red-300 mb-2">${t('guard').title}</h4>
-                        ${secLogsHtml}
-                    </div>
-                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 mt-4 text-start">
-                        <h4 class="text-xs font-extrabold text-sky-400 mb-2">${t('visitsTitle')}</h4>
-                        ${visitsHtml}
-                    </div>
+                    ${actorIsOwner ? `
+                        <div class="bg-red-950/20 border border-red-500/30 rounded-2xl p-4 mt-4 text-start">
+                            <h4 class="text-xs font-extrabold text-red-300 mb-2">${t('guard').title}</h4>
+                            ${secLogsHtml}
+                        </div>
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 mt-4 text-start">
+                            <h4 class="text-xs font-extrabold text-sky-400 mb-2">${t('visitsTitle')}</h4>
+                            ${visitsHtml}
+                        </div>
+                    ` : ''}
                 `;
             } else if (tab === 'orders') {
                 content.innerHTML = orders.length ? orders.map(o => `
