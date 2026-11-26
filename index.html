@@ -306,6 +306,7 @@
                         <select id="new-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
                             <option value="جوالات">جوالات</option>
                             <option value="شواحن وكوابل">شواحن وكوابل</option>
+                            <option value="باور بانك">باور بانك</option>
                             <option value="حمايات شاشات">حمايات شاشات</option>
                             <option value="إكسسوارات">إكسسوارات</option>
                             <option value="إلكترونيات">إلكترونيات</option>
@@ -343,7 +344,7 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل منتج (تدعم اختيار صورة من الجهاز) -->
+    <!-- نافذة تعديل منتج -->
     <div id="edit-product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass-panel border border-amber-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
             <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
@@ -366,6 +367,7 @@
                         <select id="edit-prod-cat" class="w-full bg-black border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
                             <option value="جوالات">جوالات</option>
                             <option value="شواحن وكوابل">شواحن وكوابل</option>
+                            <option value="باور بانك">باور بانك</option>
                             <option value="حمايات شاشات">حمايات شاشات</option>
                             <option value="إكسسوارات">إكسسوارات</option>
                             <option value="إلكترونيات">إلكترونيات</option>
@@ -418,6 +420,7 @@
         const SUPABASE_URL = 'https://sjwqdydypsnjknzmytik.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqd3FkeWR5cHNuamtuem15dGlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjcyMDQsImV4cCI6MjA5NDI0MzIwNH0.ktngHEwxvEZK1Imy17yborSI0leslt-Y4-u-Ih9kMQs';
         const OWNER_ID = 'badr0500125387';
+        const OWNER_EMAIL = 'mddbadr@gmail.com';
         const WHATSAPP_ORDER_NUMBER = '966500125387';
 
         const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
@@ -477,6 +480,7 @@
                     'الكل': 'الكل',
                     'جوالات': 'جوالات',
                     'شواحن وكوابل': 'شواحن وكوابل',
+                    'باور بانك': 'باور بانك',
                     'حمايات شاشات': 'حمايات شاشات',
                     'إكسسوارات': 'إكسسوارات',
                     'إلكترونيات': 'إلكترونيات'
@@ -585,6 +589,7 @@
                     'الكل': 'All',
                     'جوالات': 'Phones',
                     'شواحن وكوابل': 'Chargers & Cables',
+                    'باور بانك': 'Power Banks',
                     'حمايات شاشات': 'Screen Protectors',
                     'إكسسوارات': 'Accessories',
                     'إلكترونيات': 'Electronics'
@@ -710,33 +715,33 @@
         window.addEventListener('resize', resizeCanvas); resizeCanvas(); initParticles(); animate();
 
         const newStoreProducts = [
-            { id: 1700000011, name: "شاحن جداري RAVPOWER PD Pioneer 20W (RP-PC1041)", category: "شواحن وكوابل", price: 29, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري PD قدرة 20 واط بتصميم مدمج وحماية ذكية.", imageUrl: "images/1700000011.jpg" },
-            { id: 1700000012, name: "بكج سيارة RAVPOWER 2 في 1 شاحن 20W PD + كيبل Type-C (RP-VC1018)", category: "شواحن وكوابل", price: 55, icon: "fa-car-battery", in_stock: true, desc: "شاحن سيارة 20 واط مع كيبل USB-C إلى USB-C بطول 1 متر.", imageUrl: "images/1700000012.jpg" },
-            { id: 1700000013, name: "كيبل RAVPOWER Type-C إلى Type-C بطول 1 متر 60W (RP-CB1049)", category: "شواحن وكوابل", price: 45, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ومزامنة PD 60W مقاوم للأوساخ بعمر +20,000 انحناء.", imageUrl: "images/1700000013.jpg" },
-            { id: 1700000014, name: "توصيلة جدارية RAVPOWER 3 منافذ كهرباء + شحن 20W (RP-PC1036)", category: "شواحن وكوابل", price: 59, icon: "fa-plug-circle-bolt", in_stock: true, desc: "توصيلة جدارية بـ 3 مخارج كهرباء ومنافذ شحن سريع 20W.", imageUrl: "images/1700000014.jpg" },
-            { id: 1700000015, name: "كيبل شحن 3 في 1 YESPLUS YS-841 بطول 1200 ملم (6A)", category: "شواحن وكوابل", price: 35, icon: "fa-plug", in_stock: true, desc: "كيبل مضفر 3 في 1 بطول 120 سم يشحن 3 أجهزة حتى 6 أمبير.", imageUrl: "images/1700000015.jpg" },
-            { id: 1700000016, name: "سماعة سلكية DENX DX355 ستيريو", category: "إكسسوارات", price: 25, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية ستيريو ببيس قوي ومريحة للألعاب والاستماع.", imageUrl: "images/1700000016.jpg" },
-            { id: 1700000017, name: "باور بانك ZENDURE S10 بقدرة 20W وسعة 10,000mAh", category: "شواحن وكوابل", price: 125, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000mAh شحن سريع 20W بمنافذ USB-C وUSB-A وهيكل معدني.", imageUrl: "images/1700000017.jpg" },
-            { id: 1700000018, name: "سماعة سلكية GOLDEN plus 700263 بمنفذ USB-C", category: "إكسسوارات", price: 35, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية كلاسيكية Type-C مع تحكم سلكي وصوت واضح.", imageUrl: "images/1700000018.jpg" },
-            { id: 1700000019, name: "سماعة سلكية SPON TYPE-C LINK بمنفذ Type-C (700304)", category: "إكسسوارات", price: 35, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية Type-C بطول 100 سم مع ميكروفون وأزرار تحكم.", imageUrl: "images/1700000019.jpg" },
-            { id: 1700000020, name: "سماعة سلكية X-SMART XS-HF06 بإكسترا بيس", category: "إكسسوارات", price: 25, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية ستيريو بإكسترا بيس وعزل ضوضاء وميكروفون.", imageUrl: "images/1700000020.jpg" },
-            { id: 1700000021, name: "سماعة سلكية X-SMART بمنفذ TYPE-C بجودة صوت HiFi", category: "إكسسوارات", price: 29, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية Type-C بصوت HiFi نقي وميكروفون وتحكم.", imageUrl: "images/1700000021.jpg" },
-            { id: 1700000022, name: "كيبل ZENDURE SuperCord Type-C إلى Type-C بطول 100 سم (ZDASAC2C)", category: "شواحن وكوابل", price: 29, icon: "fa-plug", in_stock: true, desc: "كيبل مضفر متين بطول 1 متر بعمر انحناء يتجاوز 50,000 مرة.", imageUrl: "images/1700000022.jpg" },
-            { id: 1700000023, name: "شاحن لاسلكي مغناطيسي DENX DX1251", category: "شواحن وكوابل", price: 79, icon: "fa-magnet", in_stock: true, desc: "شاحن لاسلكي مغناطيسي سريع Type-C حتى 15 واط.", imageUrl: "images/1700000023.jpg" },
-            { id: 1700000024, name: "بكج شاحن ANKER 20W بمنفذين + كيبل USB-C بطول 1.5 متر", category: "شواحن وكوابل", price: 99, icon: "fa-bolt", in_stock: true, desc: "شاحن ANKER 20W (USB-C وUSB-A) مع كيبل USB-C بطول 1.5 متر.", imageUrl: "images/1700000024.jpg" },
-            { id: 1700000025, name: "كيبل ANKER PowerLine+ Micro USB بطول 1.8 متر مع جراب", category: "شواحن وكوابل", price: 49, icon: "fa-plug", in_stock: true, desc: "كيبل Micro USB مجدول نايلون بطول 1.8 متر مع جراب حماية.", imageUrl: "images/1700000025.jpg" },
-            { id: 1700000026, name: "باور بانك YESPLUS YS-923 بقدرة 22.5W وسعة 10,000mAh", category: "شواحن وكوابل", price: 89, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000mAh شحن سريع PD 22.5W مع كيابل مدمجة.", imageUrl: "images/1700000026.jpg" },
-            { id: 1700000027, name: "باور بانك YESPLUS 22.5W بسعة 10,000mAh بشاشة وكيابل مدمجة", category: "شواحن وكوابل", price: 95, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000mAh قدرة 22.5W بشاشة رقمية وكيابل مدمجة.", imageUrl: "images/1700000027.jpg" },
-            { id: 1700000028, name: "كيبل ANKER USB-C إلى USB-C مضفر 3 قدم 60W", category: "شواحن وكوابل", price: 49, icon: "fa-plug", in_stock: true, desc: "كيبل شحن سريع PD 60W مضفر يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000028.jpg" },
-            { id: 1700000029, name: "كيبل ANKER USB-C إلى Lightning مضفر 3 قدم MFi", category: "شواحن وكوابل", price: 59, icon: "fa-plug", in_stock: true, desc: "كيبل شحن سريع مضفر لآبل معتمد MFi يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000029.jpg" },
-            { id: 1700000030, name: "شاحن جداري ANKER سريع 20W PD", category: "شواحن وكوابل", price: 49, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري مدمج بقدرة قصوى 20 واط وتوافق واسع.", imageUrl: "images/1700000030.jpg" },
-            { id: 1700000031, name: "كيبل ANKER USB-A إلى Lightning بطول 3 قدم", category: "شواحن وكوابل", price: 45, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ومزامنة متين لآبل يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000031.jpg" },
-            { id: 1700000032, name: "كيبل ANKER USB-A إلى USB-C مضفر بطول 3 قدم", category: "شواحن وكوابل", price: 39, icon: "fa-plug", in_stock: true, desc: "كيبل شحن عالي السرعة مضفر يتحمل حتى 12,000 انحناء.", imageUrl: "images/1700000032.jpg" },
-            { id: 1700000033, name: "بكج شاحن SPON GaN 22.5W بمنفذين + كيبل مضفر 1 متر (400279)", category: "شواحن وكوابل", price: 69, icon: "fa-bolt", in_stock: true, desc: "شاحن GaN سريع 22.5W بمنفذين مع كيبل مضفر 1000 ملم.", imageUrl: "images/1700000033.jpg" },
-            { id: 1700000034, name: "سماعة لاسلكية JOYROOM JR-T03S", category: "إكسسوارات", price: 55, icon: "fa-headphones", in_stock: true, desc: "سماعة لاسلكية بتحكم لمس وتقليل ضوضاء واستشعار أذن.", imageUrl: "images/1700000034.jpg" },
-            { id: 1700000035, name: "ساعة ذكية JOYROOM Fit-life JR-FT3S", category: "إكسسوارات", price: 105, icon: "fa-clock", in_stock: true, desc: "ساعة ذكية بشاشة HD 1.96 إنش وبطارية حتى 10 أيام ومقاومة 1ATM.", imageUrl: "images/1700000035.jpg" },
-            { id: 1700000036, name: "جهاز Xiaomi TV Box S الجيل الثالث 4K Ultra-HD", category: "إلكترونيات", price: 319, icon: "fa-tv", in_stock: true, desc: "جهاز بث تلفزيوني 4K Ultra-HD بنظام Google TV وGoogle Cast.", imageUrl: "images/1700000036.jpg" },
-            { id: 1700000037, name: "عصا بث Xiaomi Mi TV Stick FHD", category: "إلكترونيات", price: 229, icon: "fa-tv", in_stock: true, desc: "جهاز بث تلفزيوني محمول FHD بنظام Android TV وريموت تحكم.", imageUrl: "images/1700000037.jpg" }
+            { id: 1700000011, name: "شاحن جداري RAVPOWER PD Pioneer 20W (RP-PC1041)", category: "شواحن وكوابل", price: 29, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري سريع بقدرة 20 واط مناسب للجوالات والأجهزة اللوحية اليومية.", imageUrl: "images/1700000011.jpg" },
+            { id: 1700000012, name: "بكج سيارة RAVPOWER 2 في 1 شاحن 20W PD + كيبل Type-C (RP-VC1018)", category: "شواحن وكوابل", price: 55, icon: "fa-car-battery", in_stock: true, desc: "شاحن سيارة سريع 20 واط مرفق معه كيبل شحن ومزامنة Type-C بطول 1 متر.", imageUrl: "images/1700000012.jpg" },
+            { id: 1700000013, name: "كيبل RAVPOWER Type-C إلى Type-C بطول 1 متر 60W (RP-CB1049)", category: "شواحن وكوابل", price: 45, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ونقل بيانات يدعم قدرة حتى 60 واط بطول متر واحد.", imageUrl: "images/1700000013.jpg" },
+            { id: 1700000014, name: "توصيلة جدارية RAVPOWER 3 منافذ كهرباء + شحن 20W (RP-PC1036)", category: "شواحن وكوابل", price: 59, icon: "fa-plug-circle-bolt", in_stock: true, desc: "توصيلة كهربائية جدارية توفر منافذ فيش متعددة مع منافذ شحن سريع 20 واط.", imageUrl: "images/1700000014.jpg" },
+            { id: 1700000015, name: "كيبل شحن 3 في 1 YESPLUS YS-841 بطول 1200 ملم (6A)", category: "شواحن وكوابل", price: 35, icon: "fa-plug", in_stock: true, desc: "كيبل متعدد الأطراف لشحن أكثر من جهاز بطول 1.2 متر وتيار حتى 6 أمبير.", imageUrl: "images/1700000015.jpg" },
+            { id: 1700000016, name: "سماعة سلكية DENX DX355 ستيريو", category: "إكسسوارات", price: 25, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية عملية بصوت واضح ومناسبة للمكالمات والاستماع اليومي.", imageUrl: "images/1700000016.jpg" },
+            { id: 1700000017, name: "باور بانك ZENDURE S10 بقدرة 20W وسعة 10,000mAh", category: "باور بانك", price: 125, icon: "fa-battery-full", in_stock: true, desc: "بطارية متنقلة بسعة 10,000 ملي أمبير تدعم الشحن السريع حتى 20 واط.", imageUrl: "images/1700000017.jpg" },
+            { id: 1700000018, name: "سماعة سلكية GOLDEN plus 700263 بمنفذ USB-C", category: "إكسسوارات", price: 35, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن سلكية بمنفذ Type-C مناسبة للأجهزة الحديثة بدون مدخل سماعة دائري.", imageUrl: "images/1700000018.jpg" },
+            { id: 1700000019, name: "سماعة سلكية SPON TYPE-C LINK بمنفذ Type-C (700304)", category: "إكسسوارات", price: 35, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية بمنفذ Type-C بطول مناسب للاستخدام اليومي والمكالمات.", imageUrl: "images/1700000019.jpg" },
+            { id: 1700000020, name: "سماعة سلكية X-SMART XS-HF06 بإكسترا بيس", category: "إكسسوارات", price: 25, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية تركيزها على وضوح الصوت وقوة البيس للاستماع والمقاطع.", imageUrl: "images/1700000020.jpg" },
+            { id: 1700000021, name: "سماعة سلكية X-SMART بمنفذ TYPE-C بجودة صوت HiFi", category: "إكسسوارات", price: 29, icon: "fa-headphones", in_stock: true, desc: "سماعة سلكية بمنفذ Type-C بصوت نقي وميكروفون مدمج للمكالمات.", imageUrl: "images/1700000021.jpg" },
+            { id: 1700000022, name: "كيبل ZENDURE SuperCord Type-C إلى Type-C بطول 100 سم (ZDASAC2C)", category: "شواحن وكوابل", price: 29, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ومزامنة Type-C إلى Type-C بطول 100 سم بتصميم متين للتحمل اليومي.", imageUrl: "images/1700000022.jpg" },
+            { id: 1700000023, name: "شاحن لاسلكي مغناطيسي DENX DX1251", category: "شواحن وكوابل", price: 79, icon: "fa-magnet", in_stock: true, desc: "شاحن لاسلكي مغناطيسي يثبت على ظهر الجوال الداعم للشحن المغناطيسي.", imageUrl: "images/1700000023.jpg" },
+            { id: 1700000024, name: "بكج شاحن ANKER 20W بمنفذين + كيبل USB-C بطول 1.5 متر", category: "شواحن وكوابل", price: 99, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري ANKER قدرة 20 واط مع كيبل USB-C بطول 1.5 متر للشحن المريح.", imageUrl: "images/1700000024.jpg" },
+            { id: 1700000025, name: "كيبل ANKER PowerLine+ Micro USB بطول 1.8 متر مع جراب", category: "شواحن وكوابل", price: 49, icon: "fa-plug", in_stock: true, desc: "كيبل Micro USB طويل بطول 1.8 متر مع جراب لحفظه وتنظيمه أثناء التنقل.", imageUrl: "images/1700000025.jpg" },
+            { id: 1700000026, name: "باور بانك YESPLUS YS-923 بقدرة 22.5W وسعة 10,000mAh", category: "باور بانك", price: 89, icon: "fa-battery-full", in_stock: true, desc: "باور بانك بسعة 10,000 ملي أمبير وقدرة شحن سريع تصل إلى 22.5 واط.", imageUrl: "images/1700000026.jpg" },
+            { id: 1700000027, name: "باور بانك YESPLUS 22.5W بسعة 10,000mAh بشاشة وكيابل مدمجة", category: "باور بانك", price: 95, icon: "fa-battery-full", in_stock: true, desc: "باور بانك 10,000 ملي أمبير قدرة 22.5 واط مزود بشاشة عرض للبطارية وكيابل مدمجة.", imageUrl: "images/1700000027.jpg" },
+            { id: 1700000028, name: "كيبل ANKER USB-C إلى USB-C مضفر 3 قدم 60W", category: "شواحن وكوابل", price: 49, icon: "fa-plug", in_stock: true, desc: "كيبل شحن سريع USB-C إلى USB-C بطول 3 قدم (حوالي 0.9 متر) بقدرة 60 واط.", imageUrl: "images/1700000028.jpg" },
+            { id: 1700000029, name: "كيبل ANKER USB-C إلى Lightning مضفر 3 قدم MFi", category: "شواحن وكوابل", price: 59, icon: "fa-plug", in_stock: true, desc: "كيبل شحن سريع معتمد MFi لأجهزة آيفون بمنفذ Lightning بطول 3 قدم.", imageUrl: "images/1700000029.jpg" },
+            { id: 1700000030, name: "شاحن جداري ANKER سريع 20W PD", category: "شواحن وكوابل", price: 49, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري صغير الحجم بقدرة 20 واط مناسب للشحن السريع اليومي.", imageUrl: "images/1700000030.jpg" },
+            { id: 1700000031, name: "كيبل ANKER USB-A إلى Lightning بطول 3 قدم", category: "شواحن وكوابل", price: 45, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ومزامنة لأجهزة آيفون بمنفذ Lightning بطول 3 قدم.", imageUrl: "images/1700000031.jpg" },
+            { id: 1700000032, name: "كيبل ANKER USB-A إلى USB-C مضفر بطول 3 قدم", category: "شواحن وكوابل", price: 39, icon: "fa-plug", in_stock: true, desc: "كيبل شحن ونقل بيانات USB-A إلى USB-C بتصميم مضفر بطول 3 قدم.", imageUrl: "images/1700000032.jpg" },
+            { id: 1700000033, name: "بكج شاحن SPON GaN 22.5W بمنفذين + كيبل مضفر 1 متر (400279)", category: "شواحن وكوابل", price: 69, icon: "fa-bolt", in_stock: true, desc: "شاحن جداري بمنفذين وقدرة 22.5 واط مع كيبل مضفر بطول 1 متر.", imageUrl: "images/1700000033.jpg" },
+            { id: 1700000034, name: "سماعة لاسلكية JOYROOM JR-T03S", category: "إكسسوارات", price: 55, icon: "fa-headphones", in_stock: true, desc: "سماعة أذن لاسلكية مع علبة شحن مناسبة للمكالمات والتنقل اليومي.", imageUrl: "images/1700000034.jpg" },
+            { id: 1700000035, name: "ساعة ذكية JOYROOM Fit-life JR-FT3S", category: "إكسسوارات", price: 105, icon: "fa-clock", in_stock: true, desc: "ساعة ذكية لمتابعة النشاط اليومي والإشعارات مع بطارية تدوم لعدة أيام.", imageUrl: "images/1700000035.jpg" },
+            { id: 1700000036, name: "جهاز Xiaomi TV Box S الجيل الثالث 4K Ultra-HD", category: "إلكترونيات", price: 319, icon: "fa-tv", in_stock: true, desc: "جهاز بث تلفزيوني ذكي يدعم دقة 4K لتشغيل التطبيقات والمنصات على الشاشة.", imageUrl: "images/1700000036.jpg" },
+            { id: 1700000037, name: "عصا بث Xiaomi Mi TV Stick FHD", category: "إلكترونيات", price: 229, icon: "fa-tv", in_stock: true, desc: "قطعة بث صغيرة توصل بمنفذ HDMI لتشغيل التطبيقات الذكية بدقة FHD.", imageUrl: "images/1700000037.jpg" }
         ];
 
         const defaultProducts = [
@@ -745,6 +750,8 @@
             { id: 3, name: "حماية شاشة نانو سيراميك مقاومة للصدمات", category: "حمايات شاشات", price: 79, icon: "fa-shield-halved", in_stock: true, desc: "حماية كاملة للشاشة بوضوح عالٍ.", imageUrl: "" }
         ];
 
+        const powerBankIds = new Set([1700000017, 1700000026, 1700000027]);
+
         let products = JSON.parse(localStorage.getItem('rkaz_products') || 'null');
         const hasNewProducts = Array.isArray(products) && products.some(p => p.id === 1700000011);
 
@@ -752,16 +759,20 @@
             const existingMap = new Map((Array.isArray(products) ? products : []).map(p => [p.id, p]));
             const merged = [...newStoreProducts, ...defaultProducts].map(item => {
                 const prev = existingMap.get(item.id);
-                return prev ? { ...item, ...prev, imageUrl: prev.imageUrl || item.imageUrl } : item;
+                const resolvedCat = powerBankIds.has(item.id) ? 'باور بانك' : (prev?.category || item.category);
+                return prev ? { ...item, ...prev, category: resolvedCat, desc: item.desc, imageUrl: prev.imageUrl || item.imageUrl } : item;
             });
             products = merged;
             localStorage.setItem('rkaz_products', JSON.stringify(products));
         } else {
+            const newDescMap = new Map(newStoreProducts.map(item => [item.id, item.desc]));
             products = products.map(p => ({
                 ...p,
+                category: powerBankIds.has(p.id) ? 'باور بانك' : p.category,
                 in_stock: p.in_stock !== undefined ? Boolean(p.in_stock) : (p.inStock !== undefined ? Boolean(p.inStock) : true),
-                desc: p.desc || p.description || ''
+                desc: newDescMap.has(p.id) ? newDescMap.get(p.id) : (p.desc || p.description || '')
             }));
+            localStorage.setItem('rkaz_products', JSON.stringify(products));
         }
 
         let cart = JSON.parse(localStorage.getItem('rkaz_cart') || '[]');
@@ -796,7 +807,14 @@
             localStorage.setItem('rkaz_social_links', JSON.stringify(socialLinks));
         }
 
-        function isOwner() { return Boolean(currentUser && (currentUser.id === OWNER_ID || (currentUser.email && currentUser.email.toLowerCase() === 'mddbadr@gmail.com'))); }
+        function isOwner() {
+            return Boolean(
+                currentUser && (
+                    currentUser.id === OWNER_ID ||
+                    (currentUser.email && currentUser.email.toLowerCase() === OWNER_EMAIL.toLowerCase())
+                )
+            );
+        }
         function getUserRole() { return isOwner() ? 'owner' : 'user'; }
         function isStaff() { return isOwner(); }
         function getRoleBadgeText(role) { return t('roles')[role] || t('roles').user; }
@@ -1083,12 +1101,13 @@
         }
 
         function upsertLocalUser(userObj) {
+            const isOwnerAccount = userObj.id === OWNER_ID || (userObj.email && userObj.email.toLowerCase() === OWNER_EMAIL.toLowerCase());
             const idx = users.findIndex(u => (userObj.email && u.email === userObj.email) || u.id === userObj.id);
             const record = {
                 id: userObj.id,
                 name: userObj.name,
                 email: userObj.email || '',
-                role: userObj.id === OWNER_ID ? 'owner' : 'user',
+                role: isOwnerAccount ? 'owner' : 'user',
                 lastLogin: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US')
             };
             if (idx >= 0) users[idx] = { ...users[idx], ...record };
@@ -1130,11 +1149,12 @@
                         return;
                     }
                     const supaUser = data?.user;
+                    const isOwnerAccount = email.toLowerCase() === OWNER_EMAIL.toLowerCase();
                     const localUser = {
-                        id: supaUser?.id || ('u_' + Date.now()),
-                        name: displayName,
+                        id: isOwnerAccount ? OWNER_ID : (supaUser?.id || ('u_' + Date.now())),
+                        name: isOwnerAccount ? (fullNameInput || 'أبو ساره') : displayName,
                         email: email,
-                        role: 'user'
+                        role: isOwnerAccount ? 'owner' : 'user'
                     };
                     upsertLocalUser(localUser);
                     if (data?.session && supaUser) {
@@ -1161,12 +1181,14 @@
                 }
 
                 const supaUser = data.user;
-                const resolvedName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || email.split('@')[0];
+                const resolvedEmail = supaUser.email || email;
+                const isOwnerAccount = resolvedEmail.toLowerCase() === OWNER_EMAIL.toLowerCase() || supaUser.id === OWNER_ID;
+                const resolvedName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || (isOwnerAccount ? 'أبو ساره' : resolvedEmail.split('@')[0]);
                 currentUser = {
-                    id: supaUser.id,
+                    id: isOwnerAccount ? OWNER_ID : supaUser.id,
                     name: resolvedName,
-                    email: supaUser.email || email,
-                    role: supaUser.id === OWNER_ID ? 'owner' : 'user'
+                    email: resolvedEmail,
+                    role: isOwnerAccount ? 'owner' : 'user'
                 };
                 localStorage.setItem('rkaz_user', JSON.stringify(currentUser));
                 upsertLocalUser(currentUser);
@@ -1192,7 +1214,7 @@
         }
 
         function renderCategories() {
-            const cats = ['الكل', 'جوالات', 'شواحن وكوابل', 'حمايات شاشات', 'إكسسوارات', 'إلكترونيات'];
+            const cats = ['الكل', 'جوالات', 'شواحن وكوابل', 'باور بانك', 'حمايات شاشات', 'إكسسوارات', 'إلكترونيات'];
             const catMap = t('categories');
             document.getElementById('category-tabs').innerHTML = cats.map(c => {
                 const active = activeCategory === c;
@@ -1393,7 +1415,7 @@
             const imageUrl = document.getElementById('new-prod-image').value.trim();
             const desc = document.getElementById('new-prod-desc').value.trim();
             if (!name || isNaN(price) || price <= 0) return;
-            const iconMap = { 'جوالات': 'fa-mobile-screen-button', 'شواحن وكوابل': 'fa-bolt', 'حمايات شاشات': 'fa-shield-halved', 'إكسسوارات': 'fa-headphones', 'إلكترونيات': 'fa-tv' };
+            const iconMap = { 'جوالات': 'fa-mobile-screen-button', 'شواحن وكوابل': 'fa-bolt', 'باور بانك': 'fa-battery-full', 'حمايات شاشات': 'fa-shield-halved', 'إكسسوارات': 'fa-headphones', 'إلكترونيات': 'fa-tv' };
             products.unshift({ id: Date.now(), name, category, price, icon: iconMap[category] || 'fa-box', in_stock: true, desc, imageUrl });
             localStorage.setItem('rkaz_products', JSON.stringify(products));
             e.target.reset();
@@ -2000,12 +2022,14 @@
                 const { data } = await supabaseClient.auth.getSession();
                 const supaUser = data?.session?.user;
                 if (supaUser) {
-                    const resolvedName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || (supaUser.email ? supaUser.email.split('@')[0] : t('guest'));
+                    const resolvedEmail = supaUser.email || '';
+                    const isOwnerAccount = resolvedEmail.toLowerCase() === OWNER_EMAIL.toLowerCase() || supaUser.id === OWNER_ID;
+                    const resolvedName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || (isOwnerAccount ? 'أبو ساره' : (resolvedEmail ? resolvedEmail.split('@')[0] : t('guest')));
                     currentUser = {
-                        id: supaUser.id,
+                        id: isOwnerAccount ? OWNER_ID : supaUser.id,
                         name: resolvedName,
-                        email: supaUser.email || '',
-                        role: supaUser.id === OWNER_ID ? 'owner' : 'user'
+                        email: resolvedEmail,
+                        role: isOwnerAccount ? 'owner' : 'user'
                     };
                     localStorage.setItem('rkaz_user', JSON.stringify(currentUser));
                     upsertLocalUser(currentUser);
